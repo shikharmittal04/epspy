@@ -60,7 +60,7 @@ They will be probably enter at the starting of the pipeline.
 '''
 path='/user1/shikhar/point_sources/'		#Path where you would like to save and load from, the Tb's and beta's.
 k=7			#Number of pixels in units of log_2(Npix).
-nu=50e6		#frequency (in Hz) at which you want to compute the brightness temperature map
+nu=150e6		#frequency (in Hz) at which you want to compute the brightness temperature map
 #-------------------------------------------------------------------------------------
 
 Tb_o_save_name = path+'Tb_o.npy'
@@ -80,6 +80,7 @@ if os.path.isfile(Tb_o_save_name) and os.path.isfile(beta_save_name):
 	N_nu = np.size(nu)
 	Tb_nu_save_name = path+'Tb_nu.npy'
 	if N_nu==1:
+		#If there is only one frequency ay which you want to calculate Tb... 
 		print('Now computing the Tb at frequency {:.2f} MHz ...'.format(nu/1e6))
 		Tb_nu_final = np.zeros(Npix)
 		for j in range(Npix):
@@ -98,6 +99,7 @@ if os.path.isfile(Tb_o_save_name) and os.path.isfile(beta_save_name):
 		print('\nTb map saved as',fig_path)
 
 	else:
+		#If you want to compute Tb at ultiple frequencies ...
 		print('Now computing the Tb at multiple frequencies ...')
 		Tb_nu_final = np.zeros((N_nu,Npix))	
 		for i in range(N_nu):
@@ -166,8 +168,8 @@ else:
 	'''
 	Tb_o is an array of arrays of unequal lengths, i.e.,
 	all of Tb_o[0], Tb_o[1], ..., Tb_o[Npix] are arrays of different lengths.
-	The length of each Tb_o[j] tells us the number of sources, say N_j, on the jth pixel and
-	Tb_o[j][0], Tb_o[j][1], ..., Tb_o[j][N_j] are the temperatures (at ref. frequency) due to 0th, 1st, ... and (N_j)th source on the jth pixel.
+	The length of Tb_o[j] tells us the number of sources, say N_j, on the jth pixel and
+	Tb_o[j][0], Tb_o[j][1], ..., Tb_o[j][N_j] are the temperatures (at ref. frequency) due to 0th, 1st,...(N_j)th source on the jth pixel.
 	'''	
 	Tb_o = np.zeros(Npix, dtype=object)
 	beta = np.zeros(Npix, dtype=object)
