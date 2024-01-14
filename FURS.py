@@ -71,7 +71,7 @@ Npix = hp.nside2npix(Nside)
 
 if os.path.isfile(Tb_o_save_name) and os.path.isfile(beta_save_name):
 	'''
-	If the brightness temperatures were computed already try, load them for a faster computation.  
+	The brightness temperatures were computed already, load them for a faster computation.  
 	'''
 	print("Loading pre-computed Tb_o's and beta's ...\n")
 	Tb_o = np.load(Tb_o_save_name)
@@ -85,11 +85,10 @@ else:
 	'''
 	Code is being run for the first time. So we will save the brightness temperature contributed by each source.
 	'''
-	print("Computing Tb_o's and beta's ...\n")
 	comm = MPI.COMM_WORLD
 	cpu_ind = comm.Get_rank()
 	Ncpu = comm.Get_size()
-
+	
 	if(Ncpu==1):
 		print('Error: you are generating brightness temperatures for the first time.')
 		print("Run this code as, say, 'mpirun -n 4 python3 %s', where 4 specifies the number of CPUs." %(sys.argv[0]))
@@ -97,24 +96,25 @@ else:
 
 	#-------------------------------------------------------------------------------------
 	#Find the number density distribution on the master CPU and share it with all CPUs.
+
+	low, upp = -2, 0	
+	S_space = np.logspace(low,upp,1000)
+	dndS_space = dndS(S_space)
+	Ns_per_sr = np.trapz(dndS_space,S_space)
+	Ns = 4*np.pi*Ns_per_sr
+	Omega_pix = hp.nside2pixarea(Nside) #Solid angle per pixel
+	nbar = Ns/Npix
+
+
 	if cpu_ind==0:
 		'''
 		Find the number density distribution on the master CPU.
 		'''
-		low, upp = 0, 1
-		S_space = np.logspace(low,upp,1000)
-		dndS_space = dndS(S_space)
-
-		Ns_per_sr = np.trapz(dndS_space,S_space)
-		Ns = 4*np.pi*Ns_per_sr
-		print('Total number of sources = {:.2f}'.format(Ns))
-
+		print('\nTotal number of sources = {:d}'.format(int(Ns)))
 		print('Total number of pixels, Npix =',Npix)
-		Omega_pix = hp.nside2pixarea(Nside) #Solid angle per pixel
-		nbar = Ns/Npix
-		print('Number of sources per pixel =',nbar)
+		print('Average number of sources per pixel = {:.2f}'.format(nbar))
 
-
+		print('\nNow finding the clustered number density distribution ...')
 		#corrtocl requires us to sample the angle at some specific points. Obtained by 'tcl.theta'
 		th = tcl.theta(1000)
 		cor = C(th)
@@ -125,8 +125,13 @@ else:
 
 		#and the corresponding number density given the fluctuation...
 		n_clus = nbar*(1+del_clus)
+		print('Done.\nAverage overdensity for the clustered sky (should be close to 0) =',np.mean(del_clus),'\n')
 
-		print('\nAverage overdensity for the clustered sky (should be close to 0) =',np.mean(del_clus),'\n')
+		n_clus_save_name = path+'n_clus.npy'
+		np.save(n_clus_save_name,n_clus)
+		print('The clustered number density has been saved into file:',n_clus_save_name)
+
+		print("\nNow computing Tb_o's and beta's ...")
 	else:
 		n_clus = None
 
@@ -141,9 +146,9 @@ else:
 	Tb_o = np.zeros(Npix, dtype=object)
 	beta = np.zeros(Npix, dtype=object)
 	for j in range(Npix):
-		if (cpu_ind == int(i/int(Npix/Ncpu))%Ncpu):
+		if (cpu_ind == int(j/int(Npix/Ncpu))%Ncpu):
 			N = int(n_clus[j])	#no.of sources on jth pixel
-			So_j = random.choices(S_space,weights=dndS_space/Ns_per_sr,k=N)	#select N flux densities for jth pixel
+			So_j = np.array(random.choices(S_space,weights=dndS_space/Ns_per_sr,k=N))	#select N flux densities for jth pixel
 			beta_j = np.random.normal(loc=beta_o,scale=sigma,size=N)		#select N spectral indices for jth pixel
 			
 			Tb_o_j = 1e-26*So_j*cE**2/(2*kB*nu_o**2*Omega_pix)
@@ -161,17 +166,17 @@ else:
 		I am the master CPU. Receiving all Tb's and beta's.
 		I will save the Tb's and beta's as numpy arrays (in format '.npy').
 		'''
-		print('Done.')
+		print('Done.\n')
 		for i in range(1,Ncpu):
 			Tb_o = Tb_o + comm.recv(source=i, tag=13)
 			beta = beta + comm.recv(source=i, tag=29)
 			
 		
-		Tb_o_save_name = path+'Tb_o'+'.npy'
-		beta_save_name = path+'beta'+'.npy'
+		Tb_o_save_name = path+'Tb_o.npy'
+		beta_save_name = path+'beta.npy'
 		np.save(Tb_o_save_name,Tb_o)
 		np.save(beta_save_name,beta)
-		print('Your brightness temperatures have been saved into file:',Tb_o_save_name)
-		print('Your spectral indices have been saved into file:',beta_save_name)
+		print('The brightness temperatures have been saved into file:',Tb_o_save_name)
+		print('The spectral indices have been saved into file:',beta_save_name)
 
 
