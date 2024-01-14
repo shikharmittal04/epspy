@@ -58,7 +58,7 @@ sigma = 0.5		#Spread in the alpha values
 The following 3 numbers are required from the user.
 They will be probably enter at the starting of the pipeline.
 '''
-path='~/point_sources/'		#Path where you would like to save and load from, the Tb's and beta's.
+path='/user1/shikhar/point_sources/'		#Path where you would like to save and load from, the Tb's and beta's.
 k=7			#Number of pixels in units of log_2(Npix).
 nu=50e6		#frequency (in Hz) at which you want to compute the brightness temperature map
 #-------------------------------------------------------------------------------------
@@ -74,8 +74,8 @@ if os.path.isfile(Tb_o_save_name) and os.path.isfile(beta_save_name):
 	The brightness temperatures were computed already, load them for a faster computation.  
 	'''
 	print("Loading pre-computed Tb_o's and beta's ...\n")
-	Tb_o = np.load(Tb_o_save_name)
-	beta = np.load(beta_save_name)
+	Tb_o = np.load(Tb_o_save_name,allow_pickle=True)
+	beta = np.load(beta_save_name,allow_pickle=True)
 	
 	N_nu = np.size(nu)
 	Tb_nu_save_name = path+'Tb_nu.npy'
@@ -105,7 +105,7 @@ if os.path.isfile(Tb_o_save_name) and os.path.isfile(beta_save_name):
 				Tb_nu_final[i,j] = Tb_nu(Tb_o[j],beta[j],nu[i])
 		
 		np.save(Tb_nu_save_name,Tb_nu_final)
-        print('Done.\n File saved as',Tb_nu_save_name)
+		print('Done.\n File saved as',Tb_nu_save_name)
 		print('It is an array of shape',np.shape(Tb_nu_final))
 else:
 	'''
