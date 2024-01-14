@@ -58,13 +58,13 @@ sigma = 0.5		#Spread in the alpha values
 The following 3 numbers are required from the user.
 They will be probably enter at the starting of the pipeline.
 '''
-path=''		#Path where you would like to save and load from, the Tb's and beta's.
+path='~/point_sources/'		#Path where you would like to save and load from, the Tb's and beta's.
 k=7			#Number of pixels in units of log_2(Npix).
 nu=50e6		#frequency (in Hz) at which you want to compute the brightness temperature map
 #-------------------------------------------------------------------------------------
 
-Tb_o_save_name = path+'Tb_o'+'.npy'
-beta_save_name = path+'beta'+'.npy'
+Tb_o_save_name = path+'Tb_o.npy'
+beta_save_name = path+'beta.npy'
 
 Nside=2**k
 Npix = hp.nside2npix(Nside)
@@ -76,11 +76,34 @@ if os.path.isfile(Tb_o_save_name) and os.path.isfile(beta_save_name):
 	print("Loading pre-computed Tb_o's and beta's ...\n")
 	Tb_o = np.load(Tb_o_save_name)
 	beta = np.load(beta_save_name)
-
-	Tb_nu_final = np.zeros(Npix)	
-	for j in range(Npix):
-		Tb_nu_final[j] = Tb_nu(Tb_o[j],beta[j],nu)
-
+	
+	N_nu = np.size(nu)
+	Tb_nu_save_name = path+'Tb_nu.npy'
+	if N_nu==1:
+		print('Now computing the Tb at frequency {:.2f} MHz ...'.format(nu/1e6))
+		Tb_nu_final = np.zeros(Npix)
+		for j in range(Npix):
+			Tb_nu_final[j] = Tb_nu(Tb_o[j],beta[j],nu)
+		
+		np.save(Tb_nu_save_name,Tb_nu_final)
+		print('Done.\n File saved as',Tb_nu_save_name)
+		plt.rc('text', usetex=True)
+		plt.rc('font', family='serif')
+		hp.mollview(Tb_nu_final,title=None,unit=r'$T_{\mathrm{b}}(\nu)\,$(K)',cmap=colormaps['coolwarm'],min=0.1,max=300,norm='log')
+		hp.graticule()
+		fig_path = path+'Tb_nu.pdf'
+		plt.savefig(fig_path, bbox_inches='tight')
+		print('\nTb map saved as',fig_path)
+	else:
+		print('Now computing the Tb at multiple frequencies ...')
+		Tb_nu_final = np.zeros((N_nu,Npix))	
+		for i in range(N_nu):
+			for j in range(Npix):
+				Tb_nu_final[i,j] = Tb_nu(Tb_o[j],beta[j],nu[i])
+		
+		np.save(Tb_nu_save_name,Tb_nu_final)
+        print('Done.\n File saved as',Tb_nu_save_name)
+		print('It is an array of shape',np.shape(Tb_nu_final))
 else:
 	'''
 	Code is being run for the first time. So we will save the brightness temperature contributed by each source.
