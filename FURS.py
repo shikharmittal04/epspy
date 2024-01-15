@@ -80,7 +80,7 @@ if os.path.isfile(Tb_o_save_name) and os.path.isfile(beta_save_name):
 	N_nu = np.size(nu)
 	Tb_nu_save_name = path+'Tb_nu.npy'
 	if N_nu==1:
-		#If there is only one frequency ay which you want to calculate Tb... 
+		#If there is only one frequency at which you want to calculate Tb... 
 		print('Now computing the Tb at frequency {:.2f} MHz ...'.format(nu/1e6))
 		Tb_nu_final = np.zeros(Npix)
 		for j in range(Npix):
@@ -99,7 +99,7 @@ if os.path.isfile(Tb_o_save_name) and os.path.isfile(beta_save_name):
 		print('\nTb map saved as',fig_path)
 
 	else:
-		#If you want to compute Tb at ultiple frequencies ...
+		#If you want to compute Tb at multiple frequencies ...
 		print('Now computing the Tb at multiple frequencies ...')
 		Tb_nu_final = np.zeros((N_nu,Npix))	
 		for i in range(N_nu):
@@ -125,7 +125,7 @@ else:
 	#-------------------------------------------------------------------------------------
 	#Find the number density distribution on the master CPU and share it with all CPUs.
 
-	low, upp = -2, 0	
+	low, upp = -6, -1	
 	S_space = np.logspace(low,upp,1000)
 	dndS_space = dndS(S_space)
 	Ns_per_sr = np.trapz(dndS_space,S_space)
