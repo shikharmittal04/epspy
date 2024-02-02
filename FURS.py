@@ -58,7 +58,7 @@ sigma = 0.5		#Spread in the alpha values
 The following 3 numbers are required from the user.
 They will be probably enter at the starting of the pipeline.
 '''
-path='/user1/shikhar/point_sources/'		#Path where you would like to save and load from, the Tb's and beta's.
+path='/shikhar/point_sources/'		#Path where you would like to save and load from, the Tb's and beta's.
 k=7			#Number of pixels in units of log_2(Npix).
 nu=150e6		#frequency (in Hz) at which you want to compute the brightness temperature map
 #-------------------------------------------------------------------------------------
