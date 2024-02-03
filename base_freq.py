@@ -53,9 +53,6 @@ k=7			#Number of pixels in units of log_2(Npix).
 nu=150e6		#frequency (in Hz) at which you want to compute the brightness temperature map
 #-------------------------------------------------------------------------------------
 
-Tb_o_save_name = path+'Tb_o.npy'
-beta_save_name = path+'beta.npy'
-
 Nside=2**k
 Npix = hp.nside2npix(Nside)
 
@@ -121,22 +118,23 @@ all of Tb_o[0], Tb_o[1], ..., Tb_o[Npix] are arrays of different lengths.
 The length of Tb_o[j] tells us the number of sources, say N_j, on the jth pixel and
 Tb_o[j][0], Tb_o[j][1], ..., Tb_o[j][N_j] are the temperatures (at ref. frequency) due to 0th, 1st,...(N_j)th source on the jth pixel.
 '''	
-Tb_o = np.zeros(Npix, dtype=object)
+Tb_o_individual = np.zeros(Npix, dtype=object)
+Tb_o = np.zeros(Npix)
 beta = np.zeros(Npix, dtype=object)
 for j in range(Npix):
 	if (cpu_ind == int(j/int(Npix/Ncpu))%Ncpu):
 		N = int(n_clus[j])	#no.of sources on jth pixel
 		So_j = np.array(random.choices(S_space,weights=dndS_space/Ns_per_sr,k=N))	#select N flux densities for jth pixel
-		beta_j = np.random.normal(loc=beta_o,scale=sigma,size=N)		#select N spectral indices for jth pixel
+		beta[j] = = np.random.normal(loc=beta_o,scale=sigma,size=N)		#select N spectral indices for jth pixel
 		
-		Tb_o_j = 1e-26*So_j*cE**2/(2*kB*nu_o**2*Omega_pix)
-		Tb_o[j] = Tb_o_j
-		beta[j] = beta_j
+		Tb_o_individual[j] = 1e-26*So_j*cE**2/(2*kB*nu_o**2*Omega_pix)
+		Tb_o[j]=np.sum(Tb_o_individual[j])
 	
 if cpu_ind!=0:
 	'''
 	I am a worker CPU. Sending my Tb's and beta's to master CPU.
 	'''
+	comm.send(Tb_o_individual, dest=0, tag=11)
 	comm.send(Tb_o, dest=0, tag=13)
 	comm.send(beta, dest=0, tag=29)
 else:
@@ -146,15 +144,21 @@ else:
 	'''
 	print('Done.\n')
 	for i in range(1,Ncpu):
+		Tb_o_individual = Tb_o_individual + comm.recv(source=i, tag=11)
 		Tb_o = Tb_o + comm.recv(source=i, tag=13)
 		beta = beta + comm.recv(source=i, tag=29)
 		
 	
+	Tb_o_individual_save_name = path+'Tb_o_individual.npy'
 	Tb_o_save_name = path+'Tb_o.npy'
 	beta_save_name = path+'beta.npy'
+	
+	np.save(Tb_o_individual_save_name,Tb_o_individual)
 	np.save(Tb_o_save_name,Tb_o)
 	np.save(beta_save_name,beta)
-	print('The brightness temperatures have been saved into file:',Tb_o_save_name)
-	print('The spectral indices have been saved into file:',beta_save_name)
+	
+	print('The brightness temperatures for each source individually have been saved into file:',Tb_o__individual_save_name)
+	print('Pixelwise brightness temperatures have been saved into file:',Tb_o_save_name)
+	print('The spectral indices for each source individually have been saved into file:',beta_save_name)
 
 

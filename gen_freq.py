@@ -22,8 +22,15 @@ def Tb_nu(Tb_o,beta,nu):
 '''
 The brightness temperatures were computed already, load them for a faster computation.  
 '''
+
+
+Tb_o_individual_save_name = path+'Tb_o_individual.npy'
+Tb_o_save_name = path+'Tb_o.npy'
+beta_save_name = path+'beta.npy'
+	
 print("Loading pre-computed Tb_o's and beta's ...\n")
-Tb_o = np.load(Tb_o_save_name,allow_pickle=True)
+Tb_o_individual = np.load(Tb_o_individual_save_name,allow_pickle=True)
+Tb_o = np.load(Tb_o_save_name)
 beta = np.load(beta_save_name,allow_pickle=True)
 
 N_nu = np.size(nu)
@@ -33,19 +40,10 @@ if N_nu==1:
 	print('Now computing the Tb at frequency {:.2f} MHz ...'.format(nu/1e6))
 	Tb_nu_final = np.zeros(Npix)
 	for j in range(Npix):
-		Tb_nu_final[j] = Tb_nu(Tb_o[j],beta[j],nu)
+		Tb_nu_final[j] = Tb_nu(Tb_o_individual[j],beta[j],nu)
 	
 	np.save(Tb_nu_save_name,Tb_nu_final)
 	print('Done.\n File saved as',Tb_nu_save_name)
-
-	#Since it's only one frequency, I am making a plot as well.		
-	plt.rc('text', usetex=True)
-	plt.rc('font', family='serif')
-	hp.mollview(Tb_nu_final,title=None,unit=r'$T_{\mathrm{b}}(\nu)\,$(K)',cmap=colormaps['coolwarm'],norm='log')
-	hp.graticule()
-	fig_path = path+'Tb_nu.pdf'
-	plt.savefig(fig_path, bbox_inches='tight')
-	print('\nTb map saved as',fig_path)
 
 else:
 	#If you want to compute Tb at multiple frequencies ...
