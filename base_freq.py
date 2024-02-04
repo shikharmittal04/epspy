@@ -121,7 +121,7 @@ ppc = int(Npix/Ncpu)	#pixels per cpu
 for j in np.arange(cpu_ind*ppc,(cpu_ind+1)*ppc):
 	N = int(n_clus[j])	#no.of sources on jth pixel
 	So_j = np.array(random.choices(S_space,weights=dndS_space/Ns_per_sr,k=N))	#select N flux densities for jth pixel
-	beta[j] = = np.random.normal(loc=beta_o,scale=sigma,size=N)		#select N spectral indices for jth pixel
+	beta[j] = np.random.normal(loc=beta_o,scale=sigma,size=N)		#select N spectral indices for jth pixel
 		
 	Tb_o[j] = 1e-26*So_j*cE**2/(2*kB*nu_o**2*Omega_pix)
 
@@ -130,7 +130,7 @@ if cpu_ind==0:
 	for j in np.arange(Ncpu*ppc,Npix):
 		N = int(n_clus[j])	#no.of sources on jth pixel
 		So_j = np.array(random.choices(S_space,weights=dndS_space/Ns_per_sr,k=N))	#select N flux densities for jth pixel
-		beta[j] = = np.random.normal(loc=beta_o,scale=sigma,size=N)		#select N spectral indices for jth pixel
+		beta[j] = np.random.normal(loc=beta_o,scale=sigma,size=N)		#select N spectral indices for jth pixel
 			
 		Tb_o[j] = 1e-26*So_j*cE**2/(2*kB*nu_o**2*Omega_pix)
 
