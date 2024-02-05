@@ -109,33 +109,37 @@ else:
 n_clus = comm.bcast(n_clus, root=0)	#Now all CPUs have the same number density distribution.
 #-------------------------------------------------------------------------------------	
 '''
-Tb_o is an array of arrays of unequal lengths, i.e.,
-all of Tb_o[0], Tb_o[1], ..., Tb_o[Npix] are arrays of different lengths.
+Tb_o_individual is an array of arrays of unequal lengths, i.e.,
+all of Tb_o_individual[0], Tb_o_individual[1], ..., Tb_o_individual[Npix] are arrays of different lengths.
 The length of Tb_o[j] tells us the number of sources, say N_j, on the jth pixel and
-Tb_o[j][0], Tb_o[j][1], ..., Tb_o[j][N_j] are the temperatures (at ref. frequency) due to 0th, 1st,...(N_j)th source on the jth pixel.
+Tb_o_individual[j][0], Tb_o_individual[j][1], ..., Tb_o_individual[j][N_j] are the temperatures (at ref. frequency) due to 0th, 1st,...(N_j)th source on the jth pixel.
 '''	
 ppc = int(Npix/Ncpu)	#pixels per cpu
 
-Tb_o_local = np.zeros(ppc, dtype=object)
+Tb_o_local = np.zeros(ppc)
+Tb_o_local_individual = np.zeros(ppc, dtype=object)
 beta_local = np.zeros(ppc, dtype=object)
 
 for j in np.arange(cpu_ind*ppc,(cpu_ind+1)*ppc):
     N = int(n_clus[j])	#no.of sources on jth pixel
-    So_j = np.array(random.choices(S_space,weights=dndS_space/Ns_per_sr,k=N))	#select N flux densities for jth pixel
+    So_j = np.array(random.choices(S_space,weights=dndS_space/Ns_per_sr,k=N))	#select N flux densities for jth pixel, in Jy
     beta_local[j-cpu_ind*ppc] = np.random.normal(loc=beta_o,scale=sigma,size=N)		#select N spectral indices for jth pixel
 		
-    Tb_o_local[j-cpu_ind*ppc] = 1e-26*So_j*cE**2/(2*kB*nu_o**2*Omega_pix)
+    Tb_o_local_individual[j-cpu_ind*ppc] = 1e-26*So_j*cE**2/(2*kB*nu_o**2*Omega_pix)
+    Tb_o_local[j-cpu_ind*ppc] = np.sum(Tb_o_local_individual[j-cpu_ind*ppc])
 
-#An additional short loop is required if Npix/Ncpu is not an integer. We do the remaining pixels on rank 0.
-rm_sz=Npix%Ncpu
-if cpu_ind==0 and rm_sz!=0:
-    Tb_o_remain = np.zeros(rm_sz, dtype=object)
-    beta_remain = np.zeros(rm_sz, dtype=object)
+#An additional short loop is required if Npix/Ncpu is not an integer. Do the remaining pixels ('rm_pix') on rank 0.
+rm_pix=Npix%Ncpu
+if cpu_ind==0 and rm_pix!=0:
+    Tb_o_remain_individual = np.zeros(rm_pix, dtype=object)
+    Tb_o_remain = np.zeros(rm_pix)
+    beta_remain = np.zeros(rm_pix, dtype=object)
     for j in np.arange(Ncpu*ppc,Npix):
         N = int(n_clus[j])  #no.of sources on jth pixel
         So_j = np.array(random.choices(S_space,weights=dndS_space/Ns_per_sr,k=N))   #select N flux densities for jth pixel
         beta_remain[j-Ncpu*ppc] = np.random.normal(loc=beta_o,scale=sigma,size=N)   #select N spectral indices for jth pixel
-        Tb_o_remain[j-Ncpu*ppc] = 1e-26*So_j*cE**2/(2*kB*nu_o**2*Omega_pix)
+        Tb_o_remain_individual[j-Ncpu*ppc] = 1e-26*So_j*cE**2/(2*kB*nu_o**2*Omega_pix)
+        Tb_o_remain[j-Ncpu*ppc] = np.sum(Tb_o_remain_individual[j-Ncpu*ppc])
 
 #-------------------------------------------------------------------------------------
 #Now all CPUs have done their jobs of calculating the Tb's and beta's. 
@@ -143,7 +147,8 @@ if cpu_ind!=0:
     '''
     I am a worker CPU. Sending my Tb's and beta's to master CPU.
     '''
-    comm.send(Tb_o_local, dest=0, tag=13)
+    comm.send(Tb_o_local, dest=0, tag=11)
+    comm.send(Tb_o_local_individual, dest=0, tag=13)
     comm.send(beta_local, dest=0, tag=29)
 else:
     '''
@@ -152,22 +157,28 @@ else:
     '''
     print('Done.\n')
     Tb_o = Tb_o_local
+    Tb_o_individual = Tb_o_local_individual
     beta = beta_local
     for i in range(1,Ncpu):
-        Tb_o = np.concatenate((Tb_o,comm.recv(source=i, tag=13)))
+        Tb_o = np.concatenate((Tb_o,comm.recv(source=i, tag=11)))
+        Tb_o_individual = np.concatenate((Tb_o_individual,comm.recv(source=i, tag=13)))
         beta = np.concatenate((beta,comm.recv(source=i, tag=29)))
 		
-    if rm_sz!=0:
+    if rm_pix!=0:
         Tb_o = np.concatenate((Tb_o,Tb_o_remain))
+        Tb_o_individual = np.concatenate((Tb_o_individual,Tb_o_remain_individual))
         beta = np.concatenate((beta,beta_remain))
 
+    Tb_o_individual_save_name = path+'Tb_o_individual.npy'
     Tb_o_save_name = path+'Tb_o.npy'
     beta_save_name = path+'beta.npy'
-	
+
+    np.save(Tb_o_individual_save_name,Tb_o_individual)
     np.save(Tb_o_save_name,Tb_o)
     np.save(beta_save_name,beta)
 	
-    print('The brightness temperatures for each source individually have been saved into file:',Tb_o_save_name)
+    print('The brightness temperatures for each source individually have been saved into file:',Tb_o_individual_save_name)
+    print('The pixel wise brightness temperatures have been saved into file:',Tb_o_save_name)
     print('The spectral indices for each source individually have been saved into file:',beta_save_name)
 
 
