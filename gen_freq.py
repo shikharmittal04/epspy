@@ -14,7 +14,7 @@ Ncpu = comm.Get_size()
 nu_o = 150e6
 path='/home/hpcmitt1/rds/hpc-work/point_sources_data/'		#Path where you would like to save and load from, the Tb's and beta's.
 k=7			#Number of pixels in units of log_2(Npix).
-nu = np.arange(50,200)		#frequency (in Hz) at which you want to compute the brightness temperature map
+nu = 1e6*np.arange(50,200)		#frequency (in Hz) at which you want to compute the brightness temperature map
 
 Nside=2**k
 Npix = hp.nside2npix(Nside)
@@ -33,14 +33,14 @@ def Tb_nu(Tb_o,beta,nu):
 Tb_o_save_name = path+'Tb_o.npy'
 beta_save_name = path+'beta.npy'
 
-slctd_Tb_o = np.load(Tb_o_save_name,allow_pickle=True)[cpu_ind*ppc:(cpu_ind+1)*ppc]
-slctd_beta = np.load(beta_save_name,allow_pickle=True)[cpu_ind*ppc:(cpu_ind+1)*ppc]
-
-if cpu_ind==0: print("Starting computation ...\n")
+if cpu_ind==0: print("\nStarting computation ...\n")
 N_nu = np.size(nu)
 Tb_nu_final = np.zeros((N_nu,Npix))	
 
 ppc = int(Npix/Ncpu)	#pixels per cpu
+slctd_Tb_o = np.load(Tb_o_save_name,allow_pickle=True)[cpu_ind*ppc:(cpu_ind+1)*ppc]
+slctd_beta = np.load(beta_save_name,allow_pickle=True)[cpu_ind*ppc:(cpu_ind+1)*ppc]
+
 for j in np.arange(cpu_ind*ppc,(cpu_ind+1)*ppc):
 	for i in range(N_nu):
 		Tb_nu_final[i,j] = Tb_nu(slctd_Tb_o[j-cpu_ind*ppc],slctd_beta[j-cpu_ind*ppc],nu[i])
@@ -75,7 +75,7 @@ else:
 	Tb_nu_save_name = path+'Tb_nu.npy'
 	np.save(Tb_nu_save_name,Tb_nu_final)
 	
-	print('Done.\n File saved as',Tb_nu_save_name)
+	print('Done.\nFile saved as',Tb_nu_save_name)
 	print('It is an array of shape',np.shape(Tb_nu_final))
 
 
