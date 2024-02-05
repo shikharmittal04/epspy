@@ -13,19 +13,19 @@ from mpi4py import MPI
 import sys
 
 def dndS(S):
-	'''
-	This is the distribution of flux density
-	Return value is in number of sources per unit solid angle per unit flux density
-	S is in units of Jy (jansky)
-	'''    
-	return S**-2.5*((A1*S**a1+B1*S**b1)**-1+(A2*S**a2+B2*S**b2)**-1)
+    '''
+    This is the distribution of flux density
+    Return value is in number of sources per unit solid angle per unit flux density
+    S is in units of Jy (jansky)
+    '''    
+    return S**-2.5*((A1*S**a1+B1*S**b1)**-1+(A2*S**a2+B2*S**b2)**-1)
 
 def C(chi,A=7.8e-3,gam = 0.821):
-	'''
-	This is the correlation function from Rana & Bagla (2019).
-	chi should be in radians.
-	'''
-	return A*(chi*180/np.pi)**(-gam)
+    '''
+    This is the correlation function from Rana & Bagla (2019).
+    chi should be in radians.
+    '''
+    return A*(chi*180/np.pi)**(-gam)
 
 #-------------------------------------------------------------------------------------
 #Some fixed numbers ...
@@ -47,7 +47,7 @@ sigma = 0.5		#Spread in the alpha values
 The following 3 numbers are required from the user.
 They will be probably enter at the starting of the pipeline.
 '''
-path='/home/hpcmitt1/rds/hpc-work/point_sources_data/'		#Path where you would like to save and load from, the Tb's and beta's.
+path='/home/hpcmitt1/rds/hpc-work/point-sources-data/'		#Path where you would like to save and load from, the Tb's and beta's.
 k=7			#Number of pixels in units of log_2(Npix).
 nu=150e6		#frequency (in Hz) at which you want to compute the brightness temperature map
 #-------------------------------------------------------------------------------------
@@ -61,9 +61,9 @@ cpu_ind = comm.Get_rank()
 Ncpu = comm.Get_size()
 
 if(Ncpu==1):
-	print('Error: you are generating brightness temperatures for the first time.')
-	print("Run this code as, say, 'mpirun -n 4 python3 %s', where 4 specifies the number of CPUs." %(sys.argv[0]))
-	sys.exit()
+    print('Error: you are generating brightness temperatures for the first time.')
+    print("Run this code as, say, 'mpirun -n 4 python3 %s', where 4 specifies the number of CPUs." %(sys.argv[0]))
+    sys.exit()
 
 #-------------------------------------------------------------------------------------
 #Find the number density distribution on the master CPU and share it with all CPUs.
@@ -78,33 +78,33 @@ nbar = Ns/Npix
 
 
 if cpu_ind==0:
-	'''
-	Find the number density distribution on the master CPU.
-	'''
-	print('\nTotal number of sources = {:d}'.format(int(Ns)))
-	print('Total number of pixels, Npix =',Npix)
-	print('Average number of sources per pixel = {:.2f}'.format(nbar))
+    '''
+    Find the number density distribution on the master CPU.
+    '''
+    print('\nTotal number of sources = {:d}'.format(int(Ns)))
+    print('Total number of pixels, Npix =',Npix)
+    print('Average number of sources per pixel = {:.2f}'.format(nbar))
 
-	print('\nNow finding the clustered number density distribution ...')
-	#corrtocl requires us to sample the angle at some specific points. Obtained by 'tcl.theta'
-	th = tcl.theta(1000)
-	cor = C(th)
-	Cl_clus = tcl.corrtocl(cor)
+    print('\nNow finding the clustered number density distribution ...')
+    #corrtocl requires us to sample the angle at some specific points. Obtained by 'tcl.theta'
+    th = tcl.theta(1000)
+    cor = C(th)
+    Cl_clus = tcl.corrtocl(cor)
+    
+    #Now calculating the clustered map fluctuation...
+    del_clus = hp.synfast(Cl_clus,Nside)
+    
+    #and the corresponding number density given the fluctuation...
+    n_clus = nbar*(1+del_clus)
+    print('Done.\nAverage overdensity for the clustered sky (should be close to 0) =',np.mean(del_clus),'\n')
 
-	#Now calculating the clustered map fluctuation...
-	del_clus = hp.synfast(Cl_clus,Nside)
+    n_clus_save_name = path+'n_clus.npy'
+    np.save(n_clus_save_name,n_clus)
+    print('The clustered number density has been saved into file:',n_clus_save_name)
 
-	#and the corresponding number density given the fluctuation...
-	n_clus = nbar*(1+del_clus)
-	print('Done.\nAverage overdensity for the clustered sky (should be close to 0) =',np.mean(del_clus),'\n')
-
-	n_clus_save_name = path+'n_clus.npy'
-	np.save(n_clus_save_name,n_clus)
-	print('The clustered number density has been saved into file:',n_clus_save_name)
-
-	print("\nNow computing Tb_o's and beta's ...")
+    print("\nNow computing Tb_o's and beta's ...")
 else:
-	n_clus = None
+    n_clus = None
 
 n_clus = comm.bcast(n_clus, root=0)	#Now all CPUs have the same number density distribution.
 #-------------------------------------------------------------------------------------	
@@ -114,52 +114,60 @@ all of Tb_o[0], Tb_o[1], ..., Tb_o[Npix] are arrays of different lengths.
 The length of Tb_o[j] tells us the number of sources, say N_j, on the jth pixel and
 Tb_o[j][0], Tb_o[j][1], ..., Tb_o[j][N_j] are the temperatures (at ref. frequency) due to 0th, 1st,...(N_j)th source on the jth pixel.
 '''	
-Tb_o = np.zeros(Npix, dtype=object)
-beta = np.zeros(Npix, dtype=object)
-
 ppc = int(Npix/Ncpu)	#pixels per cpu
+
+Tb_o_local = np.zeros(ppc, dtype=object)
+beta_local = np.zeros(ppc, dtype=object)
+
 for j in np.arange(cpu_ind*ppc,(cpu_ind+1)*ppc):
-	N = int(n_clus[j])	#no.of sources on jth pixel
-	So_j = np.array(random.choices(S_space,weights=dndS_space/Ns_per_sr,k=N))	#select N flux densities for jth pixel
-	beta[j] = np.random.normal(loc=beta_o,scale=sigma,size=N)		#select N spectral indices for jth pixel
+    N = int(n_clus[j])	#no.of sources on jth pixel
+    So_j = np.array(random.choices(S_space,weights=dndS_space/Ns_per_sr,k=N))	#select N flux densities for jth pixel
+    beta_local[j-cpu_ind*ppc] = np.random.normal(loc=beta_o,scale=sigma,size=N)		#select N spectral indices for jth pixel
 		
-	Tb_o[j] = 1e-26*So_j*cE**2/(2*kB*nu_o**2*Omega_pix)
+    Tb_o_local[j-cpu_ind*ppc] = 1e-26*So_j*cE**2/(2*kB*nu_o**2*Omega_pix)
 
 #An additional short loop is required if Npix/Ncpu is not an integer. We do the remaining pixels on rank 0.
-if cpu_ind==0:
-	for j in np.arange(Ncpu*ppc,Npix):
-		N = int(n_clus[j])	#no.of sources on jth pixel
-		So_j = np.array(random.choices(S_space,weights=dndS_space/Ns_per_sr,k=N))	#select N flux densities for jth pixel
-		beta[j] = np.random.normal(loc=beta_o,scale=sigma,size=N)		#select N spectral indices for jth pixel
-			
-		Tb_o[j] = 1e-26*So_j*cE**2/(2*kB*nu_o**2*Omega_pix)
+rm_sz=Npix%Ncpu
+if cpu_ind==0 and rm_sz!=0:
+    Tb_o_remain = np.zeros(rm_sz, dtype=object)
+    beta_remain = np.zeros(rm_sz, dtype=object)
+    for j in np.arange(Ncpu*ppc,Npix):
+        N = int(n_clus[j])  #no.of sources on jth pixel
+        So_j = np.array(random.choices(S_space,weights=dndS_space/Ns_per_sr,k=N))   #select N flux densities for jth pixel
+        beta_remain[j-Ncpu*ppc] = np.random.normal(loc=beta_o,scale=sigma,size=N)   #select N spectral indices for jth pixel
+        Tb_o_remain[j-Ncpu*ppc] = 1e-26*So_j*cE**2/(2*kB*nu_o**2*Omega_pix)
 
 #-------------------------------------------------------------------------------------
 #Now all CPUs have done their jobs of calculating the Tb's and beta's. 
 if cpu_ind!=0:
-	'''
-	I am a worker CPU. Sending my Tb's and beta's to master CPU.
-	'''
-	comm.send(Tb_o, dest=0, tag=13)
-	comm.send(beta, dest=0, tag=29)
+    '''
+    I am a worker CPU. Sending my Tb's and beta's to master CPU.
+    '''
+    comm.send(Tb_o_local, dest=0, tag=13)
+    comm.send(beta_local, dest=0, tag=29)
 else:
-	'''
-	I am the master CPU. Receiving all Tb's and beta's.
-	I will save the Tb's and beta's as numpy arrays (in format '.npy').
-	'''
-	print('Done.\n')
-	for i in range(1,Ncpu):
-		Tb_o = Tb_o + comm.recv(source=i, tag=13)
-		beta = beta + comm.recv(source=i, tag=29)
+    '''
+    I am the master CPU. Receiving all Tb's and beta's.
+    I will save the Tb's and beta's as numpy arrays (in format '.npy').
+    '''
+    print('Done.\n')
+    Tb_o = Tb_o_local
+    beta = beta_local
+    for i in range(1,Ncpu):
+        Tb_o = np.concatenate((Tb_o,comm.recv(source=i, tag=13)))
+        beta = np.concatenate((beta,comm.recv(source=i, tag=29)))
 		
+    if rm_sz!=0:
+        Tb_o = np.concatenate((Tb_o,Tb_o_remain))
+        beta = np.concatenate((beta,beta_remain))
 
-	Tb_o_save_name = path+'Tb_o.npy'
-	beta_save_name = path+'beta.npy'
+    Tb_o_save_name = path+'Tb_o.npy'
+    beta_save_name = path+'beta.npy'
 	
-	np.save(Tb_o_save_name,Tb_o)
-	np.save(beta_save_name,beta)
+    np.save(Tb_o_save_name,Tb_o)
+    np.save(beta_save_name,beta)
 	
-	print('The brightness temperatures for each source individually have been saved into file:',Tb_o_save_name)
-	print('The spectral indices for each source individually have been saved into file:',beta_save_name)
+    print('The brightness temperatures for each source individually have been saved into file:',Tb_o_save_name)
+    print('The spectral indices for each source individually have been saved into file:',beta_save_name)
 
 

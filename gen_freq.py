@@ -12,7 +12,7 @@ Ncpu = comm.Get_size()
 
 
 nu_o = 150e6
-path='/home/hpcmitt1/rds/hpc-work/point_sources_data/'		#Path where you would like to save and load from, the Tb's and beta's.
+path='/home/hpcmitt1/rds/hpc-work/point-sources-data/'		#Path where you would like to save and load from, the Tb's and beta's.
 k=7			#Number of pixels in units of log_2(Npix).
 nu = 1e6*np.arange(50,200)		#frequency (in Hz) at which you want to compute the brightness temperature map
 
@@ -49,7 +49,7 @@ del slctd_Tb_o
 del slctd_beta
 
 #An additional short loop is required if Npix/Ncpu is not an integer. We do the remaining pixels on rank 0.
-if cpu_ind==0:
+if cpu_ind==0 and Npix%Ncpu!=0:
 	slctd_Tb_o = np.load(Tb_o_save_name,allow_pickle=True)[Ncpu*ppc:Npix]
 	slctd_beta = np.load(beta_save_name,allow_pickle=True)[Ncpu*ppc:Npix]
 	for j in np.arange(Ncpu*ppc,Npix):
