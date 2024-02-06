@@ -32,7 +32,7 @@ def C(chi,A=7.8e-3,gam = 0.821):
 kB = 1.38e-23
 cE = 2.998e8
 
-#The following number sgo into dn/dS
+#The following numbers go into dn/dS
 a1,b1,a2,b2 = -0.854, 0.37, -0.856, 1.47
 A1, B1 = 1.65e-4, 1.14e-4
 A2A1, B2B1 = 0.24, 1.8e7

@@ -30,7 +30,7 @@ def Tb_nu(Tb_o,beta,nu):
 	return np.sum(Tb_o*(nu/nu_o)**-(beta))
 
 
-Tb_o_save_name = path+'Tb_o.npy'
+Tb_o_individual_save_name = path+'Tb_o_individual.npy'
 beta_save_name = path+'beta.npy'
 
 if cpu_ind==0: print("\nStarting computation ...\n")
@@ -38,7 +38,7 @@ N_nu = np.size(nu)
 Tb_nu_final = np.zeros((N_nu,Npix))	
 
 ppc = int(Npix/Ncpu)	#pixels per cpu
-slctd_Tb_o = np.load(Tb_o_save_name,allow_pickle=True)[cpu_ind*ppc:(cpu_ind+1)*ppc]
+slctd_Tb_o = np.load(Tb_o_individual_save_name,allow_pickle=True)[cpu_ind*ppc:(cpu_ind+1)*ppc]
 slctd_beta = np.load(beta_save_name,allow_pickle=True)[cpu_ind*ppc:(cpu_ind+1)*ppc]
 
 for j in np.arange(cpu_ind*ppc,(cpu_ind+1)*ppc):
@@ -50,7 +50,7 @@ del slctd_beta
 
 #An additional short loop is required if Npix/Ncpu is not an integer. We do the remaining pixels on rank 0.
 if cpu_ind==0 and Npix%Ncpu!=0:
-	slctd_Tb_o = np.load(Tb_o_save_name,allow_pickle=True)[Ncpu*ppc:Npix]
+	slctd_Tb_o = np.load(Tb_o_individual_save_name,allow_pickle=True)[Ncpu*ppc:Npix]
 	slctd_beta = np.load(beta_save_name,allow_pickle=True)[Ncpu*ppc:Npix]
 	for j in np.arange(Ncpu*ppc,Npix):
 		for i in range(N_nu):

@@ -43,7 +43,7 @@ def plotter(Tb_nu,Tb_o=None, nu=None, path='/home/hpcmitt1/rds/hpc-work/point-so
         Tb_glob = np.mean(Tb_nu,axis=1)
         
         ax.axhline(y=Tcmb_o,color='k',ls='--',lw=1.5, label='CMB')
-        ax.loglog(nu,Tb_mean,color='r',lw=1.5,ls=':',label=r'$\beta=$%.2f'%beta_o)
+        ax.loglog(nu,Tb_mean,color='r',lw=1.5,ls=':',label=r'$\beta= $%.2f'%beta_o)
         ax.loglog(nu,Tb_glob,color='b',lw=1.5,label='Extragalactic')
 
         ax.set_xlabel(r'$\nu\,$(Hz)',fontsize=fs)
