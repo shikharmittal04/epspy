@@ -3,6 +3,7 @@ import numpy as np
 import random
 import transformcl as tcl
 import sys
+from mpi4py import MPI
 
 #Some fixed numbers ...
 kB = 1.38e-23   #Boltzmann constant in J/K units
