@@ -213,7 +213,7 @@ class extragalactic():
 
         if cpu_ind==0: print("\nStarting computation ...\n")
         N_nu = np.size(nu)
-        Tb_nu_final = np.zeros((N_nu,Npix))	
+        Tb_nu_final = np.zeros((Npix,N_nu))	
 
         ppc = int(Npix/Ncpu)    #pixels per cpu
         slctd_Tb_o = np.load(Tb_o_individual_save_name,allow_pickle=True)[cpu_ind*ppc:(cpu_ind+1)*ppc]
@@ -221,7 +221,7 @@ class extragalactic():
 
         for j in np.arange(cpu_ind*ppc,(cpu_ind+1)*ppc):
             for i in range(N_nu):
-                Tb_nu_final[i,j] = Tb_nu(slctd_Tb_o[j-cpu_ind*ppc],slctd_beta[j-cpu_ind*ppc],nu[i])
+                Tb_nu_final[j,i] = Tb_nu(slctd_Tb_o[j-cpu_ind*ppc],slctd_beta[j-cpu_ind*ppc],nu[i])
 
         del slctd_Tb_o
         del slctd_beta
@@ -232,7 +232,7 @@ class extragalactic():
             slctd_beta = np.load(beta_save_name,allow_pickle=True)[Ncpu*ppc:Npix]
             for j in np.arange(Ncpu*ppc,Npix):
                 for i in range(N_nu):
-                    Tb_nu_final[i,j] = Tb_nu(slctd_Tb_o[j-Ncpu*ppc],slctd_beta[j-Ncpu*ppc],nu[i])
+                    Tb_nu_final[j,i] = Tb_nu(slctd_Tb_o[j-Ncpu*ppc],slctd_beta[j-Ncpu*ppc],nu[i])
 
 
         #-------------------------------------------------------------------------------------
@@ -256,7 +256,7 @@ class extragalactic():
             print('Done.\nFile saved as',Tb_nu_save_name)
             print('It is an array of shape',np.shape(Tb_nu_final))
 
-        return None
+        return Tb_nu_final
     #End of function gen_freq()
 
     def visual(self, nu=None, skymap=False, spectrum=True, xlog=False,ylog=True):
@@ -285,17 +285,17 @@ class extragalactic():
                         print('Given frequency unavailable in gen_freq(). Interpolating ...')
                         if nu<np.min(nu_glob):
                             print('Warning! Given frequency outside the range. Using the lowest available frequency; {:.2f} MHz ...'.format(np.min(nu_glob)/1e6))
-                            Tb_plot = Tb_nu[0,:]
+                            Tb_plot = Tb_nu[:,0]
                         elif nu>np.max(nu_glob):
                             print('Warning! Given frequency outside the range. Using the highest available frequency; {:.2f} MHz ...'.format(np.max(nu_glob)/1e6))
-                            Tb_plot = Tb_nu[-1,:]
+                            Tb_plot = Tb_nu[:,0]
                         else:
                             print("Creating sky map at {:.2f} ...".format(nu/1e6))
                             spl = CubicSpline(nu_glob, Tb_nu)
                             Tb_plot = spl(nu)
                     else:
                         print("Creating sky map at {:.2f} ...".format(nu/1e6))
-                        Tb_plot = Tb_nu[ind,:]
+                        Tb_plot = Tb_nu[:,ind]
 
                 print('\nGenerating the sky map at frequency = {:.2f} MHz ...'.format(nu/1e6))
             else:
@@ -312,7 +312,7 @@ class extragalactic():
             nu=nu_glob
                     
             Tb_mean = Tb_o_mean*(nu/self.nu_o)**-self.beta_o
-            Tb_glob = np.mean(Tb_nu,axis=1)
+            Tb_glob = np.mean(Tb_nu,axis=0)
             
             print('\nCreating Tb vs nu plot ...')
             left=0.12
