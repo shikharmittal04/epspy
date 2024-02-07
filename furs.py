@@ -11,7 +11,7 @@ kB = 1.38e-23   #Boltzmann constant in J/K units
 cE = 2.998e8    #Speed of light in m/s
 Tcmb_o = 2.725  #CMB temperature today in K
 
-class run():
+class extragalactic():
     def __init__(self, log2Npix=6, low=-6,upp=-1, nu_o=150e6, beta_o=2.681,sigma_beta=0.5, A=7.8e-3,gam=0.821, path=''):
         self.nu_o = nu_o        #Reference frequency in Hz
 
@@ -259,7 +259,7 @@ class run():
         return None
     #End of function gen_freq()
 
-    def plotter(self, nu=None, skymap=False, spectrum=True, xlog=False,ylog=True):
+    def visual(self, nu=None, skymap=False, spectrum=True, xlog=False,ylog=True):
         '''
         Use this function to plotting a sky map at a given freqeuncy ('skymap') and/or
         the global extragalactic foregrounds as a function of frequency ('spectrum').
