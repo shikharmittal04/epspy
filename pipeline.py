@@ -1,5 +1,6 @@
 import healpy as hp
 import numpy as np
+from scipy.interpolate import CubicSpline
 import random
 import transformcl as tcl
 import sys
@@ -11,33 +12,39 @@ cE = 2.998e8    #Speed of light in m/s
 Tcmb_o = 2.725  #CMB temperature today in K
 
 class run():
-    def __init__(self, log2Npix=7, low=-6,upp=-1, nu_o=150e6, beta_o=2.681,sigma_beta=0.5, A=7.8e-3,gam=0.821, path=''):
+    def __init__(self, log2Npix=6, low=-6,upp=-1, nu_o=150e6, beta_o=2.681,sigma_beta=0.5, A=7.8e-3,gam=0.821, path=''):
         self.nu_o = nu_o        #Reference frequency in Hz
 
         self.beta_o = beta_o    #Mean spectral index for extragalactic point sources
         self.sigma_beta = sigma_beta   #Spread in the beta values
 
-        self.A = A
-        self.gam = gam
+        self.A = A      #Amplitude of the power-law 2-point angular correlation function
+        self.gam = gam  #-exponent of the power-law 2-point angular correlation function
 
-        self.low = low
-        self.upp = upp
+        self.low = low  #log_10(S_min), where S_max is in Jy
+        self.upp = upp  #log_10(S_max)
         
         self.path = path        #Path where you would like to save and load from, the Tb's and beta's
                             
         self.log2Npix = log2Npix    #Number of pixels in units of log_2(Npix)
         global Nside, Npix
         Nside=2**log2Npix
-        Npix = hp.nside2npix(Nside)
+        Npix = hp.nside2npix(Nside) #Actual number of pixels
     #End of function __init__()
 
     def ref_freq(self):
+        '''
+        Tb_o_individual is an array of arrays of unequal lengths, i.e.,
+        all of Tb_o_individual[0], Tb_o_individual[1], ..., Tb_o_individual[Npix] are arrays of different lengths.
+        The length of Tb_o[j] tells us the number of sources, say N_j, on the jth pixel and
+        Tb_o_individual[j][0], Tb_o_individual[j][1], ..., Tb_o_individual[j][N_j] are the temperatures (at ref. frequency) due to 0th, 1st,...(N_j)th source on the jth pixel.
+        '''
         def dndS(S):
             '''
             This is the distribution of flux density.
             Return value is in number of sources per unit solid angle per unit flux density.
             S is in units of Jy (jansky).
-            I have taken the functional form the numbers from Gervasi et al (2008) ApJ.
+            I have taken the functional form and the numbers from Gervasi et al (2008) ApJ.
             '''
             a1,b1,a2,b2 = -0.854, 0.37, -0.856, 1.47
             A1, B1 = 1.65e-4, 1.14e-4
@@ -101,13 +108,9 @@ class run():
             n_clus = None
 
         n_clus = comm.bcast(n_clus, root=0) #Now all CPUs have the same number density distribution.
-        #-------------------------------------------------------------------------------------	
-        '''
-        Tb_o_individual is an array of arrays of unequal lengths, i.e.,
-        all of Tb_o_individual[0], Tb_o_individual[1], ..., Tb_o_individual[Npix] are arrays of different lengths.
-        The length of Tb_o[j] tells us the number of sources, say N_j, on the jth pixel and
-        Tb_o_individual[j][0], Tb_o_individual[j][1], ..., Tb_o_individual[j][N_j] are the temperatures (at ref. frequency) due to 0th, 1st,...(N_j)th source on the jth pixel.
-        '''	
+        #-------------------------------------------------------------------------------------
+        #Visit each pixel on the sky, for each source on that pixel, assign fluxes and spectral indices to them.
+        
         ppc = int(Npix/Ncpu)	#pixels per cpu
 
         Tb_o_local = np.zeros(ppc)
@@ -190,7 +193,7 @@ class run():
         cpu_ind = comm.Get_rank()
         Ncpu = comm.Get_size()
 
-        #making nu_eval global so that it can be used in function plotter
+        #making nu_eval global so that it can be used in the function plotter
         global nu_glob
         nu_glob = nu
         
@@ -254,9 +257,16 @@ class run():
             print('It is an array of shape',np.shape(Tb_nu_final))
 
         return None
-    #End of function ref_freq()
+    #End of function gen_freq()
 
-    def plotter(self, nu=None, skymap=False, spectrum=True):
+    def plotter(self, nu=None, skymap=False, spectrum=True, xlog=False,ylog=True):
+        '''
+        Use this function to plotting a sky map at a given freqeuncy ('skymap') and/or
+        the global extragalactic foregrounds as a function of frequency ('spectrum').
+        'nu' is required only for making the sky map. It should be one number in Hz.
+        By default we only plot the spectrum and not the skymap.
+        'xlog' and 'ylog' are the boolean values deciding the scale of x and y axis, respectively.
+        '''
         Tb_o = np.load(self.path+'Tb_o.npy')
         Tb_nu = np.load(self.path+'Tb_nu.npy')
         Tb_o_mean = np.mean(Tb_o)
@@ -266,16 +276,32 @@ class run():
         if skymap:    
             if np.size(nu)==1:
                 if nu==None:
+                    print("No frequency given with 'skymap=True'. Creating sky map at the reference frequency ...")
                     nu=self.nu_o
                     Tb_plot = Tb_o
                 else:
                     ind = np.where(nu_glob==nu)
-                    Tb_plot = Tb_nu[ind,:]
+                    if ind==None:
+                        print('Given frequency unavailable in gen_freq(). Interpolating ...')
+                        if nu<np.min(nu_glob):
+                            print('Warning! Given frequency outside the range. Using the lowest available frequency; {:.2f} MHz ...'.format(np.min(nu_glob)/1e6))
+                            Tb_plot = Tb_nu[0,:]
+                        elif nu>np.max(nu_glob):
+                            print('Warning! Given frequency outside the range. Using the highest available frequency; {:.2f} MHz ...'.format(np.max(nu_glob)/1e6))
+                            Tb_plot = Tb_nu[-1,:]
+                        else:
+                            print("Creating sky map at {:.2f} ...".format(nu/1e6))
+                            spl = CubicSpline(nu_glob, Tb_nu)
+                            Tb_plot = spl(nu)
+                    else:
+                        print("Creating sky map at {:.2f} ...".format(nu/1e6))
+                        Tb_plot = Tb_nu[ind,:]
 
                 print('\nGenerating the sky map at frequency = {:.2f} MHz ...'.format(nu/1e6))
             else:
-                print("Warning. Multiple frequencies given with 'skymap=True'. Plotting only at the reference frequency ...")
-                Tb_nu = Tb_o
+                print("Warning! Multiple frequencies given with 'skymap=True'. Plotting only at the reference frequency ...")
+                Tb_plot = Tb_o
+
             hp.mollview(Tb_plot,title=None,unit=r'$T_{\mathrm{b}}^{\mathrm{eg}}\,$(K)',cmap=colormaps['coolwarm'],min=0.05,max=200,norm='log')
             hp.graticule()
             fig_path = self.path+'Tb_nu_map_'+str(int(nu/1e6))+'-MHz.pdf'
@@ -321,6 +347,6 @@ class run():
             fig_path = self.path+'Tb_vs_nu.pdf'
             plt.savefig(fig_path)
             print('Done. Tb vs frequency saved as',fig_path)
-    #End of function ref_freq()
+    #End of function plotter()
 #End of class run()
 
