@@ -12,7 +12,7 @@ cE = 2.998e8    #Speed of light in m/s
 Tcmb_o = 2.725  #CMB temperature today in K
 
 class extragalactic():
-    def __init__(self, log2Npix=6, low=-6,upp=-1, nu_o=150e6, beta_o=2.681,sigma_beta=0.5, A=7.8e-3,gam=0.821, path=''):
+    def __init__(self, log2Nside=6, low=-6,upp=-1, nu_o=150e6, beta_o=2.681,sigma_beta=0.5, A=7.8e-3,gam=0.821, path=''):
         self.nu_o = nu_o        #Reference frequency in Hz
 
         self.beta_o = beta_o    #Mean spectral index for extragalactic point sources
@@ -21,7 +21,7 @@ class extragalactic():
         self.A = A      #Amplitude of the power-law 2-point angular correlation function
         self.gam = gam  #-exponent of the power-law 2-point angular correlation function
 
-        self.low = low  #log_10(S_min), where S_max is in Jy
+        self.low = low  #log_10(S_min), where S_min is in Jy
         self.upp = upp  #log_10(S_max)
         
         self.path = path        #Path where you would like to save and load from, the Tb's and beta's
@@ -32,7 +32,7 @@ class extragalactic():
         Npix = hp.nside2npix(Nside) #Actual number of pixels
     #End of function __init__()
 	
-	def num_sources():
+	def num_sources(self):
 		S_space = np.logspace(self.low,self.upp,1000)
         dndS_space = dndS(S_space)
 
@@ -41,6 +41,27 @@ class extragalactic():
 		print('Number of sources =',Ns)
 		return Ns
 
+	def dndS(self, S):
+		'''
+		This is the distribution of flux density.
+		Return value is in number of sources per unit solid angle per unit flux density.
+		S is in units of Jy (jansky).
+		I have taken the functional form and the numbers from Gervasi et al (2008) ApJ.
+		'''
+		a1,b1,a2,b2 = -0.854, 0.37, -0.856, 1.47
+		A1, B1 = 1.65e-4, 1.14e-4
+		A2A1, B2B1 = 0.24, 1.8e7
+		A2 = A2A1*A1
+		B2 = B2B1*B1
+		return S**-2.5*((A1*S**a1+B1*S**b1)**-1+(A2*S**a2+B2*S**b2)**-1)
+
+    def C(self, chi):
+        '''
+        This is the correlation function from Rana & Bagla (2019).
+        chi should be in radians.
+        '''
+        return self.A*(chi*180/np.pi)**(-self.gam)
+
     def ref_freq(self):
         '''
         Tb_o_individual is an array of arrays of unequal lengths, i.e.,
@@ -48,26 +69,6 @@ class extragalactic():
         The length of Tb_o[j] tells us the number of sources, say N_j, on the jth pixel and
         Tb_o_individual[j][0], Tb_o_individual[j][1], ..., Tb_o_individual[j][N_j] are the temperatures (at ref. frequency) due to 0th, 1st,...(N_j)th source on the jth pixel.
         '''
-        def dndS(S):
-            '''
-            This is the distribution of flux density.
-            Return value is in number of sources per unit solid angle per unit flux density.
-            S is in units of Jy (jansky).
-            I have taken the functional form and the numbers from Gervasi et al (2008) ApJ.
-            '''
-            a1,b1,a2,b2 = -0.854, 0.37, -0.856, 1.47
-            A1, B1 = 1.65e-4, 1.14e-4
-            A2A1, B2B1 = 0.24, 1.8e7
-            A2 = A2A1*A1
-            B2 = B2B1*B1
-            return S**-2.5*((A1*S**a1+B1*S**b1)**-1+(A2*S**a2+B2*S**b2)**-1)
-
-        def C(chi):
-            '''
-            This is the correlation function from Rana & Bagla (2019).
-            chi should be in radians.
-            '''
-            return self.A*(chi*180/np.pi)**(-self.gam)
         
         #-------------------------------------------------------------------------------------
         comm = MPI.COMM_WORLD
@@ -145,7 +146,7 @@ class extragalactic():
                 N = int(n_clus[j])  #no.of sources on jth pixel
                 So_j = np.array(random.choices(S_space,weights=dndS_space/Ns_per_sr,k=N))   #select N flux densities for jth pixel
                 beta_remain[j-Ncpu*ppc] = np.random.normal(loc=self.beta_o,scale=self.sigma_beta,size=N)   #select N spectral indices for jth pixel
-                Tb_o_remain_individual[j-Ncpu*ppc] = 1e-26*So_j*cE**2/(2*kB*nu_o**2*Omega_pix)
+                Tb_o_remain_individual[j-Ncpu*ppc] = 1e-26*So_j*cE**2/(2*kB*self.nu_o**2*Omega_pix)
                 Tb_o_remain[j-Ncpu*ppc] = np.sum(Tb_o_remain_individual[j-Ncpu*ppc])
 
         #-------------------------------------------------------------------------------------
