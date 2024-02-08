@@ -1,6 +1,7 @@
 import healpy as hp
 import numpy as np
 from scipy.interpolate import CubicSpline
+from scipy.special import legendre
 import random
 import transformcl as tcl
 import sys
@@ -12,13 +13,13 @@ cE = 2.998e8    #Speed of light in m/s
 Tcmb_o = 2.725  #CMB temperature today in K
 
 class extragalactic():
-    def __init__(self, log2Nside=6, low=-6,upp=-1, nu_o=150e6, beta_o=2.681,sigma_beta=0.5, A=7.8e-3,gam=0.821, path=''):
+    def __init__(self, log2Nside=6, low=-6,upp=-1, nu_o=150e6, beta_o=2.681,sigma_beta=0.5, amp=7.8e-3,gam=0.821, path=''):
         self.nu_o = nu_o        #Reference frequency in Hz
 
         self.beta_o = beta_o    #Mean spectral index for extragalactic point sources
         self.sigma_beta = sigma_beta   #Spread in the beta values
 
-        self.A = A      #Amplitude of the power-law 2-point angular correlation function
+        self.amp = amp  #Amplitude of the power-law 2-point angular correlation function
         self.gam = gam  #-exponent of the power-law 2-point angular correlation function
 
         self.low = low  #log_10(S_min), where S_min is in Jy
@@ -31,15 +32,6 @@ class extragalactic():
         Nside=2**log2Nside
         Npix = hp.nside2npix(Nside) #Actual number of pixels
     #End of function __init__()
-	
-    def num_sources(self):
-        S_space = np.logspace(self.low,self.upp,1000)
-        dndS_space = dndS(S_space)
-
-        Ns_per_sr = np.trapz(dndS_space,S_space)
-        Ns = 4*np.pi*Ns_per_sr
-        print('\nTotal number of sources = {:d}'.format(int(Ns)))
-        return Ns
 
     def dndS(self, S):
         '''
@@ -55,23 +47,50 @@ class extragalactic():
         B2 = B2B1*B1
         return S**-2.5*((A1*S**a1+B1*S**b1)**-1+(A2*S**a2+B2*S**b2)**-1)
 
-    def C(self, chi):
+    def acf(self, chi):
         '''
         This is the correlation function from Rana & Bagla (2019).
         chi should be in radians.
         '''
-        return self.A*(chi*180/np.pi)**(-self.gam)
-    
+        return self.amp*(chi*180/np.pi)**(-self.gam)
+
+    def acf2Cl(ell):
+        def P_ell(ell,chi):
+            poly = legendre(ell)
+            return poly(np.cos(chi))
+
+        return 2*np.pi*scint.quad(lambda chi: self.acf(chi)*P_ell(ell,chi)*np.sin(chi),0.0,np.pi)[0]
+
+    def num_sources(self):
+        global S_space, dndS_space, Ns_per_sr
+        S_space = np.logspace(self.low,self.upp,1000)
+        dndS_space = self.dndS(S_space)
+
+        Ns_per_sr = np.trapz(dndS_space,S_space)
+        Ns = 4*np.pi*Ns_per_sr
+        print('\nTotal number of sources = {:d}'.format(int(Ns)))
+        return Ns
+
     def num_den(self):
         #corrtocl requires us to sample the angle at some specific points. Obtained by 'tcl.theta'
-        th = tcl.theta(1000)
-        cor = C(th)
+        
+        #Method 1:
+        th = tcl.theta(200)
+        cor = self.acf(th)
         Cl_clus = tcl.corrtocl(cor)
-            
+        
+
+        '''
+        #Method 2:
+        Cl_clus = np.zeros(50)
+        for i in range(50):
+            Cl_clus[i] = acf2cl(i)
+        '''
+
         #Now calculating the clustered map fluctuation...
         del_clus = hp.synfast(Cl_clus,Nside)
         
-        Ns = num_sources()
+        Ns = self.num_sources()
         nbar = Ns/Npix
         print('Total number of pixels, Npix =',Npix)
         print('Average number of sources per pixel = {:.2f}'.format(nbar))
@@ -96,13 +115,6 @@ class extragalactic():
             
         #-------------------------------------------------------------------------------------
         #Find the number density distribution on the master CPU and share it with all CPUs.
-        
-        S_space = np.logspace(self.low,self.upp,1000)
-        dndS_space = dndS(S_space)
-        Ns_per_sr = np.trapz(dndS_space,S_space)
-       
-        Omega_pix = hp.nside2pixarea(Nside) #Solid angle per pixel
-
         if cpu_ind==0:
             '''
             Find the number density distribution on the master CPU.
@@ -123,7 +135,8 @@ class extragalactic():
         #Visit each pixel on the sky, for each source on that pixel, assign fluxes and spectral indices to them.
         
         ppc = int(Npix/Ncpu)	#pixels per cpu
-
+        Omega_pix = hp.nside2pixarea(Nside) #Solid angle per pixel
+        
         Tb_o_local = np.zeros(ppc)
         Tb_o_local_individual = np.zeros(ppc, dtype=object)
         beta_local = np.zeros(ppc, dtype=object)
