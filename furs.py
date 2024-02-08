@@ -26,11 +26,20 @@ class extragalactic():
         
         self.path = path        #Path where you would like to save and load from, the Tb's and beta's
                             
-        self.log2Npix = log2Npix    #Number of pixels in units of log_2(Npix)
+        self.log2Nside = log2Nside    #Number of divisions in units of log_2
         global Nside, Npix
-        Nside=2**log2Npix
+        Nside=2**log2Nside
         Npix = hp.nside2npix(Nside) #Actual number of pixels
     #End of function __init__()
+	
+	def num_sources():
+		S_space = np.logspace(self.low,self.upp,1000)
+        dndS_space = dndS(S_space)
+
+		Ns_per_sr = np.trapz(dndS_space,S_space)
+        Ns = 4*np.pi*Ns_per_sr
+		print('Number of sources =',Ns)
+		return Ns
 
     def ref_freq(self):
         '''
@@ -72,16 +81,17 @@ class extragalactic():
         
         S_space = np.logspace(self.low,self.upp,1000)
         dndS_space = dndS(S_space)
-        Ns_per_sr = np.trapz(dndS_space,S_space)
-        Ns = 4*np.pi*Ns_per_sr
+        
         Omega_pix = hp.nside2pixarea(Nside) #Solid angle per pixel
-        nbar = Ns/Npix
-
 
         if cpu_ind==0:
             '''
             Find the number density distribution on the master CPU.
             '''
+			Ns_per_sr = np.trapz(dndS_space,S_space)
+        	Ns = 4*np.pi*Ns_per_sr
+			nbar = Ns/Npix
+
             print('\nTotal number of sources = {:d}'.format(int(Ns)))
             print('Total number of pixels, Npix =',Npix)
             print('Average number of sources per pixel = {:.2f}'.format(nbar))
