@@ -1,5 +1,6 @@
 import healpy as hp
 import numpy as np
+import matplotlib.pyplot as plt
 from scipy.interpolate import CubicSpline
 from scipy.special import legendre
 import random
@@ -19,7 +20,7 @@ class extragalactic():
         self.beta_o = beta_o    #Mean spectral index for extragalactic point sources
         self.sigma_beta = sigma_beta   #Spread in the beta values
 
-        self.amp = amp  #Amplitude of the power-law 2-point angular correlation function
+        self.amp = amp  #Amplitude of the power-law 2-point angular correlation function (2PACF)
         self.gam = gam  #-exponent of the power-law 2-point angular correlation function
 
         self.low = low  #log_10(S_min), where S_min is in Jy
@@ -36,9 +37,9 @@ class extragalactic():
     def dndS(self, S):
         '''
         This is the distribution of flux density.
-        Return value is in number of sources per unit solid angle per unit flux density.
-        S is in units of Jy (jansky).
         I have taken the functional form and the numbers from Gervasi et al (2008) ApJ.
+        Input S is in units of Jy (jansky). Can be 1 value or an array.
+        Output is in number of sources per unit solid angle per unit flux density. 1 value or an array depending on input.
         '''
         a1,b1,a2,b2 = -0.854, 0.37, -0.856, 1.47
         A1, B1 = 1.65e-4, 1.14e-4
@@ -49,19 +50,31 @@ class extragalactic():
 
     def acf(self, chi):
         '''
-        This is the correlation function from Rana & Bagla (2019).
-        chi should be in radians.
+        This is the popular form of the 2PACF; a power law.
+        The default values for amplitude and index are from Rana & Bagla (2019).
+        Input chi should be in radians. One number or an array.
+        Output is pure number or an array accordingly as chi is a number or an array. 
         '''
         return self.amp*(chi*180/np.pi)**(-self.gam)
 
+    '''
+    #Uncomment this function for method 2 for converting 2PACF, i.e., C(\chi), to APS, i.e., C_\ell.
     def acf2Cl(ell):
         def P_ell(ell,chi):
             poly = legendre(ell)
             return poly(np.cos(chi))
 
         return 2*np.pi*scint.quad(lambda chi: self.acf(chi)*P_ell(ell,chi)*np.sin(chi),0.0,np.pi)[0]
-
+    '''
+    
     def num_sources(self):
+        '''
+        This function gives the total number of unresolved point sources on the full sky.
+        This is specifically for the flux density distribution defined in dndS(),
+        and the minimum and maximum S values are set during the initialisation of the class object.
+        No input is required.
+        Output is a pure number.
+        '''
         global S_space, dndS_space, Ns_per_sr
         S_space = np.logspace(self.low,self.upp,1000)
         dndS_space = self.dndS(S_space)
@@ -72,9 +85,18 @@ class extragalactic():
         return Ns
 
     def num_den(self):
-        #corrtocl requires us to sample the angle at some specific points. Obtained by 'tcl.theta'
+        '''
+        This function calculates the number density function n_clus for the 2PACF defined in acf().
+        No input is required.
+        Output is in units of number per pixel. It will be an array of length Npix.
+        '''
         
         #Method 1:
+        '''
+        This methods requires transformcl package. Methods 2 does the same thing manually.
+        tcl.corrtocl requires us to sample the angle at some specific points; obtained by 'tcl.theta'
+        I have chosen 200 randomly. (Using a large like 1000 may result in del_clus<-1.)
+        '''
         th = tcl.theta(200)
         cor = self.acf(th)
         Cl_clus = tcl.corrtocl(cor)
@@ -82,9 +104,10 @@ class extragalactic():
 
         '''
         #Method 2:
+        #Here we manually compute the C_\ell's without using transformcl.
         Cl_clus = np.zeros(50)
         for i in range(50):
-            Cl_clus[i] = acf2cl(i)
+            Cl_clus[i] = self.acf2cl(i)
         '''
 
         #Now calculating the clustered map fluctuation...
@@ -111,7 +134,7 @@ class extragalactic():
         cpu_ind = comm.Get_rank()
         Ncpu = comm.Get_size()
 
-        if Ncpu==1: print("Best to run this code in parallel. Run as 'mpirun -np 4 python3 %s', where 4 specifies the number of CPUs." %(sys.argv[0]))
+        if Ncpu==1: print("Better to run on HPC. Eg. 'mpirun -np 4 python3 %s', where 4 specifies the number of tasks." %(sys.argv[0]))
             
         #-------------------------------------------------------------------------------------
         #Find the number density distribution on the master CPU and share it with all CPUs.
@@ -120,7 +143,7 @@ class extragalactic():
             Find the number density distribution on the master CPU.
             '''                           
             print('\nNow finding the clustered number density distribution ...')
-            n_clus = num_den()
+            n_clus = self.num_den()
             print('Done.\nAverage overdensity for the clustered sky (should be close to 0) = {:.3f}'.format(np.mean(del_clus)))
             n_clus_save_name = self.path+'n_clus.npy'
             np.save(n_clus_save_name,n_clus)
@@ -132,7 +155,7 @@ class extragalactic():
 
         n_clus = comm.bcast(n_clus, root=0) #Now all CPUs have the same number density distribution.
         #-------------------------------------------------------------------------------------
-        #Visit each pixel on the sky, for each source on that pixel, assign fluxes and spectral indices to them.
+        #For each pixel on the sky and for each source on that pixel, assign flux and spectral index.
         
         ppc = int(Npix/Ncpu)	#pixels per cpu
         Omega_pix = hp.nside2pixarea(Nside) #Solid angle per pixel
@@ -260,10 +283,10 @@ class extragalactic():
 
 
         #-------------------------------------------------------------------------------------
-        #Now all CPUs have done their jobs of calculating the Tb's and beta's. 
+        #Now all CPUs have done their job of calculating the Tb's and beta's. 
         if cpu_ind!=0:
             '''
-            I am a worker CPU. Sending my Tb's to master CPU.
+            I am a worker CPU. Sending my Tb to master CPU.
             '''
             comm.send(Tb_nu_final, dest=0, tag=11)
         else:
@@ -285,7 +308,7 @@ class extragalactic():
 
     def visual(self, nu=None, skymap=False, spectrum=True, xlog=False,ylog=True):
         '''
-        Use this function to plotting a sky map at a given freqeuncy ('skymap') and/or
+        Use this function for creating a sky map at a given freqeuncy ('skymap') and/or
         the global extragalactic foregrounds as a function of frequency ('spectrum').
         'nu' is required only for making the sky map. It should be one number in Hz.
         By default we only plot the spectrum and not the skymap.
@@ -371,6 +394,6 @@ class extragalactic():
             fig_path = self.path+'Tb_vs_nu.pdf'
             plt.savefig(fig_path)
             print('Done. Tb vs frequency saved as',fig_path)
-    #End of function plotter()
-#End of class run()
+    #End of function visual()
+#End of class extragalactic()
 
