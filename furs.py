@@ -1,17 +1,29 @@
-import healpy as hp
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import colormaps
 from scipy.interpolate import CubicSpline
 from scipy.special import legendre
 import random
 import transformcl as tcl
-import sys
+import healpy as hp
 from mpi4py import MPI
+import sys
 
 #Some fixed numbers ...
 kB = 1.38e-23   #Boltzmann constant in J/K units
 cE = 2.998e8    #Speed of light in m/s
 Tcmb_o = 2.725  #CMB temperature today in K
+nu21=1420e6     #21-cm frequency in Hz
+
+np.seterr(all='ignore')
+
+#The following 2 functions are required for adding a secondary x-axis at the top for figures.
+def nu2z(nu):
+    return nu21/nu-1
+
+def z2nu(z):
+    return nu21/(1+z)
+
 
 class extragalactic():
     def __init__(self, log2Nside=6, low=-6,upp=-1, nu_o=150e6, beta_o=2.681,sigma_beta=0.5, amp=7.8e-3,gam=0.821, path=''):
@@ -120,7 +132,8 @@ class extragalactic():
 
         #and the corresponding clustered number density function given the fluctuation...
         return nbar*(1+del_clus)
-
+    #End of function num_den()
+    
     def ref_freq(self):
         '''
         Tb_o_individual is an array of arrays of unequal lengths, i.e.,
