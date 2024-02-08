@@ -32,28 +32,28 @@ class extragalactic():
         Npix = hp.nside2npix(Nside) #Actual number of pixels
     #End of function __init__()
 	
-	def num_sources(self):
-		S_space = np.logspace(self.low,self.upp,1000)
+    def num_sources(self):
+	S_space = np.logspace(self.low,self.upp,1000)
         dndS_space = dndS(S_space)
 
-		Ns_per_sr = np.trapz(dndS_space,S_space)
+	Ns_per_sr = np.trapz(dndS_space,S_space)
         Ns = 4*np.pi*Ns_per_sr
-		print('Number of sources =',Ns)
-		return Ns
+	print('Number of sources =',Ns)
+	return Ns
 
-	def dndS(self, S):
-		'''
-		This is the distribution of flux density.
-		Return value is in number of sources per unit solid angle per unit flux density.
-		S is in units of Jy (jansky).
-		I have taken the functional form and the numbers from Gervasi et al (2008) ApJ.
-		'''
-		a1,b1,a2,b2 = -0.854, 0.37, -0.856, 1.47
-		A1, B1 = 1.65e-4, 1.14e-4
-		A2A1, B2B1 = 0.24, 1.8e7
-		A2 = A2A1*A1
-		B2 = B2B1*B1
-		return S**-2.5*((A1*S**a1+B1*S**b1)**-1+(A2*S**a2+B2*S**b2)**-1)
+    def dndS(self, S):
+        '''
+        This is the distribution of flux density.
+        Return value is in number of sources per unit solid angle per unit flux density.
+        S is in units of Jy (jansky).
+        I have taken the functional form and the numbers from Gervasi et al (2008) ApJ.
+        '''
+        a1,b1,a2,b2 = -0.854, 0.37, -0.856, 1.47
+        A1, B1 = 1.65e-4, 1.14e-4
+        A2A1, B2B1 = 0.24, 1.8e7
+        A2 = A2A1*A1
+        B2 = B2B1*B1
+        return S**-2.5*((A1*S**a1+B1*S**b1)**-1+(A2*S**a2+B2*S**b2)**-1)
 
     def C(self, chi):
         '''
@@ -89,9 +89,9 @@ class extragalactic():
             '''
             Find the number density distribution on the master CPU.
             '''
-			Ns_per_sr = np.trapz(dndS_space,S_space)
-        	Ns = 4*np.pi*Ns_per_sr
-			nbar = Ns/Npix
+            Ns_per_sr = np.trapz(dndS_space,S_space)
+            Ns = 4*np.pi*Ns_per_sr
+            nbar = Ns/Npix
 
             print('\nTotal number of sources = {:d}'.format(int(Ns)))
             print('Total number of pixels, Npix =',Npix)
