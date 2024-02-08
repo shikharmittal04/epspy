@@ -33,13 +33,13 @@ class extragalactic():
     #End of function __init__()
 	
     def num_sources(self):
-	S_space = np.logspace(self.low,self.upp,1000)
+        S_space = np.logspace(self.low,self.upp,1000)
         dndS_space = dndS(S_space)
 
-	Ns_per_sr = np.trapz(dndS_space,S_space)
+        Ns_per_sr = np.trapz(dndS_space,S_space)
         Ns = 4*np.pi*Ns_per_sr
-	print('Number of sources =',Ns)
-	return Ns
+        print('\nTotal number of sources = {:d}'.format(int(Ns)))
+        return Ns
 
     def dndS(self, S):
         '''
@@ -61,6 +61,23 @@ class extragalactic():
         chi should be in radians.
         '''
         return self.A*(chi*180/np.pi)**(-self.gam)
+    
+    def num_den(self):
+        #corrtocl requires us to sample the angle at some specific points. Obtained by 'tcl.theta'
+        th = tcl.theta(1000)
+        cor = C(th)
+        Cl_clus = tcl.corrtocl(cor)
+            
+        #Now calculating the clustered map fluctuation...
+        del_clus = hp.synfast(Cl_clus,Nside)
+        
+        Ns = num_sources()
+        nbar = Ns/Npix
+        print('Total number of pixels, Npix =',Npix)
+        print('Average number of sources per pixel = {:.2f}'.format(nbar))
+
+        #and the corresponding clustered number density function given the fluctuation...
+        return nbar*(1+del_clus)
 
     def ref_freq(self):
         '''
@@ -82,34 +99,17 @@ class extragalactic():
         
         S_space = np.logspace(self.low,self.upp,1000)
         dndS_space = dndS(S_space)
-        
+        Ns_per_sr = np.trapz(dndS_space,S_space)
+       
         Omega_pix = hp.nside2pixarea(Nside) #Solid angle per pixel
 
         if cpu_ind==0:
             '''
             Find the number density distribution on the master CPU.
-            '''
-            Ns_per_sr = np.trapz(dndS_space,S_space)
-            Ns = 4*np.pi*Ns_per_sr
-            nbar = Ns/Npix
-
-            print('\nTotal number of sources = {:d}'.format(int(Ns)))
-            print('Total number of pixels, Npix =',Npix)
-            print('Average number of sources per pixel = {:.2f}'.format(nbar))
-
+            '''                           
             print('\nNow finding the clustered number density distribution ...')
-            #corrtocl requires us to sample the angle at some specific points. Obtained by 'tcl.theta'
-            th = tcl.theta(1000)
-            cor = C(th)
-            Cl_clus = tcl.corrtocl(cor)
-            
-            #Now calculating the clustered map fluctuation...
-            del_clus = hp.synfast(Cl_clus,Nside)
-            
-            #and the corresponding number density given the fluctuation...
-            n_clus = nbar*(1+del_clus)
+            n_clus = num_den()
             print('Done.\nAverage overdensity for the clustered sky (should be close to 0) = {:.3f}'.format(np.mean(del_clus)))
-
             n_clus_save_name = self.path+'n_clus.npy'
             np.save(n_clus_save_name,n_clus)
             print('The clustered number density has been saved into file:',n_clus_save_name)
