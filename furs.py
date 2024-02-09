@@ -18,6 +18,8 @@ nu21=1420e6     #21-cm frequency in Hz
 
 np.seterr(all='ignore')
 
+global S_space, dndS_space, Ns_per_sr, nu_glob
+
 #The following 2 functions are required for adding a secondary x-axis at the top for figures.
 def nu2z(nu):
     return nu21/nu-1
@@ -88,7 +90,6 @@ class extragalactic():
         No input is required.
         Output is a pure number.
         '''
-        global S_space, dndS_space, Ns_per_sr
         S_space = np.logspace(self.low,self.upp,1000)
         dndS_space = self.dndS(S_space)
 
@@ -125,7 +126,8 @@ class extragalactic():
 
         #Now calculating the clustered map fluctuation...
         del_clus = hp.synfast(Cl_clus,Nside)
-        
+        print('Done.\nAverage overdensity for the clustered sky (should be ~ 0) = {:.3f}'.format(np.mean(del_clus)))
+
         Ns = self.num_sources()
         nbar = Ns/Npix
         print('Total number of pixels, Npix =',Npix)
@@ -158,7 +160,6 @@ class extragalactic():
             '''                           
             print('\nNow finding the clustered number density distribution ...')
             n_clus = self.num_den()
-            print('Done.\nAverage overdensity for the clustered sky (should be close to 0) = {:.3f}'.format(np.mean(del_clus)))
             n_clus_save_name = self.path+'n_clus.npy'
             np.save(n_clus_save_name,n_clus)
             print('The clustered number density has been saved into file:',n_clus_save_name)
@@ -171,6 +172,10 @@ class extragalactic():
         #-------------------------------------------------------------------------------------
         #For each pixel on the sky and for each source on that pixel, assign flux and spectral index.
         
+        S_space = np.logspace(self.low,self.upp,1000)
+        dndS_space = self.dndS(S_space)
+        Ns_per_sr = np.trapz(dndS_space,S_space)
+
         ppc = int(Npix/Ncpu)	#pixels per cpu
         Omega_pix = hp.nside2pixarea(Nside) #Solid angle per pixel
         
@@ -257,7 +262,7 @@ class extragalactic():
         Ncpu = comm.Get_size()
 
         #making nu_eval global so that it can be used in the function plotter
-        global nu_glob
+        #global nu_glob
         nu_glob = nu
         
         def Tb_nu(Tb_ref,beta,nu):
@@ -279,8 +284,8 @@ class extragalactic():
         Tb_nu_final = np.zeros((Npix,N_nu))	
 
         ppc = int(Npix/Ncpu)    #pixels per cpu
-        slctd_Tb_o = np.load(Tb_o_individual_save_name)[cpu_ind*ppc:(cpu_ind+1)*ppc]
-        slctd_beta = np.load(beta_save_name)[cpu_ind*ppc:(cpu_ind+1)*ppc]
+        slctd_Tb_o = hkl.load(Tb_o_individual_save_name)[cpu_ind*ppc:(cpu_ind+1)*ppc]
+        slctd_beta = hkl.load(beta_save_name)[cpu_ind*ppc:(cpu_ind+1)*ppc]
 
         for j in np.arange(cpu_ind*ppc,(cpu_ind+1)*ppc):
             for i in range(N_nu):
