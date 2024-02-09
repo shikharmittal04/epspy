@@ -6,6 +6,7 @@ from scipy.special import legendre
 import random
 import transformcl as tcl
 import healpy as hp
+import hickle as hkl
 from mpi4py import MPI
 import sys
 
@@ -210,7 +211,7 @@ class extragalactic():
         else:
             '''
             I am the master CPU. Receiving all Tb's and beta's.
-            I will save the Tb's and beta's as numpy arrays (in format '.npy').
+            I will save the Tb's and beta's as hickle objects (in format '.hkl').
             '''
             print('Done.\n')
             Tb_o = Tb_o_local
@@ -226,13 +227,15 @@ class extragalactic():
                 Tb_o_individual = np.concatenate((Tb_o_individual,Tb_o_remain_individual))
                 beta = np.concatenate((beta,beta_remain))
 
-            Tb_o_individual_save_name = self.path+'Tb_o_individual.npy'
+            Tb_o_individual_save_name = self.path+'Tb_o_individual.hkl'
             Tb_o_save_name = self.path+'Tb_o.npy'
-            beta_save_name = self.path+'beta.npy'
+            beta_save_name = self.path+'beta.hkl'
 
-            np.save(Tb_o_individual_save_name,Tb_o_individual)
+            #np.save(Tb_o_individual_save_name,Tb_o_individual)
+            hkl.dump(Tb_o_individual, Tb_o_individual_save_name, mode='w')
             np.save(Tb_o_save_name,Tb_o)
-            np.save(beta_save_name,beta)
+            #np.save(beta_save_name,beta)
+            hkl.dump(beta, beta_save_name, mode='w')
                 
             print('The brightness temperatures for each source individually have been saved into file:',Tb_o_individual_save_name)
             print('The pixel wise brightness temperatures have been saved into file:',Tb_o_save_name)
@@ -268,16 +271,16 @@ class extragalactic():
             return np.sum(Tb_ref*(nu/self.nu_o)**-(beta))
 
 
-        Tb_o_individual_save_name = self.path+'Tb_o_individual.npy'
-        beta_save_name = self.path+'beta.npy'
+        Tb_o_individual_save_name = self.path+'Tb_o_individual.hkl'
+        beta_save_name = self.path+'beta.hkl'
 
         if cpu_ind==0: print("\nStarting computation ...\n")
         N_nu = np.size(nu)
         Tb_nu_final = np.zeros((Npix,N_nu))	
 
         ppc = int(Npix/Ncpu)    #pixels per cpu
-        slctd_Tb_o = np.load(Tb_o_individual_save_name,allow_pickle=True)[cpu_ind*ppc:(cpu_ind+1)*ppc]
-        slctd_beta = np.load(beta_save_name,allow_pickle=True)[cpu_ind*ppc:(cpu_ind+1)*ppc]
+        slctd_Tb_o = np.load(Tb_o_individual_save_name)[cpu_ind*ppc:(cpu_ind+1)*ppc]
+        slctd_beta = np.load(beta_save_name)[cpu_ind*ppc:(cpu_ind+1)*ppc]
 
         for j in np.arange(cpu_ind*ppc,(cpu_ind+1)*ppc):
             for i in range(N_nu):
@@ -315,8 +318,8 @@ class extragalactic():
             
             print('Done.\nFile saved as',Tb_nu_save_name)
             print('It is an array of shape',np.shape(Tb_nu_final))
-
-        return Tb_nu_final
+            return Tb_nu_final
+        
     #End of function gen_freq()
 
     def visual(self, nu=None, skymap=False, spectrum=True, xlog=False,ylog=True):
