@@ -18,8 +18,6 @@ nu21=1420e6     #21-cm frequency in Hz
 
 np.seterr(all='ignore')
 
-#global S_space, dndS_space, Ns_per_sr, nu_glob
-
 #The following 2 functions are required for adding a secondary x-axis at the top for figures.
 def nu2z(nu):
     return nu21/nu-1
@@ -44,9 +42,6 @@ class extragalactic():
         self.path = path        #Path where you would like to save and load from, the Tb's and beta's
                             
         self.log2Nside = log2Nside    #Number of divisions in units of log_2
-        #global Nside, Npix
-        #Nside=2**log2Nside
-        #Npix = hp.nside2npix(Nside) #Actual number of pixels
     #End of function __init__()
 
     def dndS(self, S):
@@ -123,8 +118,8 @@ class extragalactic():
         for i in range(50):
             Cl_clus[i] = self.acf2cl(i)
         '''
-        Nside=2**self.log2Nside
-        Npix = hp.nside2npix(Nside) #Actual number of pixels
+        Nside= 2**self.log2Nside
+        Npix = hp.nside2npix(Nside) #number of pixels
 
         #Now calculating the clustered map fluctuation...
         del_clus = hp.synfast(Cl_clus,Nside)
@@ -155,8 +150,8 @@ class extragalactic():
         if Ncpu==1: print("Better to run on HPC. Eg. 'mpirun -np 4 python3 %s', where 4 specifies the number of tasks." %(sys.argv[0]))
             
         #-------------------------------------------------------------------------------------
-        Nside=2**self.log2Nside
-        Npix = hp.nside2npix(Nside) #Actual number of pixels
+        Nside= 2**self.log2Nside
+        Npix = hp.nside2npix(Nside) #number of pixels
 
         #Find the number density distribution on the master CPU and share it with all CPUs.
         if cpu_ind==0:
@@ -265,13 +260,9 @@ class extragalactic():
         comm = MPI.COMM_WORLD
         cpu_ind = comm.Get_rank()
         Ncpu = comm.Get_size()
-
-        #making nu_eval global so that it can be used in the function plotter
-        #global nu_glob
-        nu_glob = nu
         
-        Nside=2**self.log2Nside
-        Npix = hp.nside2npix(Nside) #Actual number of pixels
+        Nside= 2**self.log2Nside
+        Npix = hp.nside2npix(Nside) #number of pixels
 
         def Tb_nu(Tb_ref,beta,nu):
             '''
@@ -304,8 +295,8 @@ class extragalactic():
 
         #An additional short loop is required if Npix/Ncpu is not an integer. We do the remaining pixels on rank 0.
         if cpu_ind==0 and Npix%Ncpu!=0:
-            slctd_Tb_o = np.load(Tb_o_individual_save_name,allow_pickle=True)[Ncpu*ppc:Npix]
-            slctd_beta = np.load(beta_save_name,allow_pickle=True)[Ncpu*ppc:Npix]
+            slctd_Tb_o = hkl.load(Tb_o_individual_save_name)[Ncpu*ppc:Npix]
+            slctd_beta = hkl.load(beta_save_name)[Ncpu*ppc:Npix]
             for j in np.arange(Ncpu*ppc,Npix):
                 for i in range(N_nu):
                     Tb_nu_final[j,i] = Tb_nu(slctd_Tb_o[j-Ncpu*ppc],slctd_beta[j-Ncpu*ppc],nu[i])
@@ -335,11 +326,11 @@ class extragalactic():
         
     #End of function gen_freq()
 
-    def visual(self, nu=None, skymap=False, spectrum=True, xlog=False,ylog=True):
+    def visual(self, nu_user=None, skymap=False, spectrum=True, xlog=False,ylog=True):
         '''
         Use this function for creating a sky map at a given freqeuncy ('skymap') and/or
         the global extragalactic foregrounds as a function of frequency ('spectrum').
-        'nu' is required only for making the sky map. It should be one number in Hz.
+        'nu_user' is required only for making the sky map. It should be one number in Hz.
         By default we only plot the spectrum and not the skymap.
         'xlog' and 'ylog' are the boolean values deciding the scale of x and y axis, respectively.
         '''
@@ -350,43 +341,41 @@ class extragalactic():
         plt.rc('text', usetex=True)
         plt.rc('font', family='serif')
         if skymap:    
-            if np.size(nu)==1:
-                if nu==None:
+            if np.size(nu_user)==1:
+                if nu_user==None:
                     print("No frequency given with 'skymap=True'. Creating sky map at the reference frequency ...")
-                    nu=self.nu_o
+                    nu_user=self.nu_o
                     Tb_plot = Tb_o
                 else:
-                    ind = np.where(nu_glob==nu)
+                    ind = np.where(nu==nu_user)
                     if ind==None:
                         print('Given frequency unavailable in gen_freq(). Interpolating ...')
-                        if nu<np.min(nu_glob):
-                            print('Warning! Given frequency outside the range. Using the lowest available frequency; {:.2f} MHz ...'.format(np.min(nu_glob)/1e6))
+                        if nu_user<np.min(nu):
+                            print('Warning! Given frequency outside the range. Using the lowest available frequency; {:.2f} MHz ...'.format(np.min(nu)/1e6))
                             Tb_plot = Tb_nu[:,0]
-                        elif nu>np.max(nu_glob):
-                            print('Warning! Given frequency outside the range. Using the highest available frequency; {:.2f} MHz ...'.format(np.max(nu_glob)/1e6))
+                        elif nu_user>np.max(nu):
+                            print('Warning! Given frequency outside the range. Using the highest available frequency; {:.2f} MHz ...'.format(np.max(nu)/1e6))
                             Tb_plot = Tb_nu[:,0]
                         else:
-                            print("Creating sky map at {:.2f} ...".format(nu/1e6))
+                            print("Creating sky map at {:.2f} ...".format(nu_user/1e6))
                             spl = CubicSpline(nu_glob, Tb_nu)
-                            Tb_plot = spl(nu)
+                            Tb_plot = spl(nu_user)
                     else:
-                        print("Creating sky map at {:.2f} ...".format(nu/1e6))
+                        print("Creating sky map at {:.2f} ...".format(nu_user/1e6))
                         Tb_plot = Tb_nu[:,ind]
 
-                print('\nGenerating the sky map at frequency = {:.2f} MHz ...'.format(nu/1e6))
+                print('\nGenerating the sky map at frequency = {:.2f} MHz ...'.format(nu_user/1e6))
             else:
                 print("Warning! Multiple frequencies given with 'skymap=True'. Plotting only at the reference frequency ...")
                 Tb_plot = Tb_o
 
             hp.mollview(Tb_plot,title=None,unit=r'$T_{\mathrm{b}}^{\mathrm{eg}}\,$(K)',cmap=colormaps['coolwarm'],min=0.05,max=200,norm='log')
             hp.graticule()
-            fig_path = self.path+'Tb_nu_map_'+str(int(nu/1e6))+'-MHz.pdf'
+            fig_path = self.path+'Tb_nu_map_'+str(int(nu_user/1e6))+'-MHz.pdf'
             plt.savefig(fig_path, bbox_inches='tight')
             print('Done. Tb map saved as',fig_path)
 
         if spectrum:
-            nu=nu_glob
-                    
             Tb_mean = Tb_o_mean*(nu/self.nu_o)**-self.beta_o
             Tb_glob = np.mean(Tb_nu,axis=0)
             
