@@ -232,15 +232,15 @@ class extragalactic():
                 Tb_o_individual = np.concatenate((Tb_o_individual,Tb_o_remain_individual))
                 beta = np.concatenate((beta,beta_remain))
 
-            Tb_o_individual_save_name = self.path+'Tb_o_individual.hkl'
+            Tb_o_individual_save_name = self.path+'Tb_o_individual.npy'
             Tb_o_save_name = self.path+'Tb_o.npy'
-            beta_save_name = self.path+'beta.hkl'
+            beta_save_name = self.path+'beta.npy'
 
-            #np.save(Tb_o_individual_save_name,Tb_o_individual)
-            hkl.dump(Tb_o_individual, Tb_o_individual_save_name, mode='w')
+            np.save(Tb_o_individual_save_name,Tb_o_individual)
+            #hkl.dump(Tb_o_individual, Tb_o_individual_save_name, mode='w')
             np.save(Tb_o_save_name,Tb_o)
-            #np.save(beta_save_name,beta)
-            hkl.dump(beta, beta_save_name, mode='w')
+            np.save(beta_save_name,beta)
+            #hkl.dump(beta, beta_save_name, mode='w')
                 
             print('The brightness temperatures for each source individually have been saved into file:',Tb_o_individual_save_name)
             print('The pixel wise brightness temperatures have been saved into file:',Tb_o_save_name)
@@ -275,16 +275,16 @@ class extragalactic():
             return np.sum(Tb_ref*(nu/self.nu_o)**-(beta))
 
 
-        Tb_o_individual_save_name = self.path+'Tb_o_individual.hkl'
-        beta_save_name = self.path+'beta.hkl'
+        Tb_o_individual_save_name = self.path+'Tb_o_individual.npy'
+        beta_save_name = self.path+'beta.npy'
 
         if cpu_ind==0: print("\nStarting computation ...\n")
         N_nu = np.size(nu)
         Tb_nu_final = np.zeros((Npix,N_nu))	
 
         ppc = int(Npix/Ncpu)    #pixels per cpu
-        slctd_Tb_o = hkl.load(Tb_o_individual_save_name)[cpu_ind*ppc:(cpu_ind+1)*ppc]
-        slctd_beta = hkl.load(beta_save_name)[cpu_ind*ppc:(cpu_ind+1)*ppc]
+        slctd_Tb_o = np.load(Tb_o_individual_save_name,allow_pickle=True)[cpu_ind*ppc:(cpu_ind+1)*ppc]
+        slctd_beta = np.load(beta_save_name,allow_pickle=True)[cpu_ind*ppc:(cpu_ind+1)*ppc]
 
         for j in np.arange(cpu_ind*ppc,(cpu_ind+1)*ppc):
             for i in range(N_nu):
@@ -295,8 +295,9 @@ class extragalactic():
 
         #An additional short loop is required if Npix/Ncpu is not an integer. We do the remaining pixels on rank 0.
         if cpu_ind==0 and Npix%Ncpu!=0:
-            slctd_Tb_o = hkl.load(Tb_o_individual_save_name)[Ncpu*ppc:Npix]
-            slctd_beta = hkl.load(beta_save_name)[Ncpu*ppc:Npix]
+            slctd_Tb_o = np.load(Tb_o_individual_save_name,allow_pickle=True)[Ncpu*ppc:Npix]
+            slctd_beta = np.load(beta_save_name,allow_pickle=True)[Ncpu*ppc:Npix]
+
             for j in np.arange(Ncpu*ppc,Npix):
                 for i in range(N_nu):
                     Tb_nu_final[j,i] = Tb_nu(slctd_Tb_o[j-Ncpu*ppc],slctd_beta[j-Ncpu*ppc],nu[i])
