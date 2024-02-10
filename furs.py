@@ -18,7 +18,7 @@ nu21=1420e6     #21-cm frequency in Hz
 
 np.seterr(all='ignore')
 
-global S_space, dndS_space, Ns_per_sr, nu_glob
+#global S_space, dndS_space, Ns_per_sr, nu_glob
 
 #The following 2 functions are required for adding a secondary x-axis at the top for figures.
 def nu2z(nu):
@@ -44,9 +44,9 @@ class extragalactic():
         self.path = path        #Path where you would like to save and load from, the Tb's and beta's
                             
         self.log2Nside = log2Nside    #Number of divisions in units of log_2
-        global Nside, Npix
-        Nside=2**log2Nside
-        Npix = hp.nside2npix(Nside) #Actual number of pixels
+        #global Nside, Npix
+        #Nside=2**log2Nside
+        #Npix = hp.nside2npix(Nside) #Actual number of pixels
     #End of function __init__()
 
     def dndS(self, S):
@@ -123,6 +123,8 @@ class extragalactic():
         for i in range(50):
             Cl_clus[i] = self.acf2cl(i)
         '''
+        Nside=2**self.log2Nside
+        Npix = hp.nside2npix(Nside) #Actual number of pixels
 
         #Now calculating the clustered map fluctuation...
         del_clus = hp.synfast(Cl_clus,Nside)
@@ -153,6 +155,9 @@ class extragalactic():
         if Ncpu==1: print("Better to run on HPC. Eg. 'mpirun -np 4 python3 %s', where 4 specifies the number of tasks." %(sys.argv[0]))
             
         #-------------------------------------------------------------------------------------
+        Nside=2**self.log2Nside
+        Npix = hp.nside2npix(Nside) #Actual number of pixels
+
         #Find the number density distribution on the master CPU and share it with all CPUs.
         if cpu_ind==0:
             '''
@@ -265,6 +270,9 @@ class extragalactic():
         #global nu_glob
         nu_glob = nu
         
+        Nside=2**self.log2Nside
+        Npix = hp.nside2npix(Nside) #Actual number of pixels
+
         def Tb_nu(Tb_ref,beta,nu):
             '''
             Given the brightness temperature Tb_ref (at reference frequency nu_o), spectral indices beta and frequency nu
