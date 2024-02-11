@@ -90,7 +90,7 @@ class extragalactic():
 
         Ns_per_sr = np.trapz(dndS_space,S_space)
         Ns = 4*np.pi*Ns_per_sr
-        print('\nTotal number of sources = {:d}'.format(int(Ns)))
+        print('\nTotal number of sources = {:d}'.format(round(Ns)))
         return Ns
 
     def num_den(self):
@@ -184,7 +184,7 @@ class extragalactic():
         beta_local = np.zeros(ppc, dtype=object)
 
         for j in np.arange(cpu_ind*ppc,(cpu_ind+1)*ppc):
-            N = int(n_clus[j])	#no.of sources on jth pixel
+            N = round(n_clus[j])	#no.of sources on jth pixel
             So_j = np.array(random.choices(S_space,weights=dndS_space/Ns_per_sr,k=N))   #select N flux densities for jth pixel, in Jy
             beta_local[j-cpu_ind*ppc] = np.random.normal(loc=self.beta_o,scale=self.sigma_beta,size=N) #select N spectral indices for jth pixel
                         
@@ -198,7 +198,7 @@ class extragalactic():
             Tb_o_remain = np.zeros(rm_pix)
             beta_remain = np.zeros(rm_pix, dtype=object)
             for j in np.arange(Ncpu*ppc,Npix):
-                N = int(n_clus[j])  #no.of sources on jth pixel
+                N = round(n_clus[j])  #no.of sources on jth pixel
                 So_j = np.array(random.choices(S_space,weights=dndS_space/Ns_per_sr,k=N))   #select N flux densities for jth pixel
                 beta_remain[j-Ncpu*ppc] = np.random.normal(loc=self.beta_o,scale=self.sigma_beta,size=N)   #select N spectral indices for jth pixel
                 Tb_o_remain_individual[j-Ncpu*ppc] = 1e-26*So_j*cE**2/(2*kB*self.nu_o**2*Omega_pix)
