@@ -14,7 +14,7 @@ import sys
 kB = 1.38e-23   #Boltzmann constant in J/K units
 cE = 2.998e8    #Speed of light in m/s
 Tcmb_o = 2.725  #CMB temperature today in K
-nu21=1420e6     #21-cm frequency in Hz
+nu21=1420	    #21-cm frequency in MHz
 
 np.seterr(all='ignore')
 
@@ -141,7 +141,6 @@ class extragalactic():
         The length of Tb_o[j] tells us the number of sources, say N_j, on the jth pixel and
         Tb_o_individual[j][0], Tb_o_individual[j][1], ..., Tb_o_individual[j][N_j] are the temperatures (at ref. frequency) due to 0th, 1st,...(N_j)th source on the jth pixel.
         '''
-        
         #-------------------------------------------------------------------------------------
         comm = MPI.COMM_WORLD
         cpu_ind = comm.Get_rank()
@@ -157,14 +156,15 @@ class extragalactic():
         if cpu_ind==0:
             '''
             Find the number density distribution on the master CPU.
-            '''                           
-            print('\nNow finding the clustered number density distribution ...')
+            '''
+            print('\nRunning ref_freq() ...\n')          
+            print('\nFinding the clustered number density distribution ...')
             n_clus = self.num_den()
             n_clus_save_name = self.path+'n_clus.npy'
             np.save(n_clus_save_name,n_clus)
             print('The clustered number density has been saved into file:',n_clus_save_name)
 
-            print("\nNow computing Tb_o's and beta's ...")
+            print("\nAssigning flux density and power-law index ...")
         else:
             n_clus = None
 
@@ -205,6 +205,7 @@ class extragalactic():
                 Tb_o_remain[j-Ncpu*ppc] = np.sum(Tb_o_remain_individual[j-Ncpu*ppc])
 
         #-------------------------------------------------------------------------------------
+        comm.Barrier()
         #Now all CPUs have done their jobs of calculating the Tb's and beta's. 
         if cpu_ind!=0:
             '''
@@ -242,9 +243,11 @@ class extragalactic():
             np.save(beta_save_name,beta)
             #hkl.dump(beta, beta_save_name, mode='w')
                 
-            print('The brightness temperatures for each source individually have been saved into file:',Tb_o_individual_save_name)
-            print('The pixel wise brightness temperatures have been saved into file:',Tb_o_save_name)
-            print('The spectral indices for each source individually have been saved into file:',beta_save_name)
+            print('The brightness temperature (at reference frequency) for each source has been saved into file:',Tb_o_individual_save_name)
+            print('The pixel wise brightness temperature (at reference frequency) has been saved into file:',Tb_o_save_name)
+            print('The spectral index for each source has been saved into file:',beta_save_name)
+            print('End of function ref_freq().')
+        comm.Barrier()
         return None
     #End of function ref_freq()
 
@@ -256,7 +259,9 @@ class extragalactic():
         nu is the frequency (in Hz) at which you want to evaluate the brightness temperature map.
         nu can be one number or an array.
         '''
-
+        global nu_glob
+        nu_glob = nu
+	
         comm = MPI.COMM_WORLD
         cpu_ind = comm.Get_rank()
         Ncpu = comm.Get_size()
@@ -278,9 +283,11 @@ class extragalactic():
         Tb_o_individual_save_name = self.path+'Tb_o_individual.npy'
         beta_save_name = self.path+'beta.npy'
 
-        if cpu_ind==0: print("\nStarting computation ...\n")
+        if cpu_ind==0:
+            print('\nRunning gen_freq() ...\n')
+            print("\nBeginning scaling extragalactic maps to general frequency ...\n")
         N_nu = np.size(nu)
-        Tb_nu_final = np.zeros((Npix,N_nu))	
+        Tb_nu_final = np.zeros((Npix,N_nu),dtype='float64')	
 
         ppc = int(Npix/Ncpu)    #pixels per cpu
         slctd_Tb_o = np.load(Tb_o_individual_save_name,allow_pickle=True)[cpu_ind*ppc:(cpu_ind+1)*ppc]
@@ -304,30 +311,35 @@ class extragalactic():
 
 
         #-------------------------------------------------------------------------------------
+        comm.Barrier()
         #Now all CPUs have done their job of calculating the Tb's and beta's. 
         if cpu_ind!=0:
             '''
             I am a worker CPU. Sending my Tb to master CPU.
             '''
-            comm.send(Tb_nu_final, dest=0, tag=11)
+            comm.Send([Tb_nu_final,MPI.FLOAT], dest=0, tag=11)
         else:
             '''
             I am the master CPU. Receiving all Tb's.
             '''
-            print("Done. Receiving Tb's from all CPUs ...\n")
+            print("Done.\nReceiving Tb's from all CPUs ...")
             for i in range(1,Ncpu):
-                Tb_nu_final = Tb_nu_final + comm.recv(source=i, tag=11)
+                receive_local = np.empty((Npix, N_nu),dtype='float64')
+                comm.Recv([receive_local,MPI.FLOAT],source=i, tag=11)
+                Tb_nu_final = Tb_nu_final + receive_local
 
             Tb_nu_save_name = self.path+'Tb_nu.npy'
             np.save(Tb_nu_save_name,Tb_nu_final)
             
             print('Done.\nFile saved as',Tb_nu_save_name)
-            print('It is an array of shape',np.shape(Tb_nu_final))
-            return Tb_nu_final
+            print('It is an array of shape',np.shape(Tb_nu_final),'\n\n')
+            print('End of function gen_freq().')
         
+        comm.Barrier()
+        return None    
     #End of function gen_freq()
 
-    def visual(self, nu_user=None, skymap=False, spectrum=True, xlog=False,ylog=True):
+    def visual(self, nu_user=None, nu_glob=1e6*np.arange(50,200), skymap=False, spectrum=True, xlog=False,ylog=True):
         '''
         Use this function for creating a sky map at a given freqeuncy ('skymap') and/or
         the global extragalactic foregrounds as a function of frequency ('spectrum').
@@ -348,13 +360,13 @@ class extragalactic():
                     nu_user=self.nu_o
                     Tb_plot = Tb_o
                 else:
-                    ind = np.where(nu==nu_user)
+                    ind = np.where(nu_glob==nu_user)
                     if ind==None:
                         print('Given frequency unavailable in gen_freq(). Interpolating ...')
-                        if nu_user<np.min(nu):
+                        if nu_user<np.min(nu_glob):
                             print('Warning! Given frequency outside the range. Using the lowest available frequency; {:.2f} MHz ...'.format(np.min(nu)/1e6))
                             Tb_plot = Tb_nu[:,0]
-                        elif nu_user>np.max(nu):
+                        elif nu_user>np.max(nu_glob):
                             print('Warning! Given frequency outside the range. Using the highest available frequency; {:.2f} MHz ...'.format(np.max(nu)/1e6))
                             Tb_plot = Tb_nu[:,0]
                         else:
@@ -367,7 +379,7 @@ class extragalactic():
 
                 print('\nGenerating the sky map at frequency = {:.2f} MHz ...'.format(nu_user/1e6))
             else:
-                print("Warning! Multiple frequencies given with 'skymap=True'. Plotting only at the reference frequency ...")
+                print("Warning! Multiple values given for 'nu_user' with 'skymap=True'. Plotting only at the reference frequency ...")
                 Tb_plot = Tb_o
 
             hp.mollview(Tb_plot,title=None,unit=r'$T_{\mathrm{b}}^{\mathrm{eg}}\,$(K)',cmap=colormaps['coolwarm'],min=0.05,max=200,norm='log')
@@ -377,7 +389,7 @@ class extragalactic():
             print('Done. Tb map saved as',fig_path)
 
         if spectrum:
-            Tb_mean = Tb_o_mean*(nu/self.nu_o)**-self.beta_o
+            Tb_mean = Tb_o_mean*(nu_glob/self.nu_o)**-self.beta_o
             Tb_glob = np.mean(Tb_nu,axis=0)
             
             print('\nCreating Tb vs nu plot ...')
@@ -387,15 +399,15 @@ class extragalactic():
             fig.subplots_adjust(left=left, bottom=0.06, right=1-left, top=0.94)
             
             ax.axhline(y=Tcmb_o,color='k',ls='--',lw=1.5, label='CMB')
-            ax.plot(nu,Tb_mean,color='r',lw=1.5,ls=':',label=r'$\beta= $%.2f'%beta_o)
-            ax.plot(nu,Tb_glob,color='b',lw=1.5,label='Extragalactic')
+            ax.plot(nu_glob/1e6,Tb_mean,color='r',lw=1.5,ls=':',label=r'$\beta= $ %.2f'%self.beta_o)
+            ax.plot(nu_glob/1e6,Tb_glob,color='b',lw=1.5,label='Extragalactic')
 
             if xlog:
                 ax.set_xscale('log')
             if ylog:
                 ax.set_yscale('log')
             
-            ax.set_xlabel(r'$\nu\,$(Hz)',fontsize=fs)
+            ax.set_xlabel(r'$\nu\,$(MHz)',fontsize=fs)
             ax.set_ylabel(r'$T_{\mathrm{b}}^{\mathrm{eg}}\,$(K)',fontsize=fs)
 
             ax.minorticks_on()
@@ -410,9 +422,9 @@ class extragalactic():
             #plt.xlim([0.1,1e2])
             #plt.ylim([1,3e4])
             ax.set_aspect(1.0/ax.get_data_ratio(), adjustable='box')
-            fig_path = self.path+'Tb_vs_nu.pdf'
+            fig_path = self.path+'Tb_vs_nu.png'
             plt.savefig(fig_path)
-            print('Done. Tb vs frequency saved as',fig_path)
+            print('Done. Tb vs frequency saved as',fig_path,'\n')
     #End of function visual()
 #End of class extragalactic()
 
