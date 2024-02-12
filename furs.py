@@ -9,6 +9,7 @@ import healpy as hp
 import hickle as hkl
 from mpi4py import MPI
 import sys
+import os
 
 #Some fixed numbers ...
 kB = 1.38e-23   #Boltzmann constant in J/K units
@@ -157,6 +158,10 @@ class extragalactic():
             '''
             Find the number density distribution on the master CPU.
             '''
+            if os.path.isdir(self.path)==False:
+                print('The requested directory does not exist. Creating one ...')
+                os.mkdir(self.path)
+
             print('\nRunning ref_freq() ...\n')          
             print('\nFinding the clustered number density distribution ...')
             n_clus = self.num_den()
@@ -237,10 +242,7 @@ class extragalactic():
             Tb_o_save_name = self.path+'Tb_o.npy'
             beta_save_name = self.path+'beta.npy'
             
-            if os.path.isdir(self.path)==False:
-                print('The requested directory does not exist. Creating one ...')
-                os.mkdir(self.path)
-
+           
             np.save(Tb_o_individual_save_name,Tb_o_individual)
             #hkl.dump(Tb_o_individual, Tb_o_individual_save_name, mode='w')
             np.save(Tb_o_save_name,Tb_o)
@@ -250,10 +252,10 @@ class extragalactic():
             print('The brightness temperature (at reference frequency) for each source has been saved into file:',Tb_o_individual_save_name)
             print('The pixel wise brightness temperature (at reference frequency) has been saved into file:',Tb_o_save_name)
             print('The spectral index for each source has been saved into file:',beta_save_name)
-            print('End of function ref_freq().\n')
+            print('\nEnd of function ref_freq().\n')
             
             mempertask = 2e-6*os.path.getsize(Tb_o_individual_save_name)
-            print("Recommendation for '--mem-per-task' to run gen_freq()",mempertask,'MB\n')
+            print("Recommendation for '--mem-per-task' to run gen_freq() {:d} MB\n".format(round(mempertask)))
         comm.Barrier()
         return None
     #End of function ref_freq()
@@ -290,7 +292,7 @@ class extragalactic():
 
         if cpu_ind==0:
             print('\nRunning gen_freq() ...\n')
-            print("\nBeginning scaling extragalactic maps to general frequency ...\n")
+            print("\nBeginning scaling extragalactic maps to general frequency ...")
         N_nu = np.size(nu)
         Tb_nu_final = np.zeros((Npix,N_nu),dtype='float64')	
 
@@ -337,11 +339,11 @@ class extragalactic():
             np.save(Tb_nu_save_name,Tb_nu_final)
             
             print('Done.\nFile saved as',Tb_nu_save_name)
-            print('It is an array of shape',np.shape(Tb_nu_final),'\n\n')
-            print('End of function gen_freq().')
-        	
-        	nu_save_name = self.path+'nu_glob.npy'
-        	np.save(nu_save_name,nu)
+            print('It is an array of shape',np.shape(Tb_nu_final))
+            print('\nEnd of function gen_freq().')
+
+            nu_save_name = self.path+'nu_glob.npy'
+            np.save(nu_save_name,nu)
         comm.Barrier()
         return None    
     #End of function gen_freq()
@@ -371,13 +373,15 @@ class extragalactic():
                     ind = np.where(nu==nu_skymap)
                     if ind==None:
                         if nu_skymap<np.min(nu):
-                            print('Warning! Given frequency outside the range. Using the lowest available frequency; {:.2f} MHz ...'.format(np.min(nu)/1e6))
+                            print('Warning! Given frequency outside the range.')
+                            print('Using the lowest available frequency; {:.2f} MHz ...'.format(np.min(nu)/1e6))
                             Tb_plot = Tb_nu[:,0]
                         elif nu_skymap>np.max(nu):
-                            print('Warning! Given frequency outside the range. Using the highest available frequency; {:.2f} MHz ...'.format(np.max(nu)/1e6))
+                            print('Warning! Given frequency outside the range.')
+                            print('Using the highest available frequency; {:.2f} MHz ...'.format(np.max(nu)/1e6))
                             Tb_plot = Tb_nu[:,0]
                         else:
-                        	print('Given frequency unavailable in gen_freq(). Interpolating ...')
+                            print('Given frequency unavailable in gen_freq(). Interpolating ...')
                             print("Creating sky map at {:.2f} ...".format(nu_skymap/1e6))
                             spl = CubicSpline(nu, Tb_nu)
                             Tb_plot = spl(nu_skymap)
