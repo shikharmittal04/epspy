@@ -21,10 +21,16 @@ obj.gen_freq()
 ```
 Save the above code as (say) `eg_script.py` and run it as
 
+`python eg_script.py`
+
+The default values have been chosen such that the code can be run on a PC. Since modern PCs have at least 4 cores, for a better performance one could also run the code as
+
 `mpirun -np 4 python eg_script.py`
 
+However, in general and for more realistic flux density ranges and high resolution maps, it is recommended to run the code on HPCs.
+
 ## Detailed explanation
-### Initialisation
+#### Initialisation
 `furs.extragalactic()` initialises the class object with default settings. There are total 9 available optional arguments as follows:
 
 1. `nu_o`
@@ -70,7 +76,7 @@ Thus, if you want to chose a different set of parameters, you must initialise th
 
 (Replace the above values by values of your choice.)
 
-### Reference frequency
+#### Reference frequency
 The function `ref_freq` does 3 tasks:-
 
 * Calcuates the total number of unresolved sources corresponding to your specified `logSmin` and `logSmin`.
@@ -89,7 +95,7 @@ The function does not return anything, but produces 4 output files, namely `n_cl
 
 4. `Tb_o` is an array similar in structure to `n_clus`. It is the pixel wise brightness temperature contributed by the extragalactic radio sources at the reference frequency. Thus, `Tb_o[i] = numpy.sum(Tb_o_individual[i])`. 
 
-### General frequency
+#### General frequency
 The next important task is performed by the function `gen_freq`. It scales the brightness temperature at reference frequency for each source according to a power law to a desired range of frequencies. The desired frequencies should be supplied (in Hz) as a numpy array to this function. For example
 ```
 obj.gen_freq(nu = 1e6*numpy.arange(50,200))
@@ -99,7 +105,7 @@ The default value is as given in the above command. This function does not retur
 Note that this function loads `Tb_o_individual.npy` and `beta.npy`. These files can easily be 10s of GB in size for 'realistic' `logSmin` and `logSmax`. Common personal computers have ~ 4 GB RAM. It is thus recommended to run this code on supercomputers. For job submission scipt users are requested to specify `#SBATCH --mem-per-cpu=[size in MB]`, where a recommendation for `size in MB` will be printed by `ref_freq()` function.
 
 
-### Visualisation
+#### Visualisation
 The final part of the code is to visualise the results. Main data for inspection is in the file `Tb_nu.npy`. Each of `Tb_nu[:,j]` is an array in the standard ring ordered `HEALPix` format and is thus ready for visualisation as a Mollweide projection. You may also be interested in inspecting the global spectrum of extragalactic emission, i.e, temperature as a function of frequency. This is simply `numpy.mean(Tb_nu,axis=0)`.
 
 You may use the function `visual()` for both the above purposes. This function is again a method of class object extragalactic and is thus called as
