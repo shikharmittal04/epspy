@@ -12,10 +12,10 @@ import sys
 import os
 
 #Some fixed numbers ...
-kB = 1.38e-23   #Boltzmann constant in J/K units
+kB = 1.38e-23   #Boltzmann constant in J/K
 cE = 2.998e8    #Speed of light in m/s
 Tcmb_o = 2.725  #CMB temperature today in K
-nu21=1420	    #21-cm frequency in MHz
+nu21=1420	#21-cm frequency in MHz
 
 np.seterr(all='ignore')
 
