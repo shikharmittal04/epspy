@@ -8,6 +8,7 @@ import transformcl as tcl
 import healpy as hp
 import hickle as hkl
 from mpi4py import MPI
+from mpi4py.util import pkl5
 import sys
 import os
 
@@ -15,7 +16,7 @@ import os
 kB = 1.38e-23   #Boltzmann constant in J/K
 cE = 2.998e8    #Speed of light in m/s
 Tcmb_o = 2.725  #CMB temperature today in K
-nu21=1420	#21-cm frequency in MHz
+nu21 = 1420		#21-cm frequency in MHz
 
 np.seterr(all='ignore')
 
@@ -143,7 +144,7 @@ class extragalactic():
         Tb_o_individual[j][0], Tb_o_individual[j][1], ..., Tb_o_individual[j][N_j] are the temperatures (at ref. frequency) due to 0th, 1st,...(N_j)th source on the jth pixel.
         '''
         #-------------------------------------------------------------------------------------
-        comm = MPI.COMM_WORLD
+        comm = pkl5.Intracomm(MPI.COMM_WORLD)
         cpu_ind = comm.Get_rank()
         Ncpu = comm.Get_size()
 
@@ -163,8 +164,16 @@ class extragalactic():
                 os.mkdir(self.path)
 
             print('\nRunning ref_freq() ...\n')          
-            print('\nFinding the clustered number density distribution ...')
+            print('Finding the clustered number density distribution ...')
             n_clus = self.num_den()
+            
+            where_n_less_than_1 = np.where(np.round(n_clus)<1.0)
+            Npix_less_than_1 = 100*np.size(where_n_less_than_1)/Npix
+            if Npix_less_than_1>50:
+            	print('\n{:.2f}% pixels have no sources!'.format(Npix_less_than_1))
+            	print('This can happen either because there are very few sources in your chosen flux density range or your resolution is too high.')
+            	print('Recommendation: either increase (`logSmax`-`logSmin`) or decrease `log2Nside`.\n')
+            
             n_clus_save_name = self.path+'n_clus.npy'
             np.save(n_clus_save_name,n_clus)
             print('The clustered number density has been saved into file:',n_clus_save_name)
@@ -292,7 +301,7 @@ class extragalactic():
 
         if cpu_ind==0:
             print('\nRunning gen_freq() ...\n')
-            print("\nBeginning scaling extragalactic maps to general frequency ...")
+            print("Beginning scaling extragalactic maps to general frequency ...")
         N_nu = np.size(nu)
         Tb_nu_final = np.zeros((Npix,N_nu),dtype='float64')	
 
