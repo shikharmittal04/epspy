@@ -264,7 +264,8 @@ class extragalactic():
             print('\nEnd of function ref_freq().\n')
             
             mempertask = 2e-6*os.path.getsize(Tb_o_individual_save_name)
-            print("Recommendation for '--mem-per-task' to run gen_freq() {:d} MB\n".format(round(mempertask)))
+            if mempertask > 2000:
+                print("Recommendation for '--mem-per-task' to run gen_freq() {:d} MB\n".format(round(mempertask)))
         comm.Barrier()
         return None
     #End of function ref_freq()
