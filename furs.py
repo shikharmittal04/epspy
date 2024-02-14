@@ -16,9 +16,21 @@ import os
 kB = 1.38e-23   #Boltzmann constant in J/K
 cE = 2.998e8    #Speed of light in m/s
 Tcmb_o = 2.725  #CMB temperature today in K
-nu21 = 1420		#21-cm frequency in MHz
+nu21 = 1420     #21-cm frequency in MHz
 
 np.seterr(all='ignore')
+
+def print_banner():
+	banner = """\033[94m
+	███████╗ ██╗   ██╗ ██████╗  ███████╗
+	██╔════╝ ██║   ██║ ██╔══██╗ ██╔════╝
+	█████╗   ██║   ██║ ██████╔╝ ███████╗
+	██╔══╝   ██║   ██║ ██╔══██╗ ╚════██║
+	██║      ╚██████╔╝ ██║  ██║ ███████║
+	╚═╝       ╚═════╝  ╚═╝  ╚═╝ ╚══════╝
+	\033[00m"""                                
+	print(banner)
+	return None
 
 #The following 2 functions are required for adding a secondary x-axis at the top for figures.
 def nu2z(nu):
@@ -143,12 +155,13 @@ class extragalactic():
         The length of Tb_o[j] tells us the number of sources, say N_j, on the jth pixel and
         Tb_o_individual[j][0], Tb_o_individual[j][1], ..., Tb_o_individual[j][N_j] are the temperatures (at ref. frequency) due to 0th, 1st,...(N_j)th source on the jth pixel.
         '''
+        print_banner()
         #-------------------------------------------------------------------------------------
         comm = pkl5.Intracomm(MPI.COMM_WORLD)
         cpu_ind = comm.Get_rank()
         Ncpu = comm.Get_size()
 
-        if Ncpu==1: print("Better to run on HPC. Eg. 'mpirun -np 4 python3 %s', where 4 specifies the number of tasks." %(sys.argv[0]))
+        if Ncpu==1: print("\033[91mBetter to run on HPC. Eg. 'mpirun -np 4 python3 %s', where 4 specifies the number of tasks.\033[00m" %(sys.argv[0]))
             
         #-------------------------------------------------------------------------------------
         Nside= 2**self.log2Nside
@@ -163,16 +176,16 @@ class extragalactic():
                 print('The requested directory does not exist. Creating one ...')
                 os.mkdir(self.path)
 
-            print('\nRunning ref_freq() ...\n')          
+            print('\n\033[94mRunning ref_freq() ...\033[00m\n')          
             print('Finding the clustered number density distribution ...')
             n_clus = self.num_den()
             
             where_n_less_than_1 = np.where(np.round(n_clus)<1.0)
             Npix_less_than_1 = 100*np.size(where_n_less_than_1)/Npix
             if Npix_less_than_1>50:
-            	print('\n{:.2f}% pixels have no sources!'.format(Npix_less_than_1))
+            	print('\n\033[31m{:.2f}% pixels have no sources!'.format(Npix_less_than_1))
             	print('This can happen either because there are very few sources in your chosen flux density range or your resolution is too high.')
-            	print('Recommendation: either increase (`logSmax`-`logSmin`) or decrease `log2Nside`.\n')
+            	print('Recommendation: either increase (`logSmax`-`logSmin`) or decrease `log2Nside`.\n\033[00m')
             
             n_clus_save_name = self.path+'n_clus.npy'
             np.save(n_clus_save_name,n_clus)
@@ -258,14 +271,14 @@ class extragalactic():
             np.save(beta_save_name,beta)
             #hkl.dump(beta, beta_save_name, mode='w')
                 
-            print('The brightness temperature (at reference frequency) for each source has been saved into file:',Tb_o_individual_save_name)
-            print('The pixel wise brightness temperature (at reference frequency) has been saved into file:',Tb_o_save_name)
-            print('The spectral index for each source has been saved into file:',beta_save_name)
-            print('\nEnd of function ref_freq().\n')
+            print('\033[32mThe brightness temperature (at reference frequency) for each source has been saved into file:',Tb_o_individual_save_name,'\033[00m')
+            print('\033[32mThe pixel wise brightness temperature (at reference frequency) has been saved into file:',Tb_o_save_name,'\033[00m')
+            print('\033[32mThe spectral index for each source has been saved into file:',beta_save_name,'\033[00m')
+            print('\n\033[94m================ End of function ref_freq(). ================\033[00m\n')
             
             mempertask = 2e-6*os.path.getsize(Tb_o_individual_save_name)
             if mempertask > 2000:
-                print("Recommendation for '--mem-per-task' to run gen_freq() {:d} MB\n".format(round(mempertask)))
+                print("\033[96mRecommendation for '--mem-per-task' to run gen_freq() {:d} MB\n\033[00m".format(round(mempertask)))
         comm.Barrier()
         return None
     #End of function ref_freq()
@@ -278,11 +291,12 @@ class extragalactic():
         nu is the frequency (in Hz) at which you want to evaluate the brightness temperature map.
         nu can be one number or an array.
         '''
-	
+        print_banner()
+		#-------------------------------------------------------------------------------------
         comm = MPI.COMM_WORLD
         cpu_ind = comm.Get_rank()
         Ncpu = comm.Get_size()
-        
+        #-------------------------------------------------------------------------------------
         Nside= 2**self.log2Nside
         Npix = hp.nside2npix(Nside) #number of pixels
 
@@ -301,7 +315,7 @@ class extragalactic():
         beta_save_name = self.path+'beta.npy'
 
         if cpu_ind==0:
-            print('\nRunning gen_freq() ...\n')
+            print('\n\033[94mRunning gen_freq() ...\033[00m\n')
             print("Beginning scaling extragalactic maps to general frequency ...")
         N_nu = np.size(nu)
         Tb_nu_final = np.zeros((Npix,N_nu),dtype='float64')	
@@ -326,7 +340,6 @@ class extragalactic():
                 for i in range(N_nu):
                     Tb_nu_final[j,i] = Tb_nu(slctd_Tb_o[j-Ncpu*ppc],slctd_beta[j-Ncpu*ppc],nu[i])
 
-
         #-------------------------------------------------------------------------------------
         comm.Barrier()
         #Now all CPUs have done their job of calculating the Tb's and beta's. 
@@ -339,7 +352,6 @@ class extragalactic():
             '''
             I am the master CPU. Receiving all Tb's.
             '''
-            print("Done.\nReceiving Tb's from all CPUs ...")
             for i in range(1,Ncpu):
                 receive_local = np.empty((Npix, N_nu),dtype='float64')
                 comm.Recv([receive_local,MPI.FLOAT],source=i, tag=11)
@@ -348,9 +360,9 @@ class extragalactic():
             Tb_nu_save_name = self.path+'Tb_nu.npy'
             np.save(Tb_nu_save_name,Tb_nu_final)
             
-            print('Done.\nFile saved as',Tb_nu_save_name)
+            print('Done.\n\033[32mFile saved as',Tb_nu_save_name,'\033[00m')
             print('It is an array of shape',np.shape(Tb_nu_final))
-            print('\nEnd of function gen_freq().')
+            print('\n\033[94m================ End of function gen_freq(). ================\033[00m\n')
 
             nu_save_name = self.path+'nu_glob.npy'
             np.save(nu_save_name,nu)
@@ -358,7 +370,7 @@ class extragalactic():
         return None    
     #End of function gen_freq()
 
-    def visual(self, nu_skymap=None, skymap=False, spectrum=True, xlog=False,ylog=True):
+    def visual(self, nu_skymap=None, skymap=False, spectrum=True, xlog=False,ylog=True, fig_ext = 'pdf'):
         '''
         Use this function for creating a sky map at a given freqeuncy ('skymap') and/or
         the global extragalactic foregrounds as a function of frequency ('spectrum').
@@ -383,11 +395,11 @@ class extragalactic():
                     ind = np.where(nu==nu_skymap)
                     if ind==None:
                         if nu_skymap<np.min(nu):
-                            print('Warning! Given frequency outside the range.')
+                            print('\033[91mGiven frequency outside the range.\033[00m')
                             print('Using the lowest available frequency; {:.2f} MHz ...'.format(np.min(nu)/1e6))
                             Tb_plot = Tb_nu[:,0]
                         elif nu_skymap>np.max(nu):
-                            print('Warning! Given frequency outside the range.')
+                            print('\033[91mGiven frequency outside the range.\033[00m')
                             print('Using the highest available frequency; {:.2f} MHz ...'.format(np.max(nu)/1e6))
                             Tb_plot = Tb_nu[:,0]
                         else:
@@ -401,14 +413,14 @@ class extragalactic():
 
                 print('\nGenerating the sky map at frequency = {:.2f} MHz ...'.format(nu_skymap/1e6))
             else:
-                print("Warning! Multiple values given for 'nu_skymap' with 'skymap=True'. Plotting only at the reference frequency ...")
+                print("\033[91mMultiple values given for 'nu_skymap' with 'skymap=True'. Plotting only at the reference frequency ...\033[00m")
                 Tb_plot = Tb_o
 
             hp.mollview(Tb_plot,title=None,unit=r'$T_{\mathrm{b}}^{\mathrm{eg}}\,$(K)',cmap=colormaps['coolwarm'],min=0.05,max=200,norm='log')
             hp.graticule()
             fig_path = self.path+'Tb_nu_map_'+str(int(nu_skymap/1e6))+'-MHz.pdf'
             plt.savefig(fig_path, bbox_inches='tight')
-            print('Done. Tb map saved as',fig_path)
+            print('Done.\n\033[32mTb map saved as',fig_path,'\033[00m')
 
         if spectrum:
             Tb_mean = Tb_o_mean*(nu/self.nu_o)**-self.beta_o
@@ -444,9 +456,15 @@ class extragalactic():
             #plt.xlim([0.1,1e2])
             #plt.ylim([1,3e4])
             ax.set_aspect(1.0/ax.get_data_ratio(), adjustable='box')
-            fig_path = self.path+'Tb_vs_nu.png'
-            plt.savefig(fig_path)
-            print('Done. Tb vs frequency saved as',fig_path,'\n')
+            fig_path = self.path+'Tb_vs_nu.' + fig_ext
+            try:
+                plt.savefig(fig_path)
+            except:
+                fig_path = self.path+'Tb_vs_nu.pdf'
+                print('\033[91mUnknown figure format given. Saving in PDF format instead ...\033[00m')
+                plt.savefig(fig_path)
+            
+            print('Done.\n\033[32mTb vs frequency saved as',fig_path,'\n\033[00m')
     #End of function visual()
 #End of class extragalactic()
 

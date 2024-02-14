@@ -5,6 +5,13 @@ If you use this code please cite Mittal et al (2024).
 ## Why do you need this code?
 A cosmological global 21-cm signal hides under foregrounds due to galactic and extragalactic emissions. These foregrounds can easily be 4 to 5 orders of magnitude higher than the signal of interest. For a reliable inference it is important to accurately model these foregrounds. While we have a reasonable understanding of galactic emission (typically fit as log-log polynomial), we do not understand the extragalactic contributions. Based on previous work, this code models the foregrounds due to unresolved extragalactic radio sources.
 
+## Installation and requirements
+This package can be installed as 
+
+```pip install furs```
+
+It is recommended to work on a Python version > 3.8. Additional packages required are `healpy` and `transformcl`.
+
 ## Quick start
 The code is run in two main steps:
 * Assign the unresolved sources flux densities (at a chosen reference frequency) and spectral indices.
@@ -141,15 +148,15 @@ This function will produce figures as PDF files in the path specficied.
 
 ## Other functions
 
-There are 4 additional useful methods of the class extragalactic. These are:-
+There are 4 additional useful methods of the class `extragalactic`. These are:-
 
 1. `acf`
 	* returns the 2PACF, $C(\chi)$
-	* requires one argument, the angle $\chi$ in radians
-	* output is a dimensionless number
+	* requires one argument, the angle $\chi$ in radians; can be a number or an array
+	* output is a dimensionless quantity
 2. `dndS`
 	* returns flux distribution, $\mathrm{d}n/\mathrm{d}S$
-	* requires one argument, the flux density $S$ in Jy
+	* requires one argument, the flux density $S$ in Jy; can be a number or an array
 	* output is in units of number per unit flux density per unit solid angle, i.e. $\mathrm{Jy^{-1}sr^{-1}}$
 3. `num_den`
 	* returns the clustered number density as number per pixel, $n_{\mathrm{clus}}$
@@ -160,3 +167,8 @@ There are 4 additional useful methods of the class extragalactic. These are:-
 	* no arguments required
 	* output is a pure number
 
+Example usage: to find the number of sources between $10^{-6}$ and $10^{-1}\,\mathrm{Jy}$ do
+```
+obj = furs.extragalactic(logSmin=-6,logSmax=-1)
+Ns = obj.num_sources()
+```
