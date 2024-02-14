@@ -6,7 +6,6 @@ from scipy.special import legendre
 import random
 import transformcl as tcl
 import healpy as hp
-import hickle as hkl
 from mpi4py import MPI
 from mpi4py.util import pkl5
 import sys
@@ -21,16 +20,16 @@ nu21 = 1420     #21-cm frequency in MHz
 np.seterr(all='ignore')
 
 def print_banner():
-	banner = """\033[94m
-	███████╗ ██╗   ██╗ ██████╗  ███████╗
-	██╔════╝ ██║   ██║ ██╔══██╗ ██╔════╝
-	█████╗   ██║   ██║ ██████╔╝ ███████╗
-	██╔══╝   ██║   ██║ ██╔══██╗ ╚════██║
-	██║      ╚██████╔╝ ██║  ██║ ███████║
-	╚═╝       ╚═════╝  ╚═╝  ╚═╝ ╚══════╝
-	\033[00m"""                                
-	print(banner)
-	return None
+    banner = """\033[94m
+    ███████╗ ██╗   ██╗ ██████╗  ███████╗
+    ██╔════╝ ██║   ██║ ██╔══██╗ ██╔════╝
+    █████╗   ██║   ██║ ██████╔╝ ███████╗
+    ██╔══╝   ██║   ██║ ██╔══██╗ ╚════██║
+    ██║      ╚██████╔╝ ██║  ██║ ███████║
+    ╚═╝       ╚═════╝  ╚═╝  ╚═╝ ╚══════╝
+    \033[00m"""                                
+    print(banner)
+    return None
 
 #The following 2 functions are required for adding a secondary x-axis at the top for figures.
 def nu2z(nu):
@@ -161,7 +160,7 @@ class extragalactic():
         cpu_ind = comm.Get_rank()
         Ncpu = comm.Get_size()
 
-        if Ncpu==1: print("\033[91mBetter to run on HPC. Eg. 'mpirun -np 4 python3 %s', where 4 specifies the number of tasks.\033[00m" %(sys.argv[0]))
+        if Ncpu==1: print("\033[91mBetter to parallelise. Eg. 'mpirun -np 4 python3 %s', where 4 specifies the number of tasks.\033[00m" %(sys.argv[0]))
             
         #-------------------------------------------------------------------------------------
         Nside= 2**self.log2Nside
@@ -183,13 +182,13 @@ class extragalactic():
             where_n_less_than_1 = np.where(np.round(n_clus)<1.0)
             Npix_less_than_1 = 100*np.size(where_n_less_than_1)/Npix
             if Npix_less_than_1>50:
-            	print('\n\033[31m{:.2f}% pixels have no sources!'.format(Npix_less_than_1))
-            	print('This can happen either because there are very few sources in your chosen flux density range or your resolution is too high.')
-            	print('Recommendation: either increase (`logSmax`-`logSmin`) or decrease `log2Nside`.\n\033[00m')
+                print('\n\033[31m{:.2f}% pixels have no sources!'.format(Npix_less_than_1))
+                print('This can happen either because there are very few sources in your chosen flux density range or your resolution is too high.')
+                print('Recommendation: either increase (`logSmax`-`logSmin`) or decrease `log2Nside`.\n\033[00m')
             
             n_clus_save_name = self.path+'n_clus.npy'
             np.save(n_clus_save_name,n_clus)
-            print('The clustered number density has been saved into file:',n_clus_save_name)
+            print('\033[32mThe clustered number density has been saved into file:\n',n_clus_save_name,'\033[00m')
 
             print("\nAssigning flux density and power-law index ...")
         else:
@@ -203,7 +202,7 @@ class extragalactic():
         dndS_space = self.dndS(S_space)
         Ns_per_sr = np.trapz(dndS_space,S_space)
 
-        ppc = int(Npix/Ncpu)	#pixels per cpu
+        ppc = int(Npix/Ncpu)    #pixels per cpu
         Omega_pix = hp.nside2pixarea(Nside) #Solid angle per pixel
         
         Tb_o_local = np.zeros(ppc)
@@ -211,7 +210,7 @@ class extragalactic():
         beta_local = np.zeros(ppc, dtype=object)
 
         for j in np.arange(cpu_ind*ppc,(cpu_ind+1)*ppc):
-            N = round(n_clus[j])	#no.of sources on jth pixel
+            N = round(n_clus[j])    #no.of sources on jth pixel
             So_j = np.array(random.choices(S_space,weights=dndS_space/Ns_per_sr,k=N))   #select N flux densities for jth pixel, in Jy
             beta_local[j-cpu_ind*ppc] = np.random.normal(loc=self.beta_o,scale=self.sigma_beta,size=N) #select N spectral indices for jth pixel
                         
@@ -271,9 +270,9 @@ class extragalactic():
             np.save(beta_save_name,beta)
             #hkl.dump(beta, beta_save_name, mode='w')
                 
-            print('\033[32mThe brightness temperature (at reference frequency) for each source has been saved into file:',Tb_o_individual_save_name,'\033[00m')
-            print('\033[32mThe pixel wise brightness temperature (at reference frequency) has been saved into file:',Tb_o_save_name,'\033[00m')
-            print('\033[32mThe spectral index for each source has been saved into file:',beta_save_name,'\033[00m')
+            print('\033[32mThe brightness temperature (at reference frequency) for each source saved into:\n',Tb_o_individual_save_name,'\033[00m')
+            print('\033[32mThe pixel wise brightness temperature (at reference frequency) saved into:\n',Tb_o_save_name,'\033[00m')
+            print('\033[32mThe spectral index for each source saved into:\n',beta_save_name,'\033[00m')
             print('\n\033[94m================ End of function ref_freq(). ================\033[00m\n')
             
             mempertask = 2e-6*os.path.getsize(Tb_o_individual_save_name)
@@ -292,7 +291,7 @@ class extragalactic():
         nu can be one number or an array.
         '''
         print_banner()
-		#-------------------------------------------------------------------------------------
+        #-------------------------------------------------------------------------------------
         comm = MPI.COMM_WORLD
         cpu_ind = comm.Get_rank()
         Ncpu = comm.Get_size()
@@ -307,7 +306,7 @@ class extragalactic():
             Return value is one number.
             nu should be in Hz. (Best to give one nu at a time.)
             Tb_o and beta should be of same dimensions if both are arrays of size more than 1.
-            '''	
+            '''    
             return np.sum(Tb_ref*(nu/self.nu_o)**-(beta))
 
 
@@ -318,7 +317,7 @@ class extragalactic():
             print('\n\033[94mRunning gen_freq() ...\033[00m\n')
             print("Beginning scaling extragalactic maps to general frequency ...")
         N_nu = np.size(nu)
-        Tb_nu_final = np.zeros((Npix,N_nu),dtype='float64')	
+        Tb_nu_final = np.zeros((Npix,N_nu),dtype='float64')    
 
         ppc = int(Npix/Ncpu)    #pixels per cpu
         slctd_Tb_o = np.load(Tb_o_individual_save_name,allow_pickle=True)[cpu_ind*ppc:(cpu_ind+1)*ppc]
@@ -370,7 +369,7 @@ class extragalactic():
         return None    
     #End of function gen_freq()
 
-    def visual(self, nu_skymap=None, skymap=False, spectrum=True, xlog=False,ylog=True, fig_ext = 'pdf'):
+    def visual(self, nu_skymap=None, t_skymap=False, spectrum=True, n_skymap=False, xlog=False,ylog=True, fig_ext = 'pdf'):
         '''
         Use this function for creating a sky map at a given freqeuncy ('skymap') and/or
         the global extragalactic foregrounds as a function of frequency ('spectrum').
@@ -378,93 +377,115 @@ class extragalactic():
         By default we only plot the spectrum and not the skymap.
         'xlog' and 'ylog' are the boolean values deciding the scale of x and y axis, respectively.
         '''
-        nu = np.load(self.path+'nu_glob.npy')
-        Tb_o = np.load(self.path+'Tb_o.npy')
-        Tb_nu = np.load(self.path+'Tb_nu.npy')
-        Tb_o_mean = np.mean(Tb_o,axis=0)
+        #-------------------------------------------------------------------------------------
+        comm = MPI.COMM_WORLD
+        cpu_ind = comm.Get_rank()
+        Ncpu = comm.Get_size()
+        #-------------------------------------------------------------------------------------
         
-        plt.rc('text', usetex=True)
-        plt.rc('font', family='serif')
-        if skymap:    
-            if np.size(nu_skymap)==1:
-                if nu_skymap==None:
-                    print("No frequency given with 'skymap=True'. Creating sky map at the reference frequency ...")
-                    nu_skymap=self.nu_o
-                    Tb_plot = Tb_o
-                else:
-                    ind = np.where(nu==nu_skymap)
-                    if ind==None:
-                        if nu_skymap<np.min(nu):
-                            print('\033[91mGiven frequency outside the range.\033[00m')
-                            print('Using the lowest available frequency; {:.2f} MHz ...'.format(np.min(nu)/1e6))
-                            Tb_plot = Tb_nu[:,0]
-                        elif nu_skymap>np.max(nu):
-                            print('\033[91mGiven frequency outside the range.\033[00m')
-                            print('Using the highest available frequency; {:.2f} MHz ...'.format(np.max(nu)/1e6))
-                            Tb_plot = Tb_nu[:,0]
-                        else:
-                            print('Given frequency unavailable in gen_freq(). Interpolating ...')
-                            print("Creating sky map at {:.2f} ...".format(nu_skymap/1e6))
-                            spl = CubicSpline(nu, Tb_nu)
-                            Tb_plot = spl(nu_skymap)
+        if cpu_ind==0:
+            print('\n\033[94mRunning visual() ...\033[00m\n')
+            if Ncpu>1:
+                print("\033[91m'visual' does not require parallelisation.\033[00m")
+                print("\033[91mRun as 'python3 %s'.\033[00m\n" %(sys.argv[0]))
+            nu = np.load(self.path+'nu_glob.npy')
+            Tb_o = np.load(self.path+'Tb_o.npy')
+            Tb_nu = np.load(self.path+'Tb_nu.npy')
+            Tb_o_mean = np.mean(Tb_o,axis=0)
+            
+            plt.rc('text', usetex=True)
+            plt.rc('font', family='serif')
+            if t_skymap:    
+                if np.size(nu_skymap)==1:
+                    if nu_skymap==None:
+                        print("No frequency given with 'skymap=True'. Creating sky map at the reference frequency ...")
+                        nu_skymap=self.nu_o
+                        Tb_plot = Tb_o
                     else:
-                        print("Creating sky map at {:.2f} ...".format(nu_skymap/1e6))
-                        Tb_plot = Tb_nu[:,ind]
+                        ind = np.where(nu==nu_skymap)
+                        if ind==None:
+                            if nu_skymap<np.min(nu):
+                                print('\033[91mGiven frequency outside the range.\033[00m')
+                                print('Using the lowest available frequency; {:.2f} MHz ...'.format(np.min(nu)/1e6))
+                                Tb_plot = Tb_nu[:,0]
+                            elif nu_skymap>np.max(nu):
+                                print('\033[91mGiven frequency outside the range.\033[00m')
+                                print('Using the highest available frequency; {:.2f} MHz ...'.format(np.max(nu)/1e6))
+                                Tb_plot = Tb_nu[:,0]
+                            else:
+                                print('Given frequency unavailable in gen_freq(). Interpolating ...')
+                                print("Creating sky map at {:.2f} ...".format(nu_skymap/1e6))
+                                spl = CubicSpline(nu, Tb_nu)
+                                Tb_plot = spl(nu_skymap)
+                        else:
+                            print("Creating sky map at {:.2f} ...".format(nu_skymap/1e6))
+                            Tb_plot = Tb_nu[:,ind]
 
-                print('\nGenerating the sky map at frequency = {:.2f} MHz ...'.format(nu_skymap/1e6))
-            else:
-                print("\033[91mMultiple values given for 'nu_skymap' with 'skymap=True'. Plotting only at the reference frequency ...\033[00m")
-                Tb_plot = Tb_o
+                    print('\nGenerating the sky map at frequency = {:.2f} MHz ...'.format(nu_skymap/1e6))
+                else:
+                    print("\033[91mMultiple values given for 'nu_skymap' with 'skymap=True'. Plotting only at the reference frequency ...\033[00m")
+                    Tb_plot = Tb_o
 
-            hp.mollview(Tb_plot,title=None,unit=r'$T_{\mathrm{b}}^{\mathrm{eg}}\,$(K)',cmap=colormaps['coolwarm'],min=0.05,max=200,norm='log')
-            hp.graticule()
-            fig_path = self.path+'Tb_nu_map_'+str(int(nu_skymap/1e6))+'-MHz.pdf'
-            plt.savefig(fig_path, bbox_inches='tight')
-            print('Done.\n\033[32mTb map saved as',fig_path,'\033[00m')
+                hp.mollview(Tb_plot,title=None,unit=r'$T_{\mathrm{b}}^{\mathrm{eg}}\,$(K)',cmap=colormaps['coolwarm'],min=0.05,max=200,norm='log')
+                hp.graticule()
+                
+                fig_path = self.path+'Tb_nu_map_'+str(int(nu_skymap/1e6))+'-MHz.'+fig_ext
+                plt.savefig(fig_path, bbox_inches='tight')
 
-        if spectrum:
-            Tb_mean = Tb_o_mean*(nu/self.nu_o)**-self.beta_o
-            Tb_glob = np.mean(Tb_nu,axis=0)
-            
-            print('\nCreating Tb vs nu plot ...')
-            left=0.12
-            fs=22
-            fig,ax=plt.subplots(figsize=(8, 7.9))
-            fig.subplots_adjust(left=left, bottom=0.06, right=1-left, top=0.94)
-            
-            ax.axhline(y=Tcmb_o,color='k',ls='--',lw=1.5, label='CMB')
-            ax.plot(nu/1e6,Tb_mean,color='r',lw=1.5,ls=':',label=r'$\beta= $ %.2f'%self.beta_o)
-            ax.plot(nu/1e6,Tb_glob,color='b',lw=1.5,label='Extragalactic')
+                print('Done.\n\033[32mTb map saved as:\n',fig_path,'\033[00m')
+                
+            if n_skymap:
+                print('Creating number density map ...')
+                n_clus = np.load(self.path+'n_clus.npy')
+                nmax = int(np.max(n_clus))+1
+                nmin = int(np.min(n_clus))
+                
+                hp.mollview(n_clus,title=None,unit='$n$',min=nmin,max=nmax)
+                hp.graticule()
+                
+                fig_path = self.path+'n_clus.' + fig_ext
+                plt.savefig(fig_path, bbox_inches='tight')
+                print('Done.\n\033[32mnumber density map saved as:\n',fig_path,'\033[00m')
+            if spectrum:
+                Tb_mean = Tb_o_mean*(nu/self.nu_o)**-self.beta_o
+                Tb_glob = np.mean(Tb_nu,axis=0)
+                
+                print('\nCreating Tb vs nu plot ...')
+                left=0.12
+                fs=22
+                fig,ax=plt.subplots(figsize=(8, 7.9))
+                fig.subplots_adjust(left=left, bottom=0.06, right=1-left, top=0.94)
+                
+                ax.axhline(y=Tcmb_o,color='k',ls='--',lw=1.5, label='CMB')
+                ax.plot(nu/1e6,Tb_mean,color='r',lw=1.5,ls=':',label=r'$\beta= $ %.2f'%self.beta_o)
+                ax.plot(nu/1e6,Tb_glob,color='b',lw=1.5,label='Extragalactic')
 
-            if xlog:
-                ax.set_xscale('log')
-            if ylog:
-                ax.set_yscale('log')
-            
-            ax.set_xlabel(r'$\nu\,$(MHz)',fontsize=fs)
-            ax.set_ylabel(r'$T_{\mathrm{b}}^{\mathrm{eg}}\,$(K)',fontsize=fs)
+                if xlog:
+                    ax.set_xscale('log')
+                if ylog:
+                    ax.set_yscale('log')
+                
+                ax.set_xlabel(r'$\nu\,$(MHz)',fontsize=fs)
+                ax.set_ylabel(r'$T_{\mathrm{b}}^{\mathrm{eg}}\,$(K)',fontsize=fs)
 
-            ax.minorticks_on()
-            ax.yaxis.set_ticks_position('both')
-            ax.tick_params(axis='both', which='major', labelsize=fs)
-            ax.legend(fontsize=18,frameon=False)
+                ax.minorticks_on()
+                ax.yaxis.set_ticks_position('both')
+                ax.tick_params(axis='both', which='major', labelsize=fs)
+                ax.legend(fontsize=18,frameon=False)
 
-            secax = ax.secondary_xaxis('top', functions=(nu2z,z2nu))
-            secax.set_xlabel(r'$z$',fontsize=fs, labelpad=12)
-            secax.tick_params(which='major', labelsize=fs)
+                secax = ax.secondary_xaxis('top', functions=(nu2z,z2nu))
+                secax.set_xlabel(r'$z$',fontsize=fs, labelpad=12)
+                secax.tick_params(which='major', labelsize=fs)
 
-            #plt.xlim([0.1,1e2])
-            #plt.ylim([1,3e4])
-            ax.set_aspect(1.0/ax.get_data_ratio(), adjustable='box')
-            fig_path = self.path+'Tb_vs_nu.' + fig_ext
-            try:
+                #plt.xlim([0.1,1e2])
+                #plt.ylim([1,3e4])
+                ax.set_aspect(1.0/ax.get_data_ratio(), adjustable='box')
+                fig_path = self.path+'Tb_vs_nu.' + fig_ext
                 plt.savefig(fig_path)
-            except:
-                fig_path = self.path+'Tb_vs_nu.pdf'
-                print('\033[91mUnknown figure format given. Saving in PDF format instead ...\033[00m')
-                plt.savefig(fig_path)
+                
+                print('Done.\n\033[32mTb vs frequency saved as:\n',fig_path,'\n\033[00m')
             
-            print('Done.\n\033[32mTb vs frequency saved as',fig_path,'\n\033[00m')
+            print('\n\033[94m================ End of function visual(). ================\033[00m\n')
     #End of function visual()
 #End of class extragalactic()
 
