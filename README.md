@@ -8,7 +8,9 @@ A cosmological global 21-cm signal hides under foregrounds due to galactic and e
 ## Installation and requirements
 This package can be installed as 
 
-```pip install furs```
+```
+pip install furs
+```
 
 It is recommended to work on a Python version > 3.8. Additional packages required are `healpy` and `transformcl`.
 
@@ -124,27 +126,35 @@ obj.visual()
 
 The following optional arguments are available for this function:-
 1. `nu_skymap`
-	* the frequency at which you want to produce a Mollweide projection
+	* the frequency at which you want to produce a Mollweide projection of extragalactic foregrounds
 	* type *float*
 	* default `nu_o`
-2. `skymap`
-	* Create a sky map?
+2. `t_skymap`
+	* Create a sky map of extragalactic foregrounds?
 	* type *bool*
 	* default `False`
 3. `spectrum`
 	* Create the foreground spectrum?
 	* type *bool*
 	* default `True`
-4. `xlog`
+4.	`n_skymap`
+	* Create a sky map of number density of unresolved radio sources?
+	* type *bool*
+	* default `False`
+5. `xlog`
 	* Set x-axis in log scale?
 	* type *bool*
 	* default `False`
-5. `ylog`
+6. `ylog`
 	* Set y-axis in log scale?
 	* type *bool*
 	* default `True`
+7.  `fig_ext`
+	* Choose your format of figure file; popular choices include `pdf`, `jpeg`, `png`
+	* type *string*
+	* default `pdf`
 
-This function will produce figures as PDF files in the path specficied. 
+This function will produce figures in the path specficied during initialisation. 
 
 ## Other functions
 
@@ -172,3 +182,7 @@ Example usage: to find the number of sources between $10^{-6}$ and $10^{-1}\,\ma
 obj = furs.extragalactic(logSmin=-6,logSmax=-1)
 Ns = obj.num_sources()
 ```
+
+## General remarks
+
+Users do not have to run `ref_freq()` everytime. If they want to use the same data, i.e. source distribution (`n_clus.npy`), flux density (`Tb_o_individual.npy`) and spectral index (`beta.npy`) assignments at reference frequency to generate spectrum  and sky maps for a different frequency range, then run only `gen_freq()`.
