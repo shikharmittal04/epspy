@@ -177,7 +177,7 @@ There are 4 additional useful methods of the class `extragalactic`. These are:-
 	* no arguments required
 	* output is a pure number
 
-Example usage: to find the number of sources between $10^{-6}$ and $10^{-1}\,\mathrm{Jy}$ do
+Example usage: to find the number of sources between $10^{-6}$ and $10^{-1}\mathrm{Jy}$ do
 ```
 obj = furs.extragalactic(logSmin=-6,logSmax=-1)
 Ns = obj.num_sources()
@@ -185,4 +185,4 @@ Ns = obj.num_sources()
 
 ## General remarks
 
-Users do not have to run `ref_freq()` everytime. If they want to use the same data, i.e. source distribution (`n_clus.npy`), flux density (`Tb_o_individual.npy`) and spectral index (`beta.npy`) assignments at reference frequency to generate spectrum  and sky maps for a different frequency range, then run only `gen_freq()`.
+Users do not have to run `ref_freq()` everytime. If they want to use the same data for source distribution (`n_clus.npy`), flux density (`Tb_o_individual.npy`) and spectral index (`beta.npy`) assignments at reference frequency to generate spectrum and sky maps for a different frequency range, then run only `gen_freq()` for a new choice of `nu`.

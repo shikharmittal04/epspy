@@ -154,12 +154,12 @@ class extragalactic():
         The length of Tb_o[j] tells us the number of sources, say N_j, on the jth pixel and
         Tb_o_individual[j][0], Tb_o_individual[j][1], ..., Tb_o_individual[j][N_j] are the temperatures (at ref. frequency) due to 0th, 1st,...(N_j)th source on the jth pixel.
         '''
-        print_banner()
         #-------------------------------------------------------------------------------------
         comm = pkl5.Intracomm(MPI.COMM_WORLD)
         cpu_ind = comm.Get_rank()
         Ncpu = comm.Get_size()
-
+        
+        if cpu_ind==0: print_banner()
         if Ncpu==1: print("\033[91mBetter to parallelise. Eg. 'mpirun -np 4 python3 %s', where 4 specifies the number of tasks.\033[00m" %(sys.argv[0]))
             
         #-------------------------------------------------------------------------------------
@@ -260,7 +260,7 @@ class extragalactic():
                 beta = np.concatenate((beta,beta_remain))
 
             Tb_o_individual_save_name = self.path+'Tb_o_individual.npy'
-            Tb_o_save_name = self.path+'Tb_o.npy'
+            Tb_o_save_name = self.path+'Tb_o_map.npy'
             beta_save_name = self.path+'beta.npy'
             
            
@@ -270,8 +270,8 @@ class extragalactic():
             np.save(beta_save_name,beta)
             #hkl.dump(beta, beta_save_name, mode='w')
                 
-            print('\033[32mThe brightness temperature (at reference frequency) for each source saved into:\n',Tb_o_individual_save_name,'\033[00m')
-            print('\033[32mThe pixel wise brightness temperature (at reference frequency) saved into:\n',Tb_o_save_name,'\033[00m')
+            print('\033[32mThe brightness temperature (at reference frequency) for each source saved into:\n',Tb_o_individual_save_name,'\033[00m\n')
+            print('\033[32mThe pixel wise brightness temperature (at reference frequency) saved into:\n',Tb_o_save_name,'\033[00m\n')
             print('\033[32mThe spectral index for each source saved into:\n',beta_save_name,'\033[00m')
             print('\n\033[94m================ End of function ref_freq(). ================\033[00m\n')
             
@@ -290,7 +290,6 @@ class extragalactic():
         nu is the frequency (in Hz) at which you want to evaluate the brightness temperature map.
         nu can be one number or an array.
         '''
-        print_banner()
         #-------------------------------------------------------------------------------------
         comm = MPI.COMM_WORLD
         cpu_ind = comm.Get_rank()
@@ -314,6 +313,7 @@ class extragalactic():
         beta_save_name = self.path+'beta.npy'
 
         if cpu_ind==0:
+            print_banner()
             print('\n\033[94mRunning gen_freq() ...\033[00m\n')
             print("Beginning scaling extragalactic maps to general frequency ...")
         N_nu = np.size(nu)
@@ -356,9 +356,13 @@ class extragalactic():
                 comm.Recv([receive_local,MPI.FLOAT],source=i, tag=11)
                 Tb_nu_final = Tb_nu_final + receive_local
 
-            Tb_nu_save_name = self.path+'Tb_nu.npy'
+            Tb_nu_save_name = self.path+'Tb_nu_map.npy'
             np.save(Tb_nu_save_name,Tb_nu_final)
             
+            Tb_nu_glob = np.mean(Tb_nu_final,axis=0)
+            tbnuglob = self.path+'Tb_nu_glob.npy'
+            np.save(tbnuglob,Tb_nu_glob)
+
             print('Done.\n\033[32mFile saved as',Tb_nu_save_name,'\033[00m')
             print('It is an array of shape',np.shape(Tb_nu_final))
             print('\n\033[94m================ End of function gen_freq(). ================\033[00m\n')
