@@ -391,46 +391,52 @@ class extragalactic():
             print('\n\033[94mRunning visual() ...\033[00m\n')
             if Ncpu>1:
                 print("\033[91m'visual' does not require parallelisation.\033[00m")
-                print("\033[91mRun as 'python3 %s'.\033[00m\n" %(sys.argv[0]))
+                print("\033[91mYou can run as 'python3 %s'.\033[00m\n" %(sys.argv[0]))
             nu = np.load(self.path+'nu_glob.npy')
-            Tb_o = np.load(self.path+'Tb_o.npy')
-            Tb_nu = np.load(self.path+'Tb_nu.npy')
-            Tb_o_mean = np.mean(Tb_o,axis=0)
+            Tb_o_map = np.load(self.path+'Tb_o_map.npy')
+            Tb_o_glob = np.mean(Tb_o_map)
+            
+            Tb_nu_map = np.load(self.path+'Tb_nu_map.npy')
+            Tb_nu_glob = np.load(self.path+'Tb_nu_glob.npy')
+            
+            if np.size(nu_skymap)==1 and nu_skymap is not None: t_skymap = True
             
             plt.rc('text', usetex=True)
             plt.rc('font', family='serif')
+            
             if t_skymap:    
                 if np.size(nu_skymap)==1:
                     if nu_skymap==None:
-                        print("No frequency given with 'skymap=True'. Creating sky map at the reference frequency ...")
+                        print("No frequency given with 't_skymap=True'. Creating sky map at the reference frequency ...")
                         nu_skymap=self.nu_o
-                        Tb_plot = Tb_o
+                        Tb_plot = Tb_o_map
                     else:
-                        ind = np.where(nu==nu_skymap)
-                        if ind==None:
+                        ind = np.where(nu==nu_skymap)[0]
+                        if np.size(ind)==0:
                             if nu_skymap<np.min(nu):
                                 print('\033[91mGiven frequency outside the range.\033[00m')
                                 print('Using the lowest available frequency; {:.2f} MHz ...'.format(np.min(nu)/1e6))
-                                Tb_plot = Tb_nu[:,0]
+                                Tb_plot = Tb_nu_map[:,0]
+                                nu_skymap = np.min(nu)
                             elif nu_skymap>np.max(nu):
                                 print('\033[91mGiven frequency outside the range.\033[00m')
                                 print('Using the highest available frequency; {:.2f} MHz ...'.format(np.max(nu)/1e6))
-                                Tb_plot = Tb_nu[:,0]
+                                Tb_plot = Tb_nu_map[:,0]
+                                nu_skymap = np.max(nu)
                             else:
                                 print('Given frequency unavailable in gen_freq(). Interpolating ...')
-                                print("Creating sky map at {:.2f} ...".format(nu_skymap/1e6))
-                                spl = CubicSpline(nu, Tb_nu)
+                                print("Creating sky map at {:.2f} MHz...".format(nu_skymap/1e6))
+                                spl = CubicSpline(nu, Tb_nu_map, axis=1)
                                 Tb_plot = spl(nu_skymap)
                         else:
-                            print("Creating sky map at {:.2f} ...".format(nu_skymap/1e6))
-                            Tb_plot = Tb_nu[:,ind]
+                            print("Creating sky map at {:.2f} MHz...".format(nu_skymap/1e6))
+                            Tb_plot = Tb_nu_map[:,ind[0]]
 
-                    print('\nGenerating the sky map at frequency = {:.2f} MHz ...'.format(nu_skymap/1e6))
                 else:
-                    print("\033[91mMultiple values given for 'nu_skymap' with 'skymap=True'. Plotting only at the reference frequency ...\033[00m")
-                    Tb_plot = Tb_o
+                    print("\033[91mMultiple values given for 'nu_skymap' with 't_skymap=True'. Plotting only at the reference frequency ...\033[00m")
+                    Tb_plot = Tb_o_map
 
-                hp.mollview(Tb_plot,title=None,unit=r'$T_{\mathrm{b}}^{\mathrm{eg}}\,$(K)',cmap=colormaps['coolwarm'],min=0.05,max=200,norm='log')
+                hp.mollview(Tb_plot,title=None,unit=r'$T_{\mathrm{b}}^{\mathrm{eg}}\,$(K)',cmap=colormaps['coolwarm'],norm='log') #,min=0.05,max=200
                 hp.graticule()
                 
                 fig_path = self.path+'Tb_nu_map_'+str(int(nu_skymap/1e6))+'-MHz.'+fig_ext
@@ -451,8 +457,7 @@ class extragalactic():
                 plt.savefig(fig_path, bbox_inches='tight')
                 print('Done.\n\033[32mnumber density map saved as:\n',fig_path,'\033[00m')
             if spectrum:
-                Tb_mean = Tb_o_mean*(nu/self.nu_o)**-self.beta_o
-                Tb_glob = np.mean(Tb_nu,axis=0)
+                Tb_mean = Tb_o_glob*(nu/self.nu_o)**-self.beta_o
                 
                 print('\nCreating Tb vs nu plot ...')
                 left=0.12
@@ -462,7 +467,7 @@ class extragalactic():
                 
                 ax.axhline(y=Tcmb_o,color='k',ls='--',lw=1.5, label='CMB')
                 ax.plot(nu/1e6,Tb_mean,color='r',lw=1.5,ls=':',label=r'$\beta= $ %.2f'%self.beta_o)
-                ax.plot(nu/1e6,Tb_glob,color='b',lw=1.5,label='Extragalactic')
+                ax.plot(nu/1e6,Tb_nu_glob,color='b',lw=1.5,label='Extragalactic')
 
                 if xlog:
                     ax.set_xscale('log')
