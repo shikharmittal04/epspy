@@ -56,7 +56,20 @@ class extragalactic():
                             
         self.log2Nside = log2Nside    #Number of divisions in units of log_2
     #End of function __init__()
+    
+    def print_input(self):
+    	print("\n\033[93mnu_o =",self.nu_o)
+    	print("beta_o =",self.beta_o)
+    	print("sigma_beta =",self.sigma_beta)
+    	print("amp =",self.amp)
+    	print("gam =",self.gam)
+    	print("log2Nside =",self.log2Nside)
+    	print("logSmax =",self.logSmax)
+    	print("logSmin =",self.logSmin)
+    	print("path =",self.path,"\033[00m\n")
 
+    	return None
+    	
     def dndS(self, S):
         '''
         This is the distribution of flux density.
@@ -421,7 +434,7 @@ class extragalactic():
                             elif nu_skymap>np.max(nu):
                                 print('\033[91mGiven frequency outside the range.\033[00m')
                                 print('Using the highest available frequency; {:.2f} MHz ...'.format(np.max(nu)/1e6))
-                                Tb_plot = Tb_nu_map[:,0]
+                                Tb_plot = Tb_nu_map[:,-1]
                                 nu_skymap = np.max(nu)
                             else:
                                 print('Given frequency unavailable in gen_freq(). Interpolating ...')
