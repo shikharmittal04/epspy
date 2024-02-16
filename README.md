@@ -51,7 +51,7 @@ However, in general and for more realistic flux density ranges and high resoluti
     * type *float*
     * default **2.681**
 3. `sigma_beta`
-    * spread in the Gaussian distribution of spectral index
+    * spread in the Gaussian distribution of spectral index, $\sigma_\beta$
     * type *float*
     * default **0.5**
 4. `amp`

@@ -149,6 +149,15 @@ class extragalactic():
 
         #Now calculating the clustered map fluctuation...
         del_clus = hp.synfast(Cl_clus,Nside)
+        
+        where_n_neg = np.where(del_clus<-1.0)[0]
+        Npix_n_neg = 100*np.size(where_n_neg)/Npix
+        if Npix_n_neg!=0:
+            print('\n\033[31mError! Your choice of 2PACF parameters is NOT valid.')
+            print('{:.2f}% pixels have negative number of sources!'.format(Npix_n_neg))
+            print('Terminating ...\033[00m\n')
+            sys.exit()
+        
         print('Done.\nAverage overdensity for the clustered sky (should be ~ 0) = {:.3f}'.format(np.mean(del_clus)))
 
         Ns = self.num_sources()
@@ -157,7 +166,16 @@ class extragalactic():
         print('Average number of sources per pixel = {:.2f}'.format(nbar))
 
         #and the corresponding clustered number density function given the fluctuation...
-        return nbar*(1+del_clus)
+        n_clus = nbar*(1+del_clus)
+        
+        where_n_less_than_1 = np.where(np.round(n_clus)<1.0)
+        Npix_less_than_1 = 100*np.size(where_n_less_than_1)/Npix
+        if Npix_less_than_1>50:
+            print('\n\033[91m{:.2f}% pixels have no sources!'.format(Npix_less_than_1))
+            print('This can happen either because there are very few sources in your chosen flux density range or your resolution is too high.')
+            print('Recommendation: either increase (`logSmax`-`logSmin`) or decrease `log2Nside`.\n\033[00m')
+        
+        return n_clus
     #End of function num_den()
     
     def ref_freq(self):
@@ -192,12 +210,7 @@ class extragalactic():
             print('Finding the clustered number density distribution ...')
             n_clus = self.num_den()
             
-            where_n_less_than_1 = np.where(np.round(n_clus)<1.0)
-            Npix_less_than_1 = 100*np.size(where_n_less_than_1)/Npix
-            if Npix_less_than_1>50:
-                print('\n\033[31m{:.2f}% pixels have no sources!'.format(Npix_less_than_1))
-                print('This can happen either because there are very few sources in your chosen flux density range or your resolution is too high.')
-                print('Recommendation: either increase (`logSmax`-`logSmin`) or decrease `log2Nside`.\n\033[00m')
+            
             
             n_clus_save_name = self.path+'n_clus.npy'
             np.save(n_clus_save_name,n_clus)
