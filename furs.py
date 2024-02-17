@@ -408,9 +408,13 @@ class extragalactic():
         'xlog' and 'ylog' are the boolean values deciding the scale of x and y axis, respectively.
         '''
         #-------------------------------------------------------------------------------------
-        comm = MPI.COMM_WORLD
-        cpu_ind = comm.Get_rank()
-        Ncpu = comm.Get_size()
+        try:
+            comm = MPI.COMM_WORLD
+            cpu_ind = comm.Get_rank()
+            Ncpu = comm.Get_size()
+        except:
+            cpu_ind=0
+            Ncpu=1
         #-------------------------------------------------------------------------------------
         
         if cpu_ind==0:
@@ -462,7 +466,7 @@ class extragalactic():
                     print("\033[91mMultiple values given for 'nu_skymap' with 't_skymap=True'. Plotting only at the reference frequency ...\033[00m")
                     Tb_plot = Tb_o_map
 
-                hp.mollview(Tb_plot,title=None,unit=r'$T_{\mathrm{b}}^{\mathrm{eg}}\,$(K)',cmap=colormaps['coolwarm'],norm='log') #,min=0.05,max=200
+                hp.mollview(Tb_plot,title=None,unit=r'$T_{\mathrm{sky}}^{\mathrm{ex}}\,$(K)',cmap=colormaps['coolwarm'],norm = 'log') #,min=0.05,max=200
                 hp.graticule()
                 
                 fig_path = self.path+'Tb_nu_map_'+str(int(nu_skymap/1e6))+'-MHz.'+fig_ext
@@ -491,7 +495,7 @@ class extragalactic():
                 fig,ax=plt.subplots(figsize=(8, 7.9))
                 fig.subplots_adjust(left=left, bottom=0.06, right=1-left, top=0.94)
                 
-                ax.axhline(y=Tcmb_o,color='k',ls='--',lw=1.5, label='CMB')
+                #ax.axhline(y=Tcmb_o,color='k',ls='--',lw=1.5, label='CMB')
                 ax.plot(nu/1e6,Tb_mean,color='r',lw=1.5,ls=':',label=r'$\beta= $ %.2f'%self.beta_o)
                 ax.plot(nu/1e6,Tb_nu_glob,color='b',lw=1.5,label='Extragalactic')
 
@@ -501,16 +505,19 @@ class extragalactic():
                     ax.set_yscale('log')
                 
                 ax.set_xlabel(r'$\nu\,$(MHz)',fontsize=fs)
-                ax.set_ylabel(r'$T_{\mathrm{b}}^{\mathrm{eg}}\,$(K)',fontsize=fs)
+                ax.set_ylabel(r'$T_{\mathrm{sky}}^{\mathrm{ex}}\,$(K)',fontsize=fs)
 
                 ax.minorticks_on()
                 ax.yaxis.set_ticks_position('both')
-                ax.tick_params(axis='both', which='major', labelsize=fs)
+                ax.tick_params(axis='both', which='major', length=5, width=1, labelsize=fs,direction='in')
+                ax.tick_params(axis='both', which='minor', length=3, width=1,direction='in')
                 ax.legend(fontsize=18,frameon=False)
 
                 secax = ax.secondary_xaxis('top', functions=(nu2z,z2nu))
                 secax.set_xlabel(r'$z$',fontsize=fs, labelpad=12)
-                secax.tick_params(which='major', labelsize=fs)
+                secax.tick_params(axis='both', which='major', length=5, width=1, labelsize=fs,direction='in')
+                secax.tick_params(axis='both', which='minor', length=3, width=1,direction='in')
+                secax.minorticks_on()
 
                 #plt.xlim([0.1,1e2])
                 #plt.ylim([1,3e4])
