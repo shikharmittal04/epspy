@@ -469,7 +469,7 @@ class extragalactic():
                 hp.mollview(Tb_plot,title=None,unit=r'$T_{\mathrm{sky}}^{\mathrm{ex}}\,$(K)',cmap=colormaps['coolwarm'],norm = 'log') #,min=0.05,max=200
                 hp.graticule()
                 
-                fig_path = self.path+'Tb_nu_map_'+str(int(nu_skymap/1e6))+'-MHz.'+fig_ext
+                fig_path = self.path+'Tb_map_'+str(int(nu_skymap/1e6))+'-MHz.'+fig_ext
                 plt.savefig(fig_path, bbox_inches='tight')
 
                 print('Done.\n\033[32mTb map saved as:\n',fig_path,'\033[00m')
