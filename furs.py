@@ -58,18 +58,18 @@ class extragalactic():
     #End of function __init__()
     
     def print_input(self):
-    	print("\n\033[93mnu_o =",self.nu_o)
-    	print("beta_o =",self.beta_o)
-    	print("sigma_beta =",self.sigma_beta)
-    	print("amp =",self.amp)
-    	print("gam =",self.gam)
-    	print("log2Nside =",self.log2Nside)
-    	print("logSmax =",self.logSmax)
-    	print("logSmin =",self.logSmin)
-    	print("path =",self.path,"\033[00m\n")
+        print("\n\033[93mnu_o =",self.nu_o)
+        print("beta_o =",self.beta_o)
+        print("sigma_beta =",self.sigma_beta)
+        print("amp =",self.amp)
+        print("gam =",self.gam)
+        print("log2Nside =",self.log2Nside)
+        print("logSmax =",self.logSmax)
+        print("logSmin =",self.logSmin)
+        print("path =",self.path,"\033[00m\n")
 
-    	return None
-    	
+        return None
+        
     def dndS(self, S):
         '''
         This is the distribution of flux density.
@@ -125,48 +125,53 @@ class extragalactic():
         No input is required.
         Output is in units of number per pixel. It will be an array of length Npix.
         '''
+        global nbar, Cl_clus, del_clus
         
-        #Method 1:
-        '''
-        This methods requires transformcl package. Methods 2 does the same thing manually.
-        tcl.corrtocl requires us to sample the angle at some specific points; obtained by 'tcl.theta'
-        I have chosen 200 randomly. (Using a large like 1000 may result in del_clus<-1.)
-        '''
-        th = tcl.theta(200)
-        cor = self.acf(th)
-        Cl_clus = tcl.corrtocl(cor)
-        
-
-        '''
-        #Method 2:
-        #Here we manually compute the C_\ell's without using transformcl. This is much slower but more accurate. 
-        Cl_clus = np.zeros(50)
-        for i in range(50):
-            Cl_clus[i] = self.acf2cl(i)
-        '''
         Nside= 2**self.log2Nside
         Npix = hp.nside2npix(Nside) #number of pixels
-
-        #Now calculating the clustered map fluctuation...
-        del_clus = hp.synfast(Cl_clus,Nside)
         
-        where_n_neg = np.where(del_clus<-1.0)[0]
-        Npix_n_neg = 100*np.size(where_n_neg)/Npix
-        if Npix_n_neg!=0:
-            print('\n\033[31mError! Your choice of 2PACF parameters is NOT valid.')
-            print('{:.2f}% pixels have negative number of sources!'.format(Npix_n_neg))
-            print('Terminating ...\033[00m\n')
-            sys.exit()
-        
-        print('Done.\nAverage overdensity for the clustered sky (should be ~ 0) = {:.3f}'.format(np.mean(del_clus)))
-
         Ns = self.num_sources()
         nbar = Ns/Npix
         print('Total number of pixels, Npix =',Npix)
         print('Average number of sources per pixel = {:.2f}'.format(nbar))
+        
+        if self.amp==0:
+            n_clus = np.random.poisson(lam=nbar,size=Npix)
+        else:
+            #Method 1:
+            '''
+            This methods requires transformcl package. Methods 2 does the same thing manually.
+            tcl.corrtocl requires us to sample the angle at some specific points; obtained by 'tcl.theta'
+            I have chosen 200 randomly. (Using a large like 1000 may result in del_clus<-1.)
+            '''
+            th = tcl.theta(200)
+            cor = self.acf(th)
+            Cl_clus = tcl.corrtocl(cor)
+            
 
-        #and the corresponding clustered number density function given the fluctuation...
-        n_clus = nbar*(1+del_clus)
+            '''
+            #Method 2:
+            #Here we manually compute the C_\ell's without using transformcl. This is much slower but more accurate. 
+            Cl_clus = np.zeros(50)
+            for i in range(50):
+                Cl_clus[i] = self.acf2cl(i)
+            '''
+            
+            #Now calculating the clustered map fluctuation...
+            del_clus = hp.synfast(Cl_clus,Nside)
+            
+            where_n_neg = np.where(del_clus<-1.0)[0]
+            Npix_n_neg = 100*np.size(where_n_neg)/Npix
+            if Npix_n_neg!=0:
+                print('\n\033[31mError! Your choice of 2PACF parameters is NOT valid.')
+                print('{:.2f}% pixels have negative number of sources!'.format(Npix_n_neg))
+                print('Terminating ...\033[00m\n')
+                sys.exit()
+            
+            print('Done.\nAverage overdensity for the clustered sky (should be ~ 0) = {:.3f}'.format(np.mean(del_clus)))
+
+            #and the corresponding clustered number density function given the fluctuation...
+            n_clus = nbar*(1+del_clus)
         
         where_n_less_than_1 = np.where(np.round(n_clus)<1.0)
         Npix_less_than_1 = 100*np.size(where_n_less_than_1)/Npix
@@ -207,10 +212,8 @@ class extragalactic():
                 os.mkdir(self.path)
 
             print('\n\033[94mRunning ref_freq() ...\033[00m\n')          
-            print('Finding the clustered number density distribution ...')
-            n_clus = self.num_den()
-            
-            
+            print('Finding the number density distribution ...')
+            n_clus = self.num_den()            
             
             n_clus_save_name = self.path+'n_clus.npy'
             np.save(n_clus_save_name,n_clus)
@@ -416,7 +419,7 @@ class extragalactic():
             cpu_ind=0
             Ncpu=1
         #-------------------------------------------------------------------------------------
-        
+        fs=22
         if cpu_ind==0:
             print('\n\033[94mRunning visual() ...\033[00m\n')
             if Ncpu>1:
@@ -473,6 +476,37 @@ class extragalactic():
                 plt.savefig(fig_path, bbox_inches='tight')
 
                 print('Done.\n\033[32mTb map saved as:\n',fig_path,'\033[00m')
+                plt.close()
+                
+            if aps:
+                n_clus = self.num_den()
+                
+                del_poisson = (n_clus - nbar)/nbar
+                Cl_poisson = hp.anafast(del_poisson)
+                    
+                fig,ax=plt.subplots(figsize=(8.3,7.5),dpi=300)
+                fig.subplots_adjust(left=0.12, bottom=0.07, right=0.88, top=0.97)
+                
+                ax.loglog(range(nside*3),Cl_poisson,'r:',label='Poisson (isotropic)')
+                if self.amp!=0:
+                    Cl_rec = hp.anafast(del_clus)
+                    ax.loglog(range(200),Cl_clus,'b--',label='Input (clustered)')
+                    ax.loglog(range(nside*3),Cl_rec,'limegreen',label='Recovered (clustered)')
+                    
+                ax.set_xlabel(r'$\ell$',fontsize=fs)
+                ax.set_ylabel(r'$C_{\ell}$',fontsize=fs)
+                
+                ax.minorticks_on()
+                ax.yaxis.set_ticks_position('both')
+                ax.xaxis.set_ticks_position('both')
+                ax.tick_params(axis='both', which='major', length=5, width=1, labelsize=fs,direction='in')
+                ax.tick_params(axis='both', which='minor', length=3, width=1,direction='in')
+                ax.legend(fontsize=18,frameon=False)
+                ax.minorticks_on()
+                ax.set_xlim([1,200])
+                ax.set_aspect(1.0/ax.get_data_ratio(), adjustable='box')
+                plt.savefig('APSs.pdf')
+                plt.close()
                 
             if n_skymap:
                 print('Creating number density map ...')
@@ -486,12 +520,13 @@ class extragalactic():
                 fig_path = self.path+'n_clus.' + fig_ext
                 plt.savefig(fig_path, bbox_inches='tight')
                 print('Done.\n\033[32mnumber density map saved as:\n',fig_path,'\033[00m')
+                plt.close()
+                
             if spectrum:
                 Tb_mean = Tb_o_glob*(nu/self.nu_o)**-self.beta_o
                 
                 print('\nCreating Tb vs nu plot ...')
                 left=0.12
-                fs=22
                 fig,ax=plt.subplots(figsize=(8, 7.9))
                 fig.subplots_adjust(left=left, bottom=0.06, right=1-left, top=0.94)
                 
@@ -524,7 +559,7 @@ class extragalactic():
                 ax.set_aspect(1.0/ax.get_data_ratio(), adjustable='box')
                 fig_path = self.path+'Tb_vs_nu.' + fig_ext
                 plt.savefig(fig_path)
-                
+                plt.close()
                 print('Done.\n\033[32mTb vs frequency saved as:\n',fig_path,'\n\033[00m')
             
             print('\n\033[94m================ End of function visual(). ================\033[00m\n')
