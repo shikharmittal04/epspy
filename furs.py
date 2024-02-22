@@ -70,19 +70,27 @@ class extragalactic():
 
         return None
         
-    def dndS(self, S):
+    def dndS(self, S, dndS_form=0):
         '''
         This is the distribution of flux density.
         I have taken the functional form and the numbers from Gervasi et al (2008) ApJ.
         Input S is in units of Jy (jansky). Can be 1 value or an array.
         Output is in number of sources per unit solid angle per unit flux density. 1 value or an array depending on input.
         '''
-        a1,b1,a2,b2 = -0.854, 0.37, -0.856, 1.47
-        A1, B1 = 1.65e-4, 1.14e-4
-        A2A1, B2B1 = 0.24, 1.8e7
-        A2 = A2A1*A1
-        B2 = B2B1*B1
-        return S**-2.5*((A1*S**a1+B1*S**b1)**-1+(A2*S**a2+B2*S**b2)**-1)
+        if dndS_form==0:
+		    a1,b1,a2,b2 = -0.854, 0.37, -0.856, 1.47
+		    A1, B1 = 1.65e-4, 1.14e-4
+		    A2A1, B2B1 = 0.24, 1.8e7
+		    A2 = A2A1*A1
+		    B2 = B2B1*B1
+		    return S**-2.5*((A1*S**a1+B1*S**b1)**-1+(A2*S**a2+B2*S**b2)**-1)
+        
+        elif dndS_form==1:
+        	return np.poly(3.5142, 0.3738, -0.3138, -0.0717, 0.0213, 0.0097)
+        
+        else:
+        	print('\033[31mInvalid option! Terminating ... \033[00m') 
+        
 
     def acf(self, chi):
         '''
