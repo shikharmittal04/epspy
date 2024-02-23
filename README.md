@@ -21,8 +21,8 @@ The code is run in two main steps:
 
 The following code captures the main functionalities of this package.
 ```
-from furs import furs
-obj = furs.extragalactic()
+from furs.furs import furs
+obj = furs()
 
 obj.ref_freq()
 
@@ -40,7 +40,7 @@ However, in general and for more realistic flux density ranges and high resoluti
 
 ## Detailed explanation
 #### Initialisation
-`furs.extragalactic()` initialises the class object with default settings. There are total 9 available optional arguments as follows:
+`furs()` initialises the class object with default settings. There are total 9 available optional arguments as follows:
 
 1. `nu_o`
     * reference frequency, $\nu_0$ (Hz)
@@ -55,7 +55,7 @@ However, in general and for more realistic flux density ranges and high resoluti
     * type *float*
     * default **0.5**
 4. `amp`
-    * amplitude of the power-law 2-point angular correlation function (2PACF), $A$
+    * amplitude of the power-law 2-point angular correlation function (2PACF), $A$. If you want to model a Poissonian distributed sky, set this parameter to 0.
     * type *float*
     * default **7.8e-3**
 5. `gam`
@@ -70,6 +70,10 @@ However, in general and for more realistic flux density ranges and high resoluti
     * $\log_{10}(S_{\mathrm{max}})$, where $S_{\mathrm{max}}$ is in Jansky (Jy)
     * type *float*
     * default **-1.0**
+8. `dndS_form`
+	* sum of 2 double inverse power laws (0) or log-log polynomial (1)
+	* type *int*
+	* default **0**
 8. `path`
     * path where you would like to save all output files
     * type *string*
@@ -81,7 +85,7 @@ However, in general and for more realistic flux density ranges and high resoluti
 
 Thus, if you want to chose a different set of parameters, you must initialise the object as
 
-`obj = furs.extragalactic(log2Nside=6, logSmin=-2,logSmax=-1, nu_o=150e6, beta_o=2.681,sigma_beta=0.5, amp=7.8e-3,gam=0.821, path='')`
+`obj = furs(log2Nside=6, logSmin=-2,logSmax=-1,dndS_form=0, nu_o=150e6, beta_o=2.681,sigma_beta=0.5, amp=7.8e-3,gam=0.821, path='')`
 
 (Replace the above values by values of your choice.)
 
@@ -126,7 +130,7 @@ The final part of the code is to visualise the results. Main data for inspection
 You may use the function `visual()` for both the above purposes. This function is again a method of class object extragalactic and is thus called as
 
 ```
-obj = furs.extragalactic()
+obj = furs()
 obj.visual()
 ```
 
@@ -139,23 +143,31 @@ The following optional arguments are available for this function:-
 	* Create a sky map of extragalactic foregrounds?
 	* type *bool*
 	* default `False`
-3. `spectrum`
-	* Create the foreground spectrum?
-	* type *bool*
-	* default `True`
-4.	`n_skymap`
+3.	`n_skymap`
 	* Create a sky map of number density of unresolved radio sources?
 	* type *bool*
 	* default `False`
-5. `xlog`
-	* Set x-axis in log scale?
+4.	`dndS_plot`
+	* Plot the $S$ distribution function?
 	* type *bool*
 	* default `False`
-6. `ylog`
+5.	`aps`
+	* Plot the angular power spectrum?
+	* type *bool*
+	* default `False`
+6. `spectrum`
+	* Create the foreground spectrum?
+	* type *bool*
+	* default `True`
+7. `xlog`
+	* Set x-axis in log scale? This and the next option are relevant only for the spectrum plot.
+	* type *bool*
+	* default `False`
+8. `ylog`
 	* Set y-axis in log scale?
 	* type *bool*
 	* default `True`
-7.  `fig_ext`
+9.  `fig_ext`
 	* Choose your format of figure file; popular choices include `pdf`, `jpeg`, `png`
 	* type *string*
 	* default `pdf`
@@ -164,7 +176,7 @@ This function will produce figures in the path specficied during initialisation.
 
 ## Other functions
 
-There are 4 additional useful methods of the class `extragalactic`. These are:-
+There are 4 additional useful methods of the class `furs`. These are:-
 
 1. `acf(chi)`
 	* returns the 2PACF, $C(\chi)$
@@ -189,7 +201,7 @@ There are 4 additional useful methods of the class `extragalactic`. These are:-
 
 Example usage: to find the number of sources between $10^{-6}$ and $10^{-1}\mathrm{Jy}$ do
 ```
-obj = furs.extragalactic(logSmin=-6,logSmax=-1)
+obj = furs(logSmin=-6,logSmax=-1)
 Ns = obj.num_sources()
 ```
 
