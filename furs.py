@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.polynomial import polynomial
 import matplotlib.pyplot as plt
 from matplotlib import colormaps
 from scipy.interpolate import CubicSpline
@@ -39,8 +40,8 @@ def z2nu(z):
     return nu21/(1+z)
 
 
-class extragalactic():
-    def __init__(self, log2Nside=6, logSmin=-2,logSmax=-1, nu_o=150e6, beta_o=2.681,sigma_beta=0.5, amp=7.8e-3,gam=0.821, path=''):
+class furs():
+    def __init__(self, beta_o=2.681,sigma_beta=0.5, logSmin=-2,logSmax=-1,dndS_form=0, log2Nside=6, nu_o=150e6, amp=7.8e-3,gam=0.821, path=''):
         self.nu_o = nu_o        #Reference frequency in Hz
 
         self.beta_o = beta_o    #Mean spectral index for extragalactic point sources
@@ -51,10 +52,14 @@ class extragalactic():
 
         self.logSmin = logSmin  #log_10(S_min), where S_min is in Jy
         self.logSmax = logSmax  #log_10(S_max)
+        self.dndS_form = dndS_form #Choose the functional form for dn/dS.
         
         self.path = path        #Path where you would like to save and load from, the Tb's and beta's
                             
         self.log2Nside = log2Nside    #Number of divisions in units of log_2
+        
+        self.Nside= 2**self.log2Nside
+        self.Npix = hp.nside2npix(self.Nside) #number of pixels
     #End of function __init__()
     
     def print_input(self):
@@ -70,27 +75,27 @@ class extragalactic():
 
         return None
         
-    def dndS(self, S, dndS_form=0):
+    def dndS(self, S):
         '''
         This is the distribution of flux density.
         I have taken the functional form and the numbers from Gervasi et al (2008) ApJ.
-        Input S is in units of Jy (jansky). Can be 1 value or an array.
+        Input S is in units of Jy (jansky). Can be 1 value or an numpy array.
         Output is in number of sources per unit solid angle per unit flux density. 1 value or an array depending on input.
         '''
-        if dndS_form==0:
+        if self.dndS_form==1:
+            pol = polynomial.Polynomial((3.5142, 0.3738, -0.3138, -0.0717, 0.0213, 0.0097))
+            return S**-2.5*10**pol(np.log10(S))
+        
+        else:
+            if self.dndS_form!=0:
+                print("\033[31mInvalid option! Using sum-of-2-double-inverse-power-law form ... \033[00m")
+            
             a1,b1,a2,b2 = -0.854, 0.37, -0.856, 1.47
             A1, B1 = 1.65e-4, 1.14e-4
             A2A1, B2B1 = 0.24, 1.8e7
             A2 = A2A1*A1
             B2 = B2B1*B1
             return S**-2.5*((A1*S**a1+B1*S**b1)**-1+(A2*S**a2+B2*S**b2)**-1)
-        
-        elif dndS_form==1:
-            return np.poly(3.5142, 0.3738, -0.3138, -0.0717, 0.0213, 0.0097)
-        
-        else:
-            print('\033[31mInvalid option! Terminating ... \033[00m') 
-        
 
     def acf(self, chi):
         '''
@@ -124,7 +129,6 @@ class extragalactic():
 
         Ns_per_sr = np.trapz(dndS_space,S_space)
         Ns = 4*np.pi*Ns_per_sr
-        print('\nTotal number of sources = {:d}'.format(round(Ns)))
         return Ns
 
     def num_den(self):
@@ -133,18 +137,15 @@ class extragalactic():
         No input is required.
         Output is in units of number per pixel. It will be an array of length Npix.
         '''
-        global nbar, Cl_clus, del_clus
-        
-        Nside= 2**self.log2Nside
-        Npix = hp.nside2npix(Nside) #number of pixels
         
         Ns = self.num_sources()
-        nbar = Ns/Npix
-        print('Total number of pixels, Npix =',Npix)
+        nbar = Ns/self.Npix
+        print('\nTotal number of sources = {:d}'.format(round(Ns)))
+        print('Total number of pixels, Npix =',self.Npix)
         print('Average number of sources per pixel = {:.2f}'.format(nbar))
         
         if self.amp==0:
-            n_clus = np.random.poisson(lam=nbar,size=Npix)
+            n_clus = np.random.poisson(lam=nbar,size=self.Npix)
         else:
             #Method 1:
             '''
@@ -166,10 +167,10 @@ class extragalactic():
             '''
             
             #Now calculating the clustered map fluctuation...
-            del_clus = hp.synfast(Cl_clus,Nside)
+            del_clus = hp.synfast(Cl_clus,self.Nside)
             
             where_n_neg = np.where(del_clus<-1.0)[0]
-            Npix_n_neg = 100*np.size(where_n_neg)/Npix
+            Npix_n_neg = 100*np.size(where_n_neg)/self.Npix
             if Npix_n_neg!=0:
                 print('\n\033[31mError! Your choice of 2PACF parameters is NOT valid.')
                 print('{:.2f}% pixels have negative number of sources!'.format(Npix_n_neg))
@@ -182,12 +183,16 @@ class extragalactic():
             n_clus = nbar*(1+del_clus)
         
         where_n_less_than_1 = np.where(np.round(n_clus)<1.0)
-        Npix_less_than_1 = 100*np.size(where_n_less_than_1)/Npix
+        Npix_less_than_1 = 100*np.size(where_n_less_than_1)/self.Npix
         if Npix_less_than_1>50:
             print('\n\033[91m{:.2f}% pixels have no sources!'.format(Npix_less_than_1))
             print('This can happen either because there are very few sources in your chosen flux density range or your resolution is too high.')
             print('Recommendation: either increase (`logSmax`-`logSmin`) or decrease `log2Nside`.\n\033[00m')
         
+        n_clus_save_name = self.path+'n_clus.npy'
+        np.save(n_clus_save_name,n_clus)
+        print('\033[32mThe clustered number density has been saved into file:\n',n_clus_save_name,'\033[00m')
+            
         return n_clus
     #End of function num_den()
     
@@ -207,9 +212,6 @@ class extragalactic():
         if Ncpu==1: print("\033[91mBetter to parallelise. Eg. 'mpirun -np 4 python3 %s', where 4 specifies the number of tasks.\033[00m" %(sys.argv[0]))
             
         #-------------------------------------------------------------------------------------
-        Nside= 2**self.log2Nside
-        Npix = hp.nside2npix(Nside) #number of pixels
-
         #Find the number density distribution on the master CPU and share it with all CPUs.
         if cpu_ind==0:
             '''
@@ -221,11 +223,7 @@ class extragalactic():
 
             print('\n\033[94mRunning ref_freq() ...\033[00m\n')          
             print('Finding the number density distribution ...')
-            n_clus = self.num_den()            
-            
-            n_clus_save_name = self.path+'n_clus.npy'
-            np.save(n_clus_save_name,n_clus)
-            print('\033[32mThe clustered number density has been saved into file:\n',n_clus_save_name,'\033[00m')
+            n_clus = self.num_den()
 
             print("\nAssigning flux density and power-law index ...")
         else:
@@ -239,8 +237,8 @@ class extragalactic():
         dndS_space = self.dndS(S_space)
         Ns_per_sr = np.trapz(dndS_space,S_space)
 
-        ppc = int(Npix/Ncpu)    #pixels per cpu
-        Omega_pix = hp.nside2pixarea(Nside) #Solid angle per pixel
+        ppc = int(self.Npix/Ncpu)    #pixels per cpu
+        Omega_pix = hp.nside2pixarea(self.Nside) #Solid angle per pixel
         
         Tb_o_local = np.zeros(ppc)
         Tb_o_local_individual = np.zeros(ppc, dtype=object)
@@ -255,12 +253,12 @@ class extragalactic():
             Tb_o_local[j-cpu_ind*ppc] = np.sum(Tb_o_local_individual[j-cpu_ind*ppc])
 
         #An additional short loop is required if Npix/Ncpu is not an integer. Do the remaining pixels ('rm_pix') on rank 0.
-        rm_pix=Npix%Ncpu
+        rm_pix=self.Npix%Ncpu
         if cpu_ind==0 and rm_pix!=0:
             Tb_o_remain_individual = np.zeros(rm_pix, dtype=object)
             Tb_o_remain = np.zeros(rm_pix)
             beta_remain = np.zeros(rm_pix, dtype=object)
-            for j in np.arange(Ncpu*ppc,Npix):
+            for j in np.arange(Ncpu*ppc,self.Npix):
                 N = round(n_clus[j])  #no.of sources on jth pixel
                 So_j = np.array(random.choices(S_space,weights=dndS_space/Ns_per_sr,k=N))   #select N flux densities for jth pixel
                 beta_remain[j-Ncpu*ppc] = np.random.normal(loc=self.beta_o,scale=self.sigma_beta,size=N)   #select N spectral indices for jth pixel
@@ -310,7 +308,7 @@ class extragalactic():
             print('\033[32mThe brightness temperature (at reference frequency) for each source saved into:\n',Tb_o_individual_save_name,'\033[00m\n')
             print('\033[32mThe pixel wise brightness temperature (at reference frequency) saved into:\n',Tb_o_save_name,'\033[00m\n')
             print('\033[32mThe spectral index for each source saved into:\n',beta_save_name,'\033[00m')
-            print('\n\033[94m================ End of function ref_freq(). ================\033[00m\n')
+            print('\n\033[94m================ End of function furs.ref_freq() ================\033[00m\n')
             
             mempertask = 2e-6*os.path.getsize(Tb_o_individual_save_name)
             if mempertask > 2000:
@@ -332,8 +330,6 @@ class extragalactic():
         cpu_ind = comm.Get_rank()
         Ncpu = comm.Get_size()
         #-------------------------------------------------------------------------------------
-        Nside= 2**self.log2Nside
-        Npix = hp.nside2npix(Nside) #number of pixels
 
         def Tb_nu(Tb_ref,beta,nu):
             '''
@@ -354,9 +350,9 @@ class extragalactic():
             print('\n\033[94mRunning gen_freq() ...\033[00m\n')
             print("Beginning scaling extragalactic maps to general frequency ...")
         N_nu = np.size(nu)
-        Tb_nu_final = np.zeros((Npix,N_nu),dtype='float64')    
+        Tb_nu_final = np.zeros((self.Npix,N_nu),dtype='float64')    
 
-        ppc = int(Npix/Ncpu)    #pixels per cpu
+        ppc = int(self.Npix/Ncpu)    #pixels per cpu
         slctd_Tb_o = np.load(Tb_o_individual_save_name,allow_pickle=True)[cpu_ind*ppc:(cpu_ind+1)*ppc]
         slctd_beta = np.load(beta_save_name,allow_pickle=True)[cpu_ind*ppc:(cpu_ind+1)*ppc]
 
@@ -368,11 +364,11 @@ class extragalactic():
         del slctd_beta
 
         #An additional short loop is required if Npix/Ncpu is not an integer. We do the remaining pixels on rank 0.
-        if cpu_ind==0 and Npix%Ncpu!=0:
-            slctd_Tb_o = np.load(Tb_o_individual_save_name,allow_pickle=True)[Ncpu*ppc:Npix]
-            slctd_beta = np.load(beta_save_name,allow_pickle=True)[Ncpu*ppc:Npix]
+        if cpu_ind==0 and self.Npix%Ncpu!=0:
+            slctd_Tb_o = np.load(Tb_o_individual_save_name,allow_pickle=True)[Ncpu*ppc:self.Npix]
+            slctd_beta = np.load(beta_save_name,allow_pickle=True)[Ncpu*ppc:self.Npix]
 
-            for j in np.arange(Ncpu*ppc,Npix):
+            for j in np.arange(Ncpu*ppc,self.Npix):
                 for i in range(N_nu):
                     Tb_nu_final[j,i] = Tb_nu(slctd_Tb_o[j-Ncpu*ppc],slctd_beta[j-Ncpu*ppc],nu[i])
 
@@ -389,7 +385,7 @@ class extragalactic():
             I am the master CPU. Receiving all Tb's.
             '''
             for i in range(1,Ncpu):
-                receive_local = np.empty((Npix, N_nu),dtype='float64')
+                receive_local = np.empty((self.Npix, N_nu),dtype='float64')
                 comm.Recv([receive_local,MPI.FLOAT],source=i, tag=11)
                 Tb_nu_final = Tb_nu_final + receive_local
 
@@ -402,7 +398,7 @@ class extragalactic():
 
             print('Done.\n\033[32mFile saved as',Tb_nu_save_name,'\033[00m')
             print('It is an array of shape',np.shape(Tb_nu_final))
-            print('\n\033[94m================ End of function gen_freq(). ================\033[00m\n')
+            print('\n\033[94m================ End of function furs.gen_freq() ================\033[00m\n')
 
             nu_save_name = self.path+'nu_glob.npy'
             np.save(nu_save_name,nu)
@@ -410,9 +406,9 @@ class extragalactic():
         return None    
     #End of function gen_freq()
 
-    def visual(self, nu_skymap=None, t_skymap=False, spectrum=True, n_skymap=False, xlog=False,ylog=True, fig_ext = 'pdf'):
+    def visual(self, nu_skymap=None, t_skymap=False, aps=False, n_skymap=False, dndS_plot = False, spectrum=True, xlog=False,ylog=True, fig_ext = 'pdf'):
         '''
-        Use this function for creating a sky map at a given freqeuncy ('skymap') and/or
+        Use this function for creating a sky map at a given freqeuncy ('t_skymap') and/or
         the global extragalactic foregrounds as a function of frequency ('spectrum').
         'nu_skymap' is required only for making the sky map. It should be one number in Hz.
         By default we only plot the spectrum and not the skymap.
@@ -483,24 +479,33 @@ class extragalactic():
                 fig_path = self.path+'Tb_map_'+str(int(nu_skymap/1e6))+'-MHz.'+fig_ext
                 plt.savefig(fig_path, bbox_inches='tight')
 
-                print('Done.\n\033[32mTb map saved as:\n',fig_path,'\033[00m')
+                print('Done.\n\033[32mTb map saved as:\n',fig_path,'\033[00m\n')
                 plt.close()
                 
             if aps:
-                n_clus = self.num_den()
+                n_clus = np.load(self.path+'n_clus.npy')
+                Ns=self.num_sources()
+                nbar = Ns/self.Npix
                 
-                del_poisson = (n_clus - nbar)/nbar
-                Cl_poisson = hp.anafast(del_poisson)
-                    
                 fig,ax=plt.subplots(figsize=(8.3,7.5),dpi=300)
                 fig.subplots_adjust(left=0.12, bottom=0.07, right=0.88, top=0.97)
                 
-                ax.loglog(range(nside*3),Cl_poisson,'r:',label='Poisson (isotropic)')
                 if self.amp!=0:
+                    del_clus = (n_clus - nbar)/nbar
                     Cl_rec = hp.anafast(del_clus)
+                    th = tcl.theta(200)
+                    cor = self.acf(th)
+                    Cl_clus = tcl.corrtocl(cor)
+                    n_poisson = np.random.poisson(lam=nbar,size=self.Npix)
                     ax.loglog(range(200),Cl_clus,'b--',label='Input (clustered)')
-                    ax.loglog(range(nside*3),Cl_rec,'limegreen',label='Recovered (clustered)')
-                    
+                    ax.loglog(range(self.Nside*3),Cl_rec,'limegreen',label='Recovered (clustered)')
+                else:
+                    n_poisson=n_clus
+                
+                del_poisson = (n_poisson - nbar)/nbar
+                Cl_poisson = hp.anafast(del_poisson)
+                ax.loglog(range(self.Nside*3),Cl_poisson,'r:',label='Poisson (isotropic)')
+                
                 ax.set_xlabel(r'$\ell$',fontsize=fs)
                 ax.set_ylabel(r'$C_{\ell}$',fontsize=fs)
                 
@@ -513,11 +518,16 @@ class extragalactic():
                 ax.minorticks_on()
                 ax.set_xlim([1,200])
                 ax.set_aspect(1.0/ax.get_data_ratio(), adjustable='box')
-                plt.savefig('APSs.pdf')
+                
+                fig_path = self.path+'APS.'+fig_ext
+                plt.savefig(fig_path)
+                print('Done.\n\033[32mAPSs saved as:\n',fig_path,'\033[00m\n')
+                
                 plt.close()
                 
             if n_skymap:
                 print('Creating number density map ...')
+                
                 n_clus = np.load(self.path+'n_clus.npy')
                 nmax = int(np.max(n_clus))+1
                 nmin = int(np.min(n_clus))
@@ -527,9 +537,33 @@ class extragalactic():
                 
                 fig_path = self.path+'n_clus.' + fig_ext
                 plt.savefig(fig_path, bbox_inches='tight')
-                print('Done.\n\033[32mnumber density map saved as:\n',fig_path,'\033[00m')
+                print('Done.\n\033[32mNumber density map saved as:\n',fig_path,'\033[00m\n')
                 plt.close()
+            
+            if dndS_plot:
+                fig,ax=plt.subplots(figsize=(8.3,7.5),dpi=300)
+                fig.subplots_adjust(left=0.12, bottom=0.07, right=0.88, top=0.97)
                 
+                S_space = np.logspace(self.logSmin,self.logSmax,1000)
+                dndS_space = self.dndS(S_space)
+                ax.loglog(S_space,dndS_space,'b')
+
+                ax.set_xlabel(r'$S\,$(Jy)',fontsize=fs)
+                ax.set_ylabel(r'$\mathrm{d}n/\mathrm{d}S\,(\mathrm{Jy}^{-1}\mathrm{sr}^{-1})$',fontsize=fs)
+                ax.tick_params(axis='both', which='major', length=5, width=1, labelsize=fs,direction='in',pad=8)
+                ax.tick_params(axis='both', which='minor', length=3, width=1, direction='in')
+                #ax.legend(fontsize=18,frameon=False)
+                ax.minorticks_on()
+                ax.set_xlim([10**self.logSmin,10**self.logSmax])
+                ax.yaxis.set_ticks_position('both')
+                ax.xaxis.set_ticks_position('both')
+                ax.set_aspect(1.0/ax.get_data_ratio(), adjustable='box')
+                
+                fig_path = self.path+'dndS.' + fig_ext
+                plt.savefig(fig_path)
+                print('Done.\n\033[32mFlux density distribution saved as:\n',fig_path,'\033[00m\n')
+                plt.close()
+            
             if spectrum:
                 Tb_mean = Tb_o_glob*(nu/self.nu_o)**-self.beta_o
                 
@@ -570,7 +604,7 @@ class extragalactic():
                 plt.close()
                 print('Done.\n\033[32mTb vs frequency saved as:\n',fig_path,'\n\033[00m')
             
-            print('\n\033[94m================ End of function visual(). ================\033[00m\n')
+            print('\n\033[94m================ End of function furs.visual() ================\033[00m\n')
     #End of function visual()
 #End of class extragalactic()
 
