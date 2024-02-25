@@ -221,7 +221,7 @@ class furs():
                 print('The requested directory does not exist. Creating one ...')
                 os.mkdir(self.path)
 
-            print('\n\033[94mRunning ref_freq() ...\033[00m\n')          
+            print('\n\033[94mRunning furs.ref_freq() ...\033[00m\n')          
             print('Finding the number density distribution ...')
             n_clus = self.num_den()
 
@@ -347,7 +347,7 @@ class furs():
 
         if cpu_ind==0:
             print_banner()
-            print('\n\033[94mRunning gen_freq() ...\033[00m\n')
+            print('\n\033[94mRunning furs.gen_freq() ...\033[00m\n')
             print("Beginning scaling extragalactic maps to general frequency ...")
         N_nu = np.size(nu)
         Tb_nu_final = np.zeros((self.Npix,N_nu),dtype='float64')    
@@ -405,7 +405,39 @@ class furs():
         comm.Barrier()
         return None    
     #End of function gen_freq()
-
+    
+    def chromatisize(self):
+        print('\n\033[94mRunning furs.chromatisize() ...\033[00m\n')
+        
+        D_file_path = self.path+'D.npy'
+        D = np.load(D_file_path)
+        
+        Tb_nu_save_name = self.path+'Tb_nu_map.npy'
+        Tb_nu_map = np.load(Tb_nu_save_name)
+        
+        nu_save_name = self.path+'nu_glob.npy'
+        nu = np.load(nu_save_name)
+        
+        if np.shape(Tb_nu_map)!=np.shape(D):
+            print('\033[31mError:')
+            print('Directivity pattern array should be of shape (Npix, Nnu),')
+            print('where Npix =',self.Npix, 'and Nnu =',len(nu),'.')
+            print('Current given D has shape',np.shape(D))
+            print('Terminating ...\033[00m\n')
+            sys.exit()
+        
+        Omega_pix = hp.nside2pixarea(self.Nside) #Solid angle per pixel
+        print('Performing integral of foregrounds weighted by directivity over the sky ...')
+        T_data = 1/(4*np.pi)*Omega_pix*np.sum(Tb_nu_map*D,axis=0)
+        
+        T_data_save_name = self.path+'T_data.npy'
+        np.save(T_data_save_name,T_data)
+        print('Done.\n\033[32mFile saved as\n',T_data_save_name,'\033[00m')
+        
+        print('\n\033[94m================ End of function furs.chromatisize() ================\033[00m\n')
+        return None
+        
+        
     def visual(self, nu_skymap=None, t_skymap=False, aps=False, n_skymap=False, dndS_plot = False, spectrum=True, xlog=False,ylog=True, fig_ext = 'pdf'):
         '''
         Use this function for creating a sky map at a given freqeuncy ('t_skymap') and/or
@@ -425,7 +457,7 @@ class furs():
         #-------------------------------------------------------------------------------------
         fs=22
         if cpu_ind==0:
-            print('\n\033[94mRunning visual() ...\033[00m\n')
+            print('\n\033[94mRunning furs.visual() ...\033[00m\n')
             if Ncpu>1:
                 print("\033[91m'visual' does not require parallelisation.\033[00m")
                 print("\033[91mYou can run as 'python3 %s'.\033[00m\n" %(sys.argv[0]))
