@@ -452,7 +452,7 @@ class furs():
             
             print('\n\033[94m================ End of function furs.chromatisize() ================\033[00m\n')
         return None
-        
+    #End of function chromatisize    
         
     def visual(self, nu_skymap=None, t_skymap=False, aps=False, n_skymap=False, dndS_plot = False, spectrum=True, chromatic = False, xlog=False,ylog=True, fig_ext = 'pdf'):
         '''
@@ -663,5 +663,5 @@ class furs():
             
             print('\n\033[94m================ End of function furs.visual() ================\033[00m\n')
     #End of function visual()
-#End of class extragalactic()
+#End of class furs()
 

@@ -128,8 +128,7 @@ Note that this function loads `Tb_o_individual.npy` and `beta.npy`. These files 
 #### Chromatic distortions
 `Tb_nu_map` and hence `Tb_nu_glob` so generated do NOT account for chromatic distortions. They are simply the model outputs for foregrounds due to unresolved radio sources. However, in reality because of the chromatic nature of the antenna beam the actual foregrounds spectrum registered will be different. You can use the function `chromatisize()` to account for the chromaticity.
 
-Since this is experiment specific you will need to provide an external data file: the beam directivity pattern, $D$. This should be a 2D array of shape $
-N_{\mathrm{pix}}\times N_{\nu}$, such that `D[i,j]` should give the beam directivity at
+Since this is experiment specific you will need to provide an external data file: the beam directivity pattern, $D$. This should be a 2D array of shape $N_{\mathrm{pix}}\times N_{\nu}$, such that `D[i,j]` should give the beam directivity at
 $i^{\mathrm{th}}$ pixel at nu[j] frequency. The frequencies you at which you generate your data $D$ should be the same as the frequencies you gave in `gen_freq()`. (In case you forgot, `gen_freq()` will have saved the frequecy array in your `obj.path` path.) Put this array $D$ in your `obj.path` path by the name of `D.npy`.
 
 Only after running `ref_freq` and `gen_freq`, run `chromatisize` as
