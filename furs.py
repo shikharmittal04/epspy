@@ -407,44 +407,61 @@ class furs():
     #End of function gen_freq()
     
     def chromatisize(self):
-        print('\n\033[94mRunning furs.chromatisize() ...\033[00m\n')
-        
-        D_file_path = self.path+'D.npy'
-        D = np.load(D_file_path)
-        
-        Tb_nu_save_name = self.path+'Tb_nu_map.npy'
-        Tb_nu_map = np.load(Tb_nu_save_name)
-        
-        nu_save_name = self.path+'nu_glob.npy'
-        nu = np.load(nu_save_name)
-        
-        if np.shape(Tb_nu_map)!=np.shape(D):
-            print('\033[31mError:')
-            print('Directivity pattern array should be of shape (Npix, Nnu),')
-            print('where Npix =',self.Npix, 'and Nnu =',len(nu),'.')
-            print('Current given D has shape',np.shape(D))
-            print('Terminating ...\033[00m\n')
-            sys.exit()
-        
-        Omega_pix = hp.nside2pixarea(self.Nside) #Solid angle per pixel
-        print('Performing integral of foregrounds weighted by directivity over the sky ...')
-        T_data = 1/(4*np.pi)*Omega_pix*np.sum(Tb_nu_map*D,axis=0)
-        
-        T_data_save_name = self.path+'T_data.npy'
-        np.save(T_data_save_name,T_data)
-        print('Done.\n\033[32mFile saved as\n',T_data_save_name,'\033[00m')
-        
-        print('\n\033[94m================ End of function furs.chromatisize() ================\033[00m\n')
+        '''
+        Use this function to account for chromaticity given the antenna beam directivity pattern, D.
+        No input is required.
+        There is no return value.
+        An output file will be generated called `T_data.npy`.
+        '''
+        #-------------------------------------------------------------------------------------
+        try:
+            comm = MPI.COMM_WORLD
+            cpu_ind = comm.Get_rank()
+            Ncpu = comm.Get_size()
+        except:
+            cpu_ind=0
+            Ncpu=1
+        #-------------------------------------------------------------------------------------
+        if cpu_ind==0:
+            print('\n\033[94mRunning furs.chromatisize() ...\033[00m\n')
+            
+            D_file_path = self.path+'D.npy'
+            D = np.load(D_file_path)
+            
+            Tb_nu_save_name = self.path+'Tb_nu_map.npy'
+            Tb_nu_map = np.load(Tb_nu_save_name)
+            
+            nu_save_name = self.path+'nu_glob.npy'
+            nu = np.load(nu_save_name)
+            
+            if np.shape(Tb_nu_map)!=np.shape(D):
+                print('\033[31mError:')
+                print('Directivity pattern array should be of shape (Npix, Nnu),')
+                print('where Npix =',self.Npix, 'and Nnu =',len(nu),'.')
+                print('Current given D has shape',np.shape(D))
+                print('Terminating ...\033[00m\n')
+                sys.exit()
+            
+            Omega_pix = hp.nside2pixarea(self.Nside) #Solid angle per pixel
+            print('Performing integral of foregrounds weighted by directivity over the sky ...')
+            T_data = 1/(4*np.pi)*Omega_pix*np.sum(Tb_nu_map*D,axis=0)
+            
+            T_data_save_name = self.path+'T_data.npy'
+            np.save(T_data_save_name,T_data)
+            print('Done.\n\033[32mFile saved as\n',T_data_save_name,'\033[00m')
+            
+            print('\n\033[94m================ End of function furs.chromatisize() ================\033[00m\n')
         return None
         
         
-    def visual(self, nu_skymap=None, t_skymap=False, aps=False, n_skymap=False, dndS_plot = False, spectrum=True, xlog=False,ylog=True, fig_ext = 'pdf'):
+    def visual(self, nu_skymap=None, t_skymap=False, aps=False, n_skymap=False, dndS_plot = False, spectrum=True, chromatic = False, xlog=False,ylog=True, fig_ext = 'pdf'):
         '''
         Use this function for creating a sky map at a given freqeuncy ('t_skymap') and/or
         the global extragalactic foregrounds as a function of frequency ('spectrum').
         'nu_skymap' is required only for making the sky map. It should be one number in Hz.
         By default we only plot the spectrum and not the skymap.
-        'xlog' and 'ylog' are the boolean values deciding the scale of x and y axis, respectively.
+        'xlog' and 'ylog' are the boolean values deciding the scale of x and y axis, respectively only for the spectrum plot. In the spectrum if you want to add the curve accounting for the chromaticity set `chromatic` to `True`.
+        Additional figures can be created, such as angular power spectrum (set `aps` to `True`), flux density distribution (`dndS_plot` to `True`), and number density distribution (set `n_skymap` to `True`).
         '''
         #-------------------------------------------------------------------------------------
         try:
@@ -606,15 +623,23 @@ class furs():
                 
                 #ax.axhline(y=Tcmb_o,color='k',ls='--',lw=1.5, label='CMB')
                 ax.plot(nu/1e6,Tb_mean,color='r',lw=1.5,ls=':',label=r'$\beta= $ %.2f'%self.beta_o)
-                ax.plot(nu/1e6,Tb_nu_glob,color='b',lw=1.5,label='Extragalactic')
-
+                
+                if chromatic:
+                    ax.plot(nu/1e6,Tb_nu_glob,color='b',lw=1.5,label='FURS')
+                    ax.set_ylabel(r'$T_{\mathrm{sky}}^{\mathrm{furs}}\,$(K)',fontsize=fs)
+                else:
+                    T_data = np.load(self.path+'T_data.npy')
+                    ax.plot(nu/1e6,Tb_nu_glob,color='b',lw=1.5,label='Achromatic')
+                    ax.plot(nu/1e6,T_data,color='limegreen',lw=1.5,label='Chromatic')
+                    ax.set_ylabel(r'$T\,$(K)',fontsize=fs)
+                
                 if xlog:
                     ax.set_xscale('log')
                 if ylog:
                     ax.set_yscale('log')
                 
                 ax.set_xlabel(r'$\nu\,$(MHz)',fontsize=fs)
-                ax.set_ylabel(r'$T_{\mathrm{sky}}^{\mathrm{ex}}\,$(K)',fontsize=fs)
+                
 
                 ax.minorticks_on()
                 ax.yaxis.set_ticks_position('both')
@@ -631,10 +656,10 @@ class furs():
                 #plt.xlim([0.1,1e2])
                 #plt.ylim([1,3e4])
                 ax.set_aspect(1.0/ax.get_data_ratio(), adjustable='box')
-                fig_path = self.path+'Tb_vs_nu.' + fig_ext
+                fig_path = self.path+'T_vs_nu.' + fig_ext
                 plt.savefig(fig_path)
                 plt.close()
-                print('Done.\n\033[32mTb vs frequency saved as:\n',fig_path,'\n\033[00m')
+                print('Done.\n\033[32mT vs frequency saved as:\n',fig_path,'\n\033[00m')
             
             print('\n\033[94m================ End of function furs.visual() ================\033[00m\n')
     #End of function visual()
