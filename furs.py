@@ -318,7 +318,7 @@ class furs():
     #End of function ref_freq()
 
 
-    def gen_freq(self, nu=1e6*np.arange(50,200)):
+    def gen_freq(self, nu=1e6*np.arange(50,201)):
         '''
         If you are running this function you must have run ref_freq().    
         This function computes the map(s) at general frequency(ies) based on the precomputed values from ref_freq().
