@@ -21,10 +21,10 @@ The code is run in two main steps:
 
 The following code captures the main functionalities of this package.
 ```
-from furs.furs import furs
+from furs import furs
 
 #Step-1 initialise the object with default settings
-obj = furs()
+obj = furs.furs()
 
 #Step-2 generate the data at the reference frequency
 obj.ref_freq()
@@ -39,7 +39,7 @@ Save the above code as (say) `eg_script.py` and run it as
 
 `python eg_script.py`
 
-Running the code will generate several files. The terminal messages will guide you to these output files. The most important of all files of your interest will be `Tb_nu_map.npy`. However, you may never have to deal with them yourself. To visualise your outputs use the function `visual()`. Read on to see the available features for visual.
+Running the code will generate several files. The terminal messages will guide you to these output files. The most important of all files of your interest will be `Tb_nu_map.npy`. However, you may never have to deal with them yourself. To visualise your outputs use the function `visual()`. Read on to see the available features for `visual()`.
 
 The default values have been chosen such that the above script can be run on a PC. Since modern PCs have at least 4 cores, for a better performance one could also run the code as
 
@@ -49,7 +49,7 @@ However, in general and for more realistic flux density ranges and high resoluti
 
 ## Detailed explanation
 #### Initialisation
-`furs()` initialises the class object with default settings. There are total 10 available optional arguments as follows:
+`furs.furs()` initialises the class object with default settings. There are total 10 available optional arguments as follows:
 
 1. `nu_o`
     * reference frequency, $\nu_0$ (Hz)
@@ -94,7 +94,7 @@ However, in general and for more realistic flux density ranges and high resoluti
 
 Thus, if you want to chose a different set of parameters, you must initialise the object as
 
-`obj = furs(log2Nside=6, logSmin=-2,logSmax=-1,dndS_form=0, nu_o=150e6, beta_o=2.681,sigma_beta=0.5, amp=7.8e-3,gam=0.821, path='')`
+`obj = furs.furs(log2Nside=6, logSmin=-2,logSmax=-1,dndS_form=0, nu_o=150e6, beta_o=2.681,sigma_beta=0.5, amp=7.8e-3,gam=0.821, path='')`
 
 (Replace the above values by values of your choice.)
 
@@ -120,7 +120,7 @@ The function does not return anything, but produces 4 output files, namely `n_cl
 #### General frequency
 The next important task is performed by the function `gen_freq`. It scales the brightness temperature at reference frequency for each source according to a power law to a desired range of frequencies. The desired frequencies should be supplied (in Hz) as a numpy array to this function. For example
 ```
-obj.gen_freq(nu = 1e6*numpy.arange(50,200))
+obj.gen_freq(nu = 1e6*numpy.arange(50,201))
 ```
 The default value is as given in the above command. This function does not return anything but produces 3 files namely `Tb_nu_map.npy`, `Tb_nu_glob.npy`, and `nu_glob.npy` in the path specified by `path` during initialisation. The files are described below.
 
@@ -152,7 +152,7 @@ The final part of the code is to visualise the results. Main data for inspection
 You may use the function `visual()` for both the above purposes. It is possible to make several other additional figures by simply setting the optional arguments to `True` (see below). This function is again a method of class object `furs` and is thus called as
 
 ```
-obj = furs()
+obj = furs.furs()
 obj.visual()
 ```
 
@@ -238,12 +238,14 @@ Users do not have to run `ref_freq()` everytime. If they want to use the same da
 
 Similarly, if you have already run `gen_freq()` and are happy with the specifications of the model then you can directly jump to the `visual()` function.
 
-In case you forgot what data set you generated with what specifications, you can always save your class object using the function `save_furs(class_object,'file_name.pkl')` in the directory where all other outputs are saved. Thus, after initialising your class object (i.e. `obj = furs([YOUR SPECIFICATIONS])`), you can add to your script
+In case you forgot what data set you generated with what specifications, you can always save your class object using the function `save_furs(class_object,'file_name.pkl')` in the directory where all other outputs are saved and load back using `load_furs`. (Both functions are part of module `furs.py`.)
+
+Thus, after initialising your class object (i.e. `obj = furs([YOUR SPECIFICATIONS])`), you can add to your script
 
 ```
 furs.save_furs(obj,'myobj.pkl')
 ```
-When you came back next time you can do
+So when you came back next time you can load it as
 
 ```
 obj=furs.load_furs('/give/full/path/to/myobj.pkl')
