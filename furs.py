@@ -1,5 +1,6 @@
 import numpy as np
 from numpy.polynomial import polynomial
+import pickle
 import matplotlib.pyplot as plt
 from matplotlib import colormaps
 from scipy.interpolate import CubicSpline
@@ -32,12 +33,26 @@ def print_banner():
     print(banner)
     return None
 
+#--------------------------------------------------------------------------------------------
 #The following 2 functions are required for adding a secondary x-axis at the top for figures.
 def nu2z(nu):
     return nu21/nu-1
 
 def z2nu(z):
     return nu21/(1+z)
+
+#--------------------------------------------------------------------------------------------
+#The following 2 functions will be useful if you want to save and load your class object.
+def save_furs(obj, filename):
+    with open(filename, 'wb') as outp:  # Overwrites any existing file.
+        pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
+    return None
+    
+def load_furs(filename):
+    with open(filename, 'rb') as inp:
+        fursobj = pickle.load(inp)
+    return fursobj
+#--------------------------------------------------------------------------------------------
 
 
 class furs():
@@ -409,9 +424,9 @@ class furs():
     def chromatisize(self):
         '''
         Use this function to account for chromaticity given the antenna beam directivity pattern, D.
-        No input is required.
-        There is no return value.
-        An output file will be generated called `T_data.npy`.
+        No input argument is required but this function will load the array D. It should be in your directory where all other output will be stored.
+        The array D should be named D and should be in the shape of Npix X Nnu.
+        There is no return value but an output file will be generated called `T_data.npy`.
         '''
         #-------------------------------------------------------------------------------------
         try:
@@ -449,7 +464,7 @@ class furs():
             T_data_save_name = self.path+'T_data.npy'
             np.save(T_data_save_name,T_data)
             print('Done.\n\033[32mFile saved as\n',T_data_save_name,'\033[00m')
-            
+            print('It is an array of shape',np.shape(T_data))
             print('\n\033[94m================ End of function furs.chromatisize() ================\033[00m\n')
         return None
     #End of function chromatisize    
