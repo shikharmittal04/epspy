@@ -44,13 +44,31 @@ def z2nu(z):
 #--------------------------------------------------------------------------------------------
 #The following 2 functions will be useful if you want to save and load your class object.
 def save_furs(obj, filename):
-    with open(filename, 'wb') as outp:  # Overwrites any existing file.
-        pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
+    try:
+        comm = MPI.COMM_WORLD
+        cpu_ind = comm.Get_rank()
+        Ncpu = comm.Get_size()
+    except:
+        cpu_ind=0
+    if cpu_ind==0:
+        if filename[-4:]!='.pkl': filename=filename+'.pkl'
+        fullpath = obj.path+filename
+        with open(fullpath, 'wb') as outp:  # Overwrites any existing file.
+            pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
+        print('\033[32m',filename,'saved as',fullpath,'\033[00m\n')
     return None
     
 def load_furs(filename):
-    with open(filename, 'rb') as inp:
-        fursobj = pickle.load(inp)
+    try:
+        comm = MPI.COMM_WORLD
+        cpu_ind = comm.Get_rank()
+        Ncpu = comm.Get_size()
+    except:
+        cpu_ind=0
+    if cpu_ind==0:
+        with open(filename, 'rb') as inp:
+            fursobj = pickle.load(inp)
+        print('Loaded the FURS class object.\n')
     return fursobj
 #--------------------------------------------------------------------------------------------
 

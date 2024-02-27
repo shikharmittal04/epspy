@@ -22,17 +22,24 @@ The code is run in two main steps:
 The following code captures the main functionalities of this package.
 ```
 from furs.furs import furs
+
+#Step-1 initialise the object with default settings
 obj = furs()
 
+#Step-2 generate the data at the reference frequency
 obj.ref_freq()
 
+#Step-3 generate the sky maps at multiple frequencies as well as their sky average
 obj.gen_freq()
+
+#Step-4 finally, generate a sky averaged spectrum vs frequency figure
+obj.visual()
 ```
 Save the above code as (say) `eg_script.py` and run it as
 
 `python eg_script.py`
 
-Running the code will generate several files. The terminal messages will guide you to these output files. The most important file of all files of your interest will be `Tb_nu_map.npy`. However, you may never have to deal with them yourself. Instead to visualise your outputs use the function `furs.visual()`.
+Running the code will generate several files. The terminal messages will guide you to these output files. The most important of all files of your interest will be `Tb_nu_map.npy`. However, you may never have to deal with them yourself. To visualise your outputs use the function `visual()`. Read on to see the available features for visual.
 
 The default values have been chosen such that the above script can be run on a PC. Since modern PCs have at least 4 cores, for a better performance one could also run the code as
 
@@ -129,7 +136,7 @@ Note that this function loads `Tb_o_individual.npy` and `beta.npy`. These files 
 `Tb_nu_map` and hence `Tb_nu_glob` so generated do NOT account for chromatic distortions. They are simply the model outputs for foregrounds due to unresolved radio sources. However, in reality because of the chromatic nature of the antenna beam the actual foregrounds spectrum registered will be different. You can use the function `chromatisize()` to account for the chromaticity.
 
 Since this is experiment specific you will need to provide an external data file: the beam directivity pattern, $D$. This should be a 2D array of shape $N_{\mathrm{pix}}\times N_{\nu}$, such that `D[i,j]` should give the beam directivity at
-$i^{\mathrm{th}}$ pixel at nu[j] frequency. The frequencies you at which you generate your data $D$ should be the same as the frequencies you gave in `gen_freq()`. (In case you forgot, `gen_freq()` will have saved the frequecy array in your `obj.path` path.) Put this array $D$ in your `obj.path` path by the name of `D.npy`.
+$i^{\mathrm{th}}$ pixel at nu[j] frequency. The frequencies at which you generate your data $D$ should be the same as the frequencies you gave in `gen_freq()`. (In case you forgot, `gen_freq()` will have saved the frequecy array in your `obj.path` path.) Put this array $D$ in your `obj.path` path by the name of `D.npy`.
 
 Only after running `ref_freq` and `gen_freq`, run `chromatisize` as
 
@@ -228,3 +235,19 @@ Ns = obj.num_sources()
 ## General remarks
 
 Users do not have to run `ref_freq()` everytime. If they want to use the same data for source distribution (`n_clus.npy`), flux density (`Tb_o_individual.npy`) and spectral index (`beta.npy`) assignments at reference frequency to generate spectrum and sky maps for a different frequency range, then run only `gen_freq()` for a new choice of `nu`.
+
+Similarly, if you have already run `gen_freq()` and are happy with the specifications of the model then you can directly jump to the `visual()` function.
+
+In case you forgot what data set you generated with what specifications, you can always save your class object using the function `save_furs(class_object,'file_name.pkl')` in the directory where all other outputs are saved. Thus, after initialising your class object (i.e. `obj = furs([YOUR SPECIFICATIONS])`), you can add to your script
+
+```
+furs.save_furs(obj,'myobj.pkl')
+```
+When you came back next time you can do
+
+```
+obj=furs.load_furs('/give/full/path/to/myobj.pkl')
+```
+You can check that indeed the specfications are correctly loaded by printing them via command `obj.print_input()`.
+
+
