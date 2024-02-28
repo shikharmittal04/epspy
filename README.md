@@ -12,7 +12,7 @@ This package can be installed as
 pip install furs
 ```
 
-It is recommended to work on a Python version > 3.8. Additional packages required are `healpy` and `transformcl`.
+It is recommended to work on a Python version > 3.8. Additional packages required are `mpi4py`, `healpy` and `transformcl`.
 
 ## Quick start
 The code is run in two main steps:
@@ -80,7 +80,7 @@ However, in general and for more realistic flux density ranges and high resoluti
     * type *float*
     * default **-1.0**
 8. `dndS_form`
-	* sum of 2 double inverse power laws (0) or log-log polynomial (1)
+	* sum of 2 double inverse power laws (0), 7th order log-log polynomial (1) or 5th order log-log polynomial (2)
 	* type *int*
 	* default **0**
 9. `path`

@@ -85,7 +85,7 @@ class furs():
 
         self.logSmin = logSmin  #log_10(S_min), where S_min is in Jy
         self.logSmax = logSmax  #log_10(S_max)
-        self.dndS_form = dndS_form #Choose the functional form for dn/dS.
+        self.dndS_form = dndS_form #Choose the functional form for dn/dS. Available options -> 0 (default),1 or 2
         
         self.path = path        #Path where you would like to save and load from, the Tb's and beta's
                             
@@ -111,14 +111,19 @@ class furs():
     def dndS(self, S):
         '''
         This is the distribution of flux density.
-        I have taken the functional form and the numbers from Gervasi et al (2008) ApJ.
+        The default choice (0) is by Gervasi et al (2008) ApJ.
+        Form 1 is by Mandal et al. (2021) A&A.
+        Form 2 is by Intema et al. (2017) A&A.
         Input S is in units of Jy (jansky). Can be 1 value or an numpy array.
         Output is in number of sources per unit solid angle per unit flux density. 1 value or an array depending on input.
         '''
         if self.dndS_form==1:
+            P = pol.Polynomial((1.655, -0.115,0.2272,0.51788,-0.449661,0.160265,-0.028541,0.002041))
+            return S**-2.5*10**(P(np.log10(S*1e3)))        
+
+        elif self.dndS_form==2:
             pol = polynomial.Polynomial((3.5142, 0.3738, -0.3138, -0.0717, 0.0213, 0.0097))
             return S**-2.5*10**pol(np.log10(S))
-        
         else:
             if self.dndS_form!=0:
                 print("\033[31mInvalid option! Using sum-of-2-double-inverse-power-law form ... \033[00m")
@@ -657,7 +662,7 @@ class furs():
                 #ax.axhline(y=Tcmb_o,color='k',ls='--',lw=1.5, label='CMB')
                 ax.plot(nu/1e6,Tb_mean,color='r',lw=1.5,ls=':',label=r'$\beta= $ %.2f'%self.beta_o)
                 
-                if chromatic:
+                if chromatic==False:
                     ax.plot(nu/1e6,Tb_nu_glob,color='b',lw=1.5,label='FURS')
                     ax.set_ylabel(r'$T_{\mathrm{sky}}^{\mathrm{furs}}\,$(K)',fontsize=fs)
                 else:
@@ -665,6 +670,7 @@ class furs():
                     ax.plot(nu/1e6,Tb_nu_glob,color='b',lw=1.5,label='Achromatic')
                     ax.plot(nu/1e6,T_data,color='limegreen',lw=1.5,label='Chromatic')
                     ax.set_ylabel(r'$T\,$(K)',fontsize=fs)
+                    print('Added the antenna temperature (accounting for chromaticity) to the figure.')
                 
                 if xlog:
                     ax.set_xscale('log')
