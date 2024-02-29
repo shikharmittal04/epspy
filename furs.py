@@ -246,7 +246,10 @@ class furs():
         cpu_ind = comm.Get_rank()
         Ncpu = comm.Get_size()
         
-        if cpu_ind==0: print_banner()
+        if cpu_ind==0:
+        	print_banner()
+        	self.print_input()
+        
         if Ncpu==1: print("\033[91mBetter to parallelise. Eg. 'mpirun -np 4 python3 %s', where 4 specifies the number of tasks.\033[00m" %(sys.argv[0]))
             
         #-------------------------------------------------------------------------------------
