@@ -1,5 +1,5 @@
 import numpy as np
-from numpy.polynomial import polynomial
+from numpy.polynomial import polynomial as pol
 import pickle
 import matplotlib.pyplot as plt
 from matplotlib import colormaps
@@ -74,7 +74,7 @@ def load_furs(filename):
 
 
 class furs():
-    def __init__(self, beta_o=2.681,sigma_beta=0.5, logSmin=-2,logSmax=-1,dndS_form=0, log2Nside=6, nu_o=150e6, amp=7.8e-3,gam=0.821, path=''):
+    def __init__(self, beta_o=2.681,sigma_beta=0.5, logSmin=-2,logSmax=-1,dndS_form=0, log2Nside=6, nu_o=150e6, amp=7.8e-3,gam=0.821, path='',lbl=''):
         self.nu_o = nu_o        #Reference frequency in Hz
 
         self.beta_o = beta_o    #Mean spectral index for extragalactic point sources
@@ -87,9 +87,10 @@ class furs():
         self.logSmax = logSmax  #log_10(S_max)
         self.dndS_form = dndS_form #Choose the functional form for dn/dS. Available options -> 0 (default),1 or 2
         
-        self.path = path        #Path where you would like to save and load from, the Tb's and beta's
-                            
         self.log2Nside = log2Nside    #Number of divisions in units of log_2
+        
+        self.path = path        #Path where you would like to save and load from, the Tb's and beta's
+        self.lbl = lbl    # Append an extra string to all the output files.
         
         self.Nside= 2**self.log2Nside
         self.Npix = hp.nside2npix(self.Nside) #number of pixels
@@ -104,8 +105,9 @@ class furs():
         print("log2Nside =",self.log2Nside)
         print("logSmax =",self.logSmax)
         print("logSmin =",self.logSmin)
-        print("path =",self.path,"\033[00m\n")
-
+        print("path =",self.path)
+        print("lbl =",self.lbl,"\033[00m\n")
+        
         return None
         
     def dndS(self, S):
@@ -122,8 +124,8 @@ class furs():
             return S**-2.5*10**(P(np.log10(S*1e3)))        
 
         elif self.dndS_form==2:
-            pol = polynomial.Polynomial((3.5142, 0.3738, -0.3138, -0.0717, 0.0213, 0.0097))
-            return S**-2.5*10**pol(np.log10(S))
+            P = pol.Polynomial((3.5142, 0.3738, -0.3138, -0.0717, 0.0213, 0.0097))
+            return S**-2.5*10**P(np.log10(S))
         else:
             if self.dndS_form!=0:
                 print("\033[31mInvalid option! Using sum-of-2-double-inverse-power-law form ... \033[00m")
@@ -178,9 +180,9 @@ class furs():
         
         Ns = self.num_sources()
         nbar = Ns/self.Npix
-        print('\nTotal number of sources = {:d}'.format(round(Ns)))
+        print('\nTotal number of sources, Ns = {:d}'.format(round(Ns)))
         print('Total number of pixels, Npix =',self.Npix)
-        print('Average number of sources per pixel = {:.2f}'.format(nbar))
+        print('Average number of sources per pixel, n_bar = {:.2f}'.format(nbar))
         
         if self.amp==0:
             n_clus = np.random.poisson(lam=nbar,size=self.Npix)
@@ -227,7 +229,7 @@ class furs():
             print('This can happen either because there are very few sources in your chosen flux density range or your resolution is too high.')
             print('Recommendation: either increase (`logSmax`-`logSmin`) or decrease `log2Nside`.\n\033[00m')
         
-        n_clus_save_name = self.path+'n_clus.npy'
+        n_clus_save_name = self.path+'n_clus'+self.lbl
         np.save(n_clus_save_name,n_clus)
         print('\033[32mThe clustered number density has been saved into file:\n',n_clus_save_name,'\033[00m')
             
@@ -247,8 +249,8 @@ class furs():
         Ncpu = comm.Get_size()
         
         if cpu_ind==0:
-        	print_banner()
-        	self.print_input()
+            print_banner()
+            self.print_input()
         
         if Ncpu==1: print("\033[91mBetter to parallelise. Eg. 'mpirun -np 4 python3 %s', where 4 specifies the number of tasks.\033[00m" %(sys.argv[0]))
             
@@ -335,9 +337,9 @@ class furs():
                 Tb_o_individual = np.concatenate((Tb_o_individual,Tb_o_remain_individual))
                 beta = np.concatenate((beta,beta_remain))
 
-            Tb_o_individual_save_name = self.path+'Tb_o_individual.npy'
-            Tb_o_save_name = self.path+'Tb_o_map.npy'
-            beta_save_name = self.path+'beta.npy'
+            Tb_o_individual_save_name = self.path+'Tb_o_individual'+self.lbl
+            Tb_o_save_name = self.path+'Tb_o_map'+self.lbl
+            beta_save_name = self.path+'beta'+self.lbl
             
            
             np.save(Tb_o_individual_save_name,Tb_o_individual)
@@ -383,8 +385,8 @@ class furs():
             return np.sum(Tb_ref*(nu/self.nu_o)**-(beta))
 
 
-        Tb_o_individual_save_name = self.path+'Tb_o_individual.npy'
-        beta_save_name = self.path+'beta.npy'
+        Tb_o_individual_save_name = self.path+'Tb_o_individual'+self.lbl+'.npy'
+        beta_save_name = self.path+'beta'+self.lbl+'.npy'
 
         if cpu_ind==0:
             print_banner()
@@ -430,11 +432,11 @@ class furs():
                 comm.Recv([receive_local,MPI.FLOAT],source=i, tag=11)
                 Tb_nu_final = Tb_nu_final + receive_local
 
-            Tb_nu_save_name = self.path+'Tb_nu_map.npy'
+            Tb_nu_save_name = self.path+'Tb_nu_map'+self.lbl
             np.save(Tb_nu_save_name,Tb_nu_final)
             
             Tb_nu_glob = np.mean(Tb_nu_final,axis=0)
-            tbnuglob = self.path+'Tb_nu_glob.npy'
+            tbnuglob = self.path+'Tb_nu_glob'+self.lbl
             np.save(tbnuglob,Tb_nu_glob)
 
             print('Done.\n\033[32mFile saved as',Tb_nu_save_name,'\033[00m')
@@ -469,7 +471,7 @@ class furs():
             D_file_path = self.path+'D.npy'
             D = np.load(D_file_path)
             
-            Tb_nu_save_name = self.path+'Tb_nu_map.npy'
+            Tb_nu_save_name = self.path+'Tb_nu_map'+self.lbl+'.npy'
             Tb_nu_map = np.load(Tb_nu_save_name)
             
             nu_save_name = self.path+'nu_glob.npy'
@@ -487,7 +489,7 @@ class furs():
             print('Performing integral of foregrounds weighted by directivity over the sky ...')
             T_data = 1/(4*np.pi)*Omega_pix*np.sum(Tb_nu_map*D,axis=0)
             
-            T_data_save_name = self.path+'T_data.npy'
+            T_data_save_name = self.path+'T_ant'+self.lbl
             np.save(T_data_save_name,T_data)
             print('Done.\n\033[32mFile saved as\n',T_data_save_name,'\033[00m')
             print('It is an array of shape',np.shape(T_data))
@@ -520,11 +522,11 @@ class furs():
                 print("\033[91m'visual' does not require parallelisation.\033[00m")
                 print("\033[91mYou can run as 'python3 %s'.\033[00m\n" %(sys.argv[0]))
             nu = np.load(self.path+'nu_glob.npy')
-            Tb_o_map = np.load(self.path+'Tb_o_map.npy')
+            Tb_o_map = np.load(self.path+'Tb_o_map'+self.lbl+'.npy')
             Tb_o_glob = np.mean(Tb_o_map)
             
-            Tb_nu_map = np.load(self.path+'Tb_nu_map.npy')
-            Tb_nu_glob = np.load(self.path+'Tb_nu_glob.npy')
+            Tb_nu_map = np.load(self.path+'Tb_nu_map'+self.lbl+'.npy')
+            Tb_nu_glob = np.load(self.path+'Tb_nu_glob'+self.lbl+'.npy')
             
             if np.size(nu_skymap)==1 and nu_skymap is not None: t_skymap = True
             
@@ -573,7 +575,7 @@ class furs():
                 plt.close()
                 
             if aps:
-                n_clus = np.load(self.path+'n_clus.npy')
+                n_clus = np.load(self.path+'n_clus'+self.lbl+'.npy')
                 Ns=self.num_sources()
                 nbar = Ns/self.Npix
                 
@@ -618,7 +620,7 @@ class furs():
             if n_skymap:
                 print('Creating number density map ...')
                 
-                n_clus = np.load(self.path+'n_clus.npy')
+                n_clus = np.load(self.path+'n_clus'+self.lbl+'.npy')
                 nmax = int(np.max(n_clus))+1
                 nmin = int(np.min(n_clus))
                 
@@ -669,7 +671,7 @@ class furs():
                     ax.plot(nu/1e6,Tb_nu_glob,color='b',lw=1.5,label='FURS')
                     ax.set_ylabel(r'$T_{\mathrm{sky}}^{\mathrm{furs}}\,$(K)',fontsize=fs)
                 else:
-                    T_data = np.load(self.path+'T_data.npy')
+                    T_data = np.load(self.path+'T_ant'+self.lbl+'.npy')
                     ax.plot(nu/1e6,Tb_nu_glob,color='b',lw=1.5,label='Achromatic')
                     ax.plot(nu/1e6,T_data,color='limegreen',lw=1.5,label='Chromatic')
                     ax.set_ylabel(r'$T\,$(K)',fontsize=fs)
