@@ -353,7 +353,7 @@ class furs():
             print('\033[32mThe spectral index for each source saved into:\n',beta_save_name,'\033[00m')
             print('\n\033[94m================ End of function furs.ref_freq() ================\033[00m\n')
             
-            mempertask = 2e-6*os.path.getsize(Tb_o_individual_save_name)
+            mempertask = 2e-6*os.path.getsize(Tb_o_individual_save_name+'.npy')
             if mempertask > 2000:
                 print("\033[96mRecommendation for '--mem-per-task' to run gen_freq() {:d} MB\n\033[00m".format(round(mempertask)))
         comm.Barrier()

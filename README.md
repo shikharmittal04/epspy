@@ -91,10 +91,14 @@ However, in general and for more realistic flux density ranges and high resoluti
     * Number of divisions of each side of the pixel for `HEALPix` maps in units of log_2
     * type *int*
     * default **6**
+11. `lbl`
+	* This is an additional label that you may want to append to the output files
+	* type *string*
+	* default **''**
 
 Thus, if you want to chose a different set of parameters, you must initialise the object as
 
-`obj = furs.furs(log2Nside=6, logSmin=-2,logSmax=-1,dndS_form=0, nu_o=150e6, beta_o=2.681,sigma_beta=0.5, amp=7.8e-3,gam=0.821, path='')`
+`obj = furs.furs(log2Nside=6, logSmin=-2,logSmax=-1,dndS_form=0, nu_o=150e6, beta_o=2.681,sigma_beta=0.5, amp=7.8e-3,gam=0.821, path='', lbl='')`
 
 (Replace the above values by values of your choice.)
 
