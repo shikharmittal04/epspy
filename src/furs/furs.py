@@ -105,6 +105,7 @@ class furs():
         print("log2Nside =",self.log2Nside)
         print("logSmax =",self.logSmax)
         print("logSmin =",self.logSmin)
+        print("dndS_form =",self.dndS_form)
         print("path =",self.path)
         print("lbl =",self.lbl,"\033[00m\n")
         
@@ -601,7 +602,6 @@ class furs():
                 ax.set_xlabel(r'$\ell$',fontsize=fs)
                 ax.set_ylabel(r'$C_{\ell}$',fontsize=fs)
                 
-                ax.minorticks_on()
                 ax.yaxis.set_ticks_position('both')
                 ax.xaxis.set_ticks_position('both')
                 ax.tick_params(axis='both', which='major', length=5, width=1, labelsize=fs,direction='in')
