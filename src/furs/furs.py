@@ -74,29 +74,70 @@ def load_furs(filename):
 
 
 class furs():
+	'''
+	This is class for initialising the properties of the unresolved radio sources.
+	
+	Attributes
+	----------
+
+	nu_o : float
+		Reference frequency in Hz
+	
+	beta_o : float
+		Mean spectral index for extragalactic point sources
+	
+	sigma_beta : float
+		Spread in the beta values
+
+	amp : float
+		Amplitude of the power-law 2-point angular correlation function (2PACF)
+	
+	gam : float
+		-exponent of the power-law 2-point angular correlation function
+	
+	logSmin : float
+		log_10(S_min), where S_min is in Jy
+	
+	logSmax : float
+		log_10(S_max)
+	
+	dndS_form : int
+		Choose the functional form for dn/dS. Available options -> 0 (default),1 or 2
+	
+	log2Nside : int
+		Number of divisions in units of log_2
+	
+	path : str
+		Path where you would like to save and load from, the Tb's and beta's
+	        
+	lbl : str
+		Append an extra string to all the output files.
+	'''
     def __init__(self, beta_o=2.681,sigma_beta=0.5, logSmin=-2,logSmax=-1,dndS_form=0, log2Nside=6, nu_o=150e6, amp=7.8e-3,gam=0.821, path='',lbl=''):
-        self.nu_o = nu_o        #Reference frequency in Hz
+        self.nu_o = nu_o
 
-        self.beta_o = beta_o    #Mean spectral index for extragalactic point sources
-        self.sigma_beta = sigma_beta   #Spread in the beta values
+        self.beta_o = beta_o    
+        self.sigma_beta = sigma_beta
 
-        self.amp = amp  #Amplitude of the power-law 2-point angular correlation function (2PACF)
-        self.gam = gam  #-exponent of the power-law 2-point angular correlation function
+        self.amp = amp  
+        self.gam = gam  
 
-        self.logSmin = logSmin  #log_10(S_min), where S_min is in Jy
-        self.logSmax = logSmax  #log_10(S_max)
-        self.dndS_form = dndS_form #Choose the functional form for dn/dS. Available options -> 0 (default),1 or 2
+        self.logSmin = logSmin
+        self.logSmax = logSmax
+        self.dndS_form = dndS_form
         
-        self.log2Nside = log2Nside    #Number of divisions in units of log_2
+        self.log2Nside = log2Nside
         
-        self.path = path        #Path where you would like to save and load from, the Tb's and beta's
-        self.lbl = lbl    # Append an extra string to all the output files.
+        self.path = path
+        self.lbl = lbl
         
         self.Nside= 2**self.log2Nside
-        self.Npix = hp.nside2npix(self.Nside) #number of pixels
+        self.Npix = hp.nside2npix(self.Nside)
     #End of function __init__()
     
     def print_input(self):
+    	'''Print the input parameters you gave.'''
+    	
         print("\n\033[93mnu_o =",self.nu_o)
         print("beta_o =",self.beta_o)
         print("sigma_beta =",self.sigma_beta)
@@ -112,14 +153,25 @@ class furs():
         return None
         
     def dndS(self, S):
-        '''
-        This is the distribution of flux density.
-        The default choice (0) is by Gervasi et al (2008) ApJ.
+        '''dn/dS
+        
+        Distribution of flux density, S. The default choice (0) is by Gervasi et al (2008) ApJ.
         Form 1 is by Mandal et al. (2021) A&A.
         Form 2 is by Intema et al. (2017) A&A.
-        Input S is in units of Jy (jansky). Can be 1 value or an numpy array.
-        Output is in number of sources per unit solid angle per unit flux density. 1 value or an array depending on input.
+        
+        Parameters
+        ----------
+        
+        S : float or ndarray 
+        	Flux density in units of Jy (jansky). Can be 1 value or an numpy array.
+        
+        Returns
+        -------
+        
+        float
+	        Number of sources per unit solid angle per unit flux density. 1 value or an array depending on input.
         '''
+
         if self.dndS_form==1:
             P = pol.Polynomial((1.655, -0.115,0.2272,0.51788,-0.449661,0.160265,-0.028541,0.002041))
             return S**-2.5*10**(P(np.log10(S*1e3)))        
@@ -142,8 +194,16 @@ class furs():
         '''
         This is the popular form of the 2PACF; a power law.
         The default values for amplitude and index are from Rana & Bagla (2019).
-        Input chi should be in radians. One number or an array.
-        Output is pure number or an array accordingly as chi is a number or an array. 
+        
+        Parameters
+        ----------
+        chi : float
+        	Angle at which you want to get the 2PACF, should be in radians. One number or an array.
+        
+        Returns
+        -------
+        float
+        	Output is pure number or an array accordingly as chi is a number or an array. 
         '''
         return self.amp*(chi*180/np.pi)**(-self.gam)
 
@@ -158,12 +218,14 @@ class furs():
     '''
     
     def num_sources(self):
-        '''
-        This function gives the total number of unresolved point sources on the full sky.
+        '''This function gives the total number of unresolved point sources on the full sky.
+        
         This is specifically for the flux density distribution defined in dndS(),
         and the minimum and maximum S values are set during the initialisation of the class object.
-        No input is required.
-        Output is a pure number.
+        
+        Returns
+        -------
+        	A pure number.
         '''
         S_space = np.logspace(self.logSmin,self.logSmax,1000)
         dndS_space = self.dndS(S_space)
@@ -175,8 +237,13 @@ class furs():
     def num_den(self):
         '''
         This function calculates the number density function n_clus for the 2PACF defined in acf().
-        No input is required.
-        Output is in units of number per pixel. It will be an array of length Npix.
+        The array will also be saved as an .npy format file in the path you gave during initialisation.
+        
+        Returns
+        -------
+        
+        float
+        	Number of sources per pixel. It will be an array of length Npix.
         '''
         
         Ns = self.num_sources()
