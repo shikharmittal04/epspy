@@ -89,154 +89,58 @@
 <h1>Detailed explanation<a class="headerlink" href="#detailed-explanation" title="Link to this heading"></a></h1>
 <section id="initialisation">
 <h2>Initialisation<a class="headerlink" href="#initialisation" title="Link to this heading"></a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">furs.furs()</span></code> initialises the class object with default settings.
-There are total 11 available optional arguments as follows:</p>
-<ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">nu_o</span></code></p>
-<ul class="simple">
-<li><p>reference frequency, $nu_0$ (Hz)</p></li>
-<li><p>type <em>float</em></p></li>
-<li><p>default <strong>150e6</strong></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">beta_o</span></code></p>
-<ul class="simple">
-<li><p>mean spectral index, $beta_0$</p></li>
-<li><p>type <em>float</em></p></li>
-<li><p>default <strong>2.681</strong></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">sigma_beta</span></code></p>
-<ul class="simple">
-<li><p>spread in the Gaussian distribution of spectral index,
-$sigma_beta$</p></li>
-<li><p>type <em>float</em></p></li>
-<li><p>default <strong>0.5</strong></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">amp</span></code></p>
-<ul class="simple">
-<li><p>amplitude of the power-law 2-point angular correlation function
-(2PACF), $A$. If you want to model a Poissonian distributed sky,
-set this parameter to 0.</p></li>
-<li><p>type <em>float</em></p></li>
-<li><p>default <strong>7.8e-3</strong></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">gam</span></code></p>
-<ul class="simple">
-<li><p>negative of the exponent of the 2PACF, $gamma$</p></li>
-<li><p>type <em>float</em></p></li>
-<li><p>default <strong>0.821</strong></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">logSmin</span></code></p>
-<ul class="simple">
-<li><p>$log_{10}(S_{mathrm{min}})$, where $S_{mathrm{min}}$ is in
-Jansky (Jy)</p></li>
-<li><p>type <em>float</em></p></li>
-<li><p>default <strong>-2.0</strong></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">logSmax</span></code></p>
-<ul class="simple">
-<li><p>$log_{10}(S_{mathrm{max}})$, where $S_{mathrm{max}}$ is in
-Jansky (Jy)</p></li>
-<li><p>type <em>float</em></p></li>
-<li><p>default <strong>-1.0</strong></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dndS_form</span></code></p>
-<ul class="simple">
-<li><p>sum of 2 double inverse power laws (0), 7th order log-log
-polynomial (1) or 5th order log-log polynomial (2)</p></li>
-<li><p>type <em>int</em></p></li>
-<li><p>default <strong>0</strong></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">path</span></code></p>
-<ul class="simple">
-<li><p>path where you would like to save all output files</p></li>
-<li><p>type <em>string</em></p></li>
-<li><p>default <strong>‘’</strong></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">log2Nside</span></code></p>
-<ul class="simple">
-<li><p>Number of divisions of each side of the pixel for <code class="docutils literal notranslate"><span class="pre">HEALPix</span></code>
-maps in units of log_2</p></li>
-<li><p>type <em>int</em></p></li>
-<li><p>default <strong>6</strong></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">lbl</span></code></p>
-<ul class="simple">
-<li><p>This is an additional label that you may want to append to the
-output files</p></li>
-<li><p>type <em>string</em></p></li>
-<li><p>default <strong>‘’</strong></p></li>
-</ul>
-</li>
-</ol>
-<p>Thus, if you want to chose a different set of parameters, you must
+<p>The first step to use this package is to initialise the properties of the unresolved sources. This is done using the class
+<a class="reference internal" href="api.html#furs.furs" title="furs.furs"><code class="xref py py-class docutils literal notranslate"><span class="pre">furs.furs</span></code></a>. If you give no arguments default settings are assumed.</p>
+<p>There are total 11 available optional arguments. So if you want to chose a different set of parameters, you must
 initialise the object as</p>
-<p><code class="docutils literal notranslate"><span class="pre">obj</span> <span class="pre">=</span> <span class="pre">furs.furs(log2Nside=6,</span> <span class="pre">logSmin=-2,logSmax=-1,dndS_form=0,</span> <span class="pre">nu_o=150e6,</span> <span class="pre">beta_o=2.681,sigma_beta=0.5,</span> <span class="pre">amp=7.8e-3,gam=0.821,</span> <span class="pre">path='',</span> <span class="pre">lbl='')</span></code></p>
-<p>(Replace the above values by values of your choice.)</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">furs</span> <span class="kn">import</span> <span class="n">furs</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">furs</span><span class="o">.</span><span class="n">furs</span><span class="p">(</span><span class="n">log2Nside</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">logSmin</span><span class="o">=-</span><span class="mi">2</span><span class="p">,</span><span class="n">logSmax</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span><span class="n">dndS_form</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">nu_o</span><span class="o">=</span><span class="mf">150e6</span><span class="p">,</span> <span class="n">beta_o</span><span class="o">=</span><span class="mf">2.681</span><span class="p">,</span><span class="n">sigma_beta</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">amp</span><span class="o">=</span><span class="mf">7.8e-3</span><span class="p">,</span><span class="n">gam</span><span class="o">=</span><span class="mf">0.821</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">lbl</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(Replace the above values by values of your choice.) See also the API reference section.</p>
 </section>
 <section id="reference-frequency">
 <h2>Reference frequency<a class="headerlink" href="#reference-frequency" title="Link to this heading"></a></h2>
-<p>The function <code class="docutils literal notranslate"><span class="pre">ref_freq</span></code> does 3 tasks:-</p>
-<ul class="simple">
-<li><p>Calcuates the total number of unresolved sources corresponding to
-your specified <code class="docutils literal notranslate"><span class="pre">logSmin</span></code> and <code class="docutils literal notranslate"><span class="pre">logSmin</span></code>.</p></li>
-<li><p>Creates a ‘clustered’ sky density of unresolved radio sources,
-fluctuation for which follows the 2PACF whose parameters are set by
-<code class="docutils literal notranslate"><span class="pre">amp</span></code> and <code class="docutils literal notranslate"><span class="pre">gam</span></code>.</p></li>
-<li><p>Finally, it visits each pixel on the sky and assigns each source a
-flux density chosen from a flux distribution function,
-<span class="math notranslate nohighlight">\(\mathrm{d}n/\mathrm{d}S\)</span> and a
-spectral index which is normally distributed. The normal distribution
-is set by <code class="docutils literal notranslate"><span class="pre">beta_o</span></code> and <code class="docutils literal notranslate"><span class="pre">sigma_beta</span></code>.</p></li>
-</ul>
+<p>The function <code class="xref py py-func docutils literal notranslate"><span class="pre">ref_freq()</span></code> does 3 tasks:-</p>
+<ol class="arabic simple">
+<li><p>Calcuates the total number of unresolved sources corresponding to your specified <code class="docutils literal notranslate"><span class="pre">logSmin</span></code> and <code class="docutils literal notranslate"><span class="pre">logSmin</span></code>. Then it creates a ‘clustered’ sky density of unresolved radio sources, fluctuation for which follows the 2PACF whose parameters are set by <code class="docutils literal notranslate"><span class="pre">amp</span></code> and <code class="docutils literal notranslate"><span class="pre">gam</span></code>.</p></li>
+<li><p>Next, it visits each pixel on the sky and assigns each source a flux density chosen from a flux distribution function, <span class="math notranslate nohighlight">\(\mathrm{d}n/\mathrm{d}S\)</span></p></li>
+<li><p>Finally, it assigns a spectral index to each source which is normally distributed. The normal distribution is set by <code class="docutils literal notranslate"><span class="pre">beta_o</span></code> and <code class="docutils literal notranslate"><span class="pre">sigma_beta</span></code>.</p></li>
+</ol>
 <p>Sky pixelisation is set by <code class="docutils literal notranslate"><span class="pre">log2Nside</span></code>. The number of pixels is
 <span class="math notranslate nohighlight">\(N_{\mathrm{pix}} = 12\times 2^{2k}\)</span>, where <span class="math notranslate nohighlight">\(k=\)</span> <code class="docutils literal notranslate"><span class="pre">log2Nside</span></code>.</p>
 <p>The function does not return anything, but produces 4 output files,
 namely <code class="docutils literal notranslate"><span class="pre">n_clus.npy</span></code>, <code class="docutils literal notranslate"><span class="pre">Tb_o_individual.npy</span></code>, <code class="docutils literal notranslate"><span class="pre">Tb_o_map.npy</span></code>, and
 <code class="docutils literal notranslate"><span class="pre">beta.npy</span></code> in the path specified by <code class="docutils literal notranslate"><span class="pre">path</span></code> during initialisation.
 The files are described below.</p>
-<ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">n_clus.npy</span></code> is a 1D array which stores number density of
-unresolved radio sources as number per pixel. <code class="docutils literal notranslate"><span class="pre">n_clus[i]</span></code> gives the
-number of sources on the <span class="math notranslate nohighlight">\(i^{\mathrm{th}}\)</span> pixel, where
-<span class="math notranslate nohighlight">\(i=0,1,\ldots,N_{\mathrm{pix}}-1\)</span>. Note that in general <code class="docutils literal notranslate"><span class="pre">n_clus[i]</span></code>
-will not be a natural number; we simulate for a rounded-off value.</p></li>
-<li><p>Both <code class="docutils literal notranslate"><span class="pre">Tb_o_individual.npy</span></code> and <code class="docutils literal notranslate"><span class="pre">beta.npy</span></code> are array of arrays of
-unequal sizes and share equal amount of memory. Typically, these
-files will be huge (for default settings they will of size ~ 17 MB
-each). Each of <code class="docutils literal notranslate"><span class="pre">Tb_o_individual[0]</span></code>, <code class="docutils literal notranslate"><span class="pre">Tb_o_individual[1]</span></code>, …,
-is an array and they are total <span class="math notranslate nohighlight">\(N_{\mathrm{pix}}\)</span> in number
-corresponding to <span class="math notranslate nohighlight">\(N_{\mathrm{pix}}\)</span> pixels. The last array is
-<code class="docutils literal notranslate"><span class="pre">Tb_o_individual[Npix-1]</span></code>. The length of array
-<code class="docutils literal notranslate"><span class="pre">Tb_o_individual[i]</span></code> is equal to the number of sources on the
-<span class="math notranslate nohighlight">\(i^{\mathrm{th}}\)</span> pixel, which is <code class="docutils literal notranslate"><span class="pre">round(n_clus[i])</span></code>. The values
-itself are the brightness temperature contributed by each source in
-kelvin at reference frequency.</p></li>
-<li><p>The structure of <code class="docutils literal notranslate"><span class="pre">beta</span></code> is same as <code class="docutils literal notranslate"><span class="pre">Tb_o_individual</span></code>. The values
-itself are the spectral indices assigned to each source.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">Tb_o_map</span></code> is an array similar in structure to <code class="docutils literal notranslate"><span class="pre">n_clus</span></code>. It is
-the pixel wise brightness temperature contributed by the
-extragalactic radio sources at the reference frequency. Thus,
-<code class="docutils literal notranslate"><span class="pre">Tb_o_map[i]</span> <span class="pre">=</span> <span class="pre">numpy.sum(Tb_o_individual[i])</span></code>.</p></li>
-</ol>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">n_clus.npy</span></code> is a 1D array which stores number density of unresolved radio sources as number per pixel. <code class="docutils literal notranslate"><span class="pre">n_clus[i]</span></code> gives the number of sources on the <span class="math notranslate nohighlight">\(i^{\mathrm{th}}\)</span> pixel, where <span class="math notranslate nohighlight">\(i=0,1,\ldots,N_{\mathrm{pix}}-1\)</span>. Note that in general <code class="docutils literal notranslate"><span class="pre">n_clus[i]</span></code> will not be a natural number; we simulate for a rounded-off value.</p></li>
+<li><p>Both <code class="docutils literal notranslate"><span class="pre">Tb_o_individual.npy</span></code> and <code class="docutils literal notranslate"><span class="pre">beta.npy</span></code> are array of arrays of unequal sizes and share equal amount of memory. Typically, these files will be huge (for default settings they will of size ~ 17 MB each). Each of <code class="docutils literal notranslate"><span class="pre">Tb_o_individual[0]</span></code>, <code class="docutils literal notranslate"><span class="pre">Tb_o_individual[1]</span></code>, …, is an array and they are total <span class="math notranslate nohighlight">\(N_{\mathrm{pix}}\)</span> in number corresponding to <span class="math notranslate nohighlight">\(N_{\mathrm{pix}}\)</span> pixels. The last array is <code class="docutils literal notranslate"><span class="pre">Tb_o_individual[Npix-1]</span></code>. The length of array <code class="docutils literal notranslate"><span class="pre">Tb_o_individual[i]</span></code> is equal to the number of sources on the <span class="math notranslate nohighlight">\(i^{\mathrm{th}}\)</span> pixel, which is <code class="docutils literal notranslate"><span class="pre">round(n_clus[i])</span></code>. The values itself are the brightness temperature contributed by each source in kelvin at reference frequency.</p></li>
+<li><p>The structure of <code class="docutils literal notranslate"><span class="pre">beta</span></code> is same as <code class="docutils literal notranslate"><span class="pre">Tb_o_individual</span></code>. The values itself are the spectral indices assigned to each source.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Tb_o_map</span></code> is an array similar in structure to <code class="docutils literal notranslate"><span class="pre">n_clus</span></code>. It is the pixel wise brightness temperature contributed by the extragalactic radio sources at the reference frequency. Thus, <code class="docutils literal notranslate"><span class="pre">Tb_o_map[i]</span> <span class="pre">=</span> <span class="pre">numpy.sum(Tb_o_individual[i])</span></code>.</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">furs</span> <span class="kn">import</span> <span class="n">furs</span>
+
+<span class="n">obj</span> <span class="o">=</span> <span class="n">furs</span><span class="o">.</span><span class="n">furs</span><span class="p">()</span>
+
+<span class="n">obj</span><span class="o">.</span><span class="n">ref_freq</span><span class="p">()</span>
+</pre></div>
+</div>
 </section>
 <section id="general-frequency">
 <h2>General frequency<a class="headerlink" href="#general-frequency" title="Link to this heading"></a></h2>
-<p>The next important task is performed by the function <code class="docutils literal notranslate"><span class="pre">gen_freq</span></code>. It
+<p>The next important task is performed by the function <code class="xref py py-func docutils literal notranslate"><span class="pre">gen_freq()</span></code>. It
 scales the brightness temperature at reference frequency for each source
 according to a power law to a desired range of frequencies. The desired
-frequencies should be supplied (in Hz) as a numpy array to this
+frequencies should be supplied (in Hz) as a <code class="xref py py-mod docutils literal notranslate"><span class="pre">numpy</span></code> array to this
 function. For example</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">obj</span><span class="o">.</span><span class="n">gen_freq</span><span class="p">(</span><span class="n">nu</span> <span class="o">=</span> <span class="mf">1e6</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span><span class="mi">201</span><span class="p">))</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">furs</span> <span class="kn">import</span> <span class="n">furs</span>
+
+<span class="n">obj</span> <span class="o">=</span> <span class="n">furs</span><span class="o">.</span><span class="n">furs</span><span class="p">()</span>
+
+<span class="n">obj</span><span class="o">.</span><span class="n">ref_freq</span><span class="p">()</span>
+
+<span class="n">obj</span><span class="o">.</span><span class="n">gen_freq</span><span class="p">(</span><span class="n">nu</span> <span class="o">=</span> <span class="mf">1e6</span><span class="o">*</span><span class="n">numpy</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span><span class="mi">201</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>The default value is as given in the above command. This function does
@@ -245,8 +149,8 @@ not return anything but produces 3 files namely <code class="docutils literal no
 <code class="docutils literal notranslate"><span class="pre">path</span></code> during initialisation. The files are described below.</p>
 <ol class="arabic simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">Tb_nu_map</span></code> is a 2D array of shape <span class="math notranslate nohighlight">\(N_{\mathrm{pix}}\times
-N_{\nu}\)</span>, so that <code class="docutils literal notranslate"><span class="pre">Tb_nu_map[i,j]</span></code> gives the brightness temperature
-on the <span class="math notranslate nohighlight">\(i^{\mathrm{th}}\)</span> pixel at <code class="docutils literal notranslate"><span class="pre">nu[j]</span></code> frequency. <span class="math notranslate nohighlight">\(N_{\nu}\)</span> is
+N_{\nu}\)</span>, so that <code class="docutils literal notranslate"><span class="pre">Tb_nu_map[i,k]</span></code> gives the brightness temperature
+on the <span class="math notranslate nohighlight">\(i^{\mathrm{th}}\)</span> pixel at <code class="docutils literal notranslate"><span class="pre">nu[k]</span></code> frequency. <span class="math notranslate nohighlight">\(N_{\nu}\)</span> is
 the number of frequencies you gave in the argument of <code class="docutils literal notranslate"><span class="pre">gen_freq()</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Tb_nu_glob</span></code> is derived directly from <code class="docutils literal notranslate"><span class="pre">Tb_nu_map</span></code>. It is the sky
 average of the map at each frequency and is thus a 1D array. It is
@@ -260,7 +164,7 @@ and <code class="docutils literal notranslate"><span class="pre">logSmax</span><
 recommended to run this code on supercomputers. For job submission scipt
 users are requested to specify <code class="docutils literal notranslate"><span class="pre">#SBATCH</span> <span class="pre">--mem-per-cpu=[size</span> <span class="pre">in</span> <span class="pre">MB]</span></code>,
 where a recommendation for <code class="docutils literal notranslate"><span class="pre">size</span> <span class="pre">in</span> <span class="pre">MB</span></code> will be printed by
-<code class="docutils literal notranslate"><span class="pre">ref_freq()</span></code> function.</p>
+<code class="xref py py-func docutils literal notranslate"><span class="pre">ref_freq()</span></code> function.</p>
 </section>
 <section id="chromatic-distortions">
 <h2>Chromatic distortions<a class="headerlink" href="#chromatic-distortions" title="Link to this heading"></a></h2>
@@ -269,27 +173,24 @@ chromatic distortions. They are simply the model outputs for foregrounds
 due to unresolved radio sources. However, in reality because of the
 chromatic nature of the antenna beam the actual foregrounds spectrum
 registered will be different. You can use the function
-<code class="docutils literal notranslate"><span class="pre">chromatisize()</span></code> to account for the chromaticity.</p>
+<code class="xref py py-func docutils literal notranslate"><span class="pre">chromatisize()</span></code> to account for the chromaticity.</p>
 <p>Since this is experiment specific you will need to provide an external
 data file: the beam directivity pattern, <span class="math notranslate nohighlight">\(D\)</span>. This should be a 2D array
-of shape <span class="math notranslate nohighlight">\(N_{\mathrm{pix}}\times N_{\\nu}\)</span>, such that <code class="docutils literal notranslate"><span class="pre">D[i,j]</span></code> should
-give the beam directivity at <span class="math notranslate nohighlight">\(i^{\mathrm{th}}\)</span> pixel at nu[j] frequency.
-The frequencies at which you generate your data <span class="math notranslate nohighlight">\(D\)</span> should be the same
-as the frequencies you gave in <code class="docutils literal notranslate"><span class="pre">gen_freq()</span></code>. (In case you forgot,
-<code class="docutils literal notranslate"><span class="pre">gen_freq()</span></code> will have saved the frequency array in your <code class="docutils literal notranslate"><span class="pre">obj.path</span></code>
+of shape <span class="math notranslate nohighlight">\(N_{\mathrm{pix}}\times N_{\nu}\)</span>, such that <code class="docutils literal notranslate"><span class="pre">D[i,k]</span></code> should
+give the beam directivity at <span class="math notranslate nohighlight">\(i^{\mathrm{th}}\)</span> pixel at <code class="docutils literal notranslate"><span class="pre">nu[k]''</span> <span class="pre">frequency.</span>
+<span class="pre">The</span> <span class="pre">frequencies</span> <span class="pre">at</span> <span class="pre">which</span> <span class="pre">you</span> <span class="pre">generate</span> <span class="pre">your</span> <span class="pre">data</span> <span class="pre">:math:`D`</span> <span class="pre">should</span> <span class="pre">be</span> <span class="pre">the</span> <span class="pre">same</span>
+<span class="pre">as</span> <span class="pre">the</span> <span class="pre">frequencies</span> <span class="pre">you</span> <span class="pre">gave</span> <span class="pre">in</span> <span class="pre">``gen_freq()</span></code>. (In case you forgot,
+<code class="xref py py-func docutils literal notranslate"><span class="pre">gen_freq()</span></code> will have saved the frequency array in your <code class="docutils literal notranslate"><span class="pre">obj.path</span></code>
 path.) Put this array <span class="math notranslate nohighlight">\(D\)</span> in your <code class="docutils literal notranslate"><span class="pre">obj.path</span></code> path by the name of
 <code class="docutils literal notranslate"><span class="pre">D.npy</span></code>.</p>
-<p>Only after running <code class="docutils literal notranslate"><span class="pre">ref_freq</span></code> and <code class="docutils literal notranslate"><span class="pre">gen_freq</span></code>, run <code class="docutils literal notranslate"><span class="pre">chromatisize</span></code>
+<p>Only after running <code class="xref py py-func docutils literal notranslate"><span class="pre">ref_freq()</span></code> and <code class="xref py py-func docutils literal notranslate"><span class="pre">gen_freq()</span></code>, run <code class="xref py py-func docutils literal notranslate"><span class="pre">chromatisize()</span></code>
 as</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">furs</span> <span class="kn">import</span> <span class="n">furs</span>
 
-<span class="c1">#Step-1 initialise the object with default settings</span>
 <span class="n">obj</span> <span class="o">=</span> <span class="n">furs</span><span class="o">.</span><span class="n">furs</span><span class="p">()</span>
 
-<span class="c1">#Step-2 generate the data at the reference frequency</span>
 <span class="n">obj</span><span class="o">.</span><span class="n">ref_freq</span><span class="p">()</span>
 
-<span class="c1">#Step-3 generate the sky maps at multiple frequencies as well as their sky average</span>
 <span class="n">obj</span><span class="o">.</span><span class="n">gen_freq</span><span class="p">()</span>
 
 <span class="c1">#If you have already ran ref_freq and gen_freq previously then comment</span>
@@ -304,99 +205,29 @@ will be a 1D array with length of number of frequencies.</p>
 <section id="visualisation">
 <h2>Visualisation<a class="headerlink" href="#visualisation" title="Link to this heading"></a></h2>
 <p>The final part of the code is to visualise the results. Main data for
-inspection is in the file <code class="docutils literal notranslate"><span class="pre">Tb_nu_map.npy</span></code>. Each of <code class="docutils literal notranslate"><span class="pre">Tb_nu_map[:,j]</span></code>
+inspection is in the file <code class="docutils literal notranslate"><span class="pre">Tb_nu_map.npy</span></code>. Each of <code class="docutils literal notranslate"><span class="pre">Tb_nu_map[:,k]</span></code>
 is an array in the standard ring ordered <code class="docutils literal notranslate"><span class="pre">HEALPix</span></code> format and is thus
 ready for visualisation as a Mollweide projection. You may also be
 interested in inspecting the global spectrum of extragalactic emission,
 i.e, temperature as a function of frequency. This is simply the data in
-the file <code class="docutils literal notranslate"><span class="pre">Tb_nu_glob.npy</span></code> generated by <code class="docutils literal notranslate"><span class="pre">gen_freq()</span></code>.</p>
-<p>You may use the function <code class="docutils literal notranslate"><span class="pre">visual()</span></code> for both the above purposes. It is
+the file <code class="docutils literal notranslate"><span class="pre">Tb_nu_glob.npy</span></code> generated by <code class="xref py py-func docutils literal notranslate"><span class="pre">gen_freq()</span></code>.</p>
+<p>You may use the function <code class="xref py py-func docutils literal notranslate"><span class="pre">visual()</span></code> for both the above purposes. It is
 possible to make several other additional figures by simply setting the
 optional arguments to <code class="docutils literal notranslate"><span class="pre">True</span></code> (see below). This function is again a
-method of class object <code class="docutils literal notranslate"><span class="pre">furs</span></code> and is thus called as</p>
+method of class object <a class="reference internal" href="api.html#furs.furs" title="furs.furs"><code class="xref py py-class docutils literal notranslate"><span class="pre">furs.furs</span></code></a> and is thus called as</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">obj</span> <span class="o">=</span> <span class="n">furs</span><span class="o">.</span><span class="n">furs</span><span class="p">()</span>
+
+<span class="n">obj</span><span class="o">.</span><span class="n">ref_freq</span><span class="p">()</span>
+
+<span class="n">obj</span><span class="o">.</span><span class="n">gen_freq</span><span class="p">()</span>
+
+<span class="n">obj</span><span class="o">.</span><span class="n">chromatisize</span><span class="p">()</span>
+
+<span class="c1">#comment out obj.ref_freq(), obj.gen_freq(), obj.chromatisize() if you have already run them.</span>
 <span class="n">obj</span><span class="o">.</span><span class="n">visual</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>The following optional arguments are available for this function:-</p>
-<ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">nu_skymap</span></code></p>
-<ul class="simple">
-<li><p>the frequency at which you want to produce a Mollweide projection
-of extragalactic foregrounds</p></li>
-<li><p>type <em>float</em></p></li>
-<li><p>default <code class="docutils literal notranslate"><span class="pre">nu_o</span></code></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">t_skymap</span></code></p>
-<ul class="simple">
-<li><p>Create a sky map of extragalactic foregrounds?</p></li>
-<li><p>type <em>bool</em></p></li>
-<li><p>default <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">n_skymap</span></code></p>
-<ul class="simple">
-<li><p>Create a sky map of number density of unresolved radio sources?</p></li>
-<li><p>type <em>bool</em></p></li>
-<li><p>default <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dndS_plot</span></code></p>
-<ul class="simple">
-<li><p>Plot the $S$ distribution function?</p></li>
-<li><p>type <em>bool</em></p></li>
-<li><p>default <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">aps</span></code></p>
-<ul class="simple">
-<li><p>Plot the angular power spectrum?</p></li>
-<li><p>type <em>bool</em></p></li>
-<li><p>default <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">spectrum</span></code></p>
-<ul class="simple">
-<li><p>Create the foreground spectrum?</p></li>
-<li><p>type <em>bool</em></p></li>
-<li><p>default <code class="docutils literal notranslate"><span class="pre">True</span></code></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">chromatic</span></code></p>
-<ul class="simple">
-<li><p>To the spectrum figure add the sky data curve which accounts for
-beam chromaticity?</p></li>
-<li><p>type <em>bool</em></p></li>
-<li><p>default <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">xlog</span></code></p>
-<ul class="simple">
-<li><p>Set x-axis in log scale? This and the next option are relevant
-only for the spectrum plot.</p></li>
-<li><p>type <em>bool</em></p></li>
-<li><p>default <code class="docutils literal notranslate"><span class="pre">False</span></code></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">ylog</span></code></p>
-<ul class="simple">
-<li><p>Set y-axis in log scale?</p></li>
-<li><p>type <em>bool</em></p></li>
-<li><p>default <code class="docutils literal notranslate"><span class="pre">True</span></code></p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">fig_ext</span></code></p>
-<ul class="simple">
-<li><p>Choose your format of figure file; popular choices include
-<code class="docutils literal notranslate"><span class="pre">pdf</span></code>, <code class="docutils literal notranslate"><span class="pre">jpeg</span></code>, <code class="docutils literal notranslate"><span class="pre">png</span></code></p></li>
-<li><p>type <em>string</em></p></li>
-<li><p>default <code class="docutils literal notranslate"><span class="pre">pdf</span></code></p></li>
-</ul>
-</li>
-</ol>
-<p>This function will produce figures in the path specficied during
-initialisation.</p>
+<p>For all the available options for this function see the API reference section. This function will produce figures in the path specficied during initialisation.</p>
 </section>
 </section>
 

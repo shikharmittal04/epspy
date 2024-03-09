@@ -96,5 +96,4 @@ resolution maps, it is recommended to run the code on HPCs.
 
 License and citation
 --------------------
-The software is free to use on the MIT open source license. If you use the software for academic purposes then we request that you cite
-the `Mittal et al (2024) <https://arxiv.org/abs/2311.03447>`_.
+The software is free to use on the MIT open source license. If you use the software then please consider citing `Mittal et al (2024) <https://arxiv.org/abs/2311.03447>`_.

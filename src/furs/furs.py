@@ -1,5 +1,6 @@
 '''
-Defines a class furs. 
+This is the module :mod:`furs`.
+It contains public functions :func:`save_furs`, :func:`load_furs` and a class :class:`furs`. 
 '''
 import numpy as np
 from numpy.polynomial import polynomial as pol
@@ -24,7 +25,7 @@ nu21 = 1420     #21-cm frequency in MHz
 
 np.seterr(all='ignore')
 
-def print_banner():
+def _print_banner():
     banner = """\033[94m
     ███████╗ ██╗   ██╗ ██████╗  ███████╗
     ██╔════╝ ██║   ██║ ██╔══██╗ ██╔════╝
@@ -38,15 +39,29 @@ def print_banner():
 
 #--------------------------------------------------------------------------------------------
 #The following 2 functions are required for adding a secondary x-axis at the top for figures.
-def nu2z(nu):
+def _nu2z(nu):
     return nu21/nu-1
 
-def z2nu(z):
+def _z2nu(z):
     return nu21/(1+z)
 
 #--------------------------------------------------------------------------------------------
 #The following 2 functions will be useful if you want to save and load your class object.
 def save_furs(obj, filename):
+    '''Saves the class object :class:`furs`.
+    
+    Save the class object :class:`furs` for later use. It will save the object in the path where you have all the other outputs
+    form this package.
+    
+    Parameters
+    ----------
+    obj : class
+    	This should be the class object you want to save.
+    	
+    filename : str
+    	Give a filename to your object. It will be saved in the ``obj.path`` directory.
+    
+    '''
     try:
         comm = MPI.COMM_WORLD
         cpu_ind = comm.Get_rank()
@@ -62,6 +77,18 @@ def save_furs(obj, filename):
     return None
     
 def load_furs(filename):
+    '''To load the class object :class:`furs`.
+    
+    Parameters
+    ----------
+    filename : str
+    	This should be the name of the file you gave in :func:`save_furs()` for saving class object :class:`furs`.
+    	Important: provide the full path for ``filename`` with the extension ``.pkl``.
+    	
+    Returns
+    -------
+    class object    
+    '''
     try:
         comm = MPI.COMM_WORLD
         cpu_ind = comm.Get_rank()
@@ -84,7 +111,7 @@ class furs():
     ----------
 
     nu_o : float, optional
-        Reference frequency in Hz (default = `150e6`)
+        Reference frequency in Hz
     
     beta_o : float, optional
         Mean spectral index for extragalactic point sources
@@ -96,25 +123,29 @@ class furs():
         Amplitude of the power-law 2-point angular correlation function (2PACF)
     
     gam : float, optional
-        -exponent of the power-law 2-point angular correlation function
+        :math:`-` exponent of the power-law 2-point angular correlation function
     
     logSmin : float, optional
-        :math:`\\log_{10}(S_{\\mathrm{min}})`, where S_min is in Jy
+        :math:`\\log_{10}(S_{\\mathrm{min}})`, where :math:`S_{\\mathrm{min}}` is in Jy
     
     logSmax : float, optional
-        log_10(S_max)
+        :math:`\\log_{10}(S_{\\mathrm{max}})`, where :math:`S_{\\mathrm{max}}` is in Jy
     
     dndS_form : int, optional
-        Choose the functional form for dn/dS. Available options -> 0 (default),1 or 2
+        Choose the functional form for :math:`\\mathrm{d}n/\\mathrm{d}S`. Available options -> 0 (default),1 or 2
     
     log2Nside : int, optional
-        Number of divisions in units of log_2
+        Number of divisions in units of :math:`\\log_2`
     
     path : str, optional
         Path where you would like to save and load from, the Tb's and beta's
             
     lbl : str, optional
         Append an extra string to all the output files.
+        
+    Methods
+    -------
+    
     '''
     def __init__(self, beta_o=2.681,sigma_beta=0.5, logSmin=-2,logSmax=-1,dndS_form=0, log2Nside=6, nu_o=150e6, amp=7.8e-3,gam=0.821, path='',lbl=''):
         self.nu_o = nu_o
@@ -156,16 +187,20 @@ class furs():
         return None
         
     def dndS(self, S):
-        '''dn/dS (sr^-1 Jy^-1)
+        ''':math:`\\mathrm{d}n/\\mathrm{d}S\\,(\\mathrm{sr}^{-1}\\mathrm{Jy}^{-1})`
         
-        Distribution of flux density, S. The default choice (0) is by Gervasi et al (2008) ApJ.
-        Form 1 is by Mandal et al. (2021) A&A.
-        Form 2 is by Intema et al. (2017) A&A.
+        Distribution of flux density, S.
+        
+        The default choice (0) is by `Gervasi et al (2008) <https://iopscience.iop.org/article/10.1086/588628/meta>`__
+        
+        Form 1 is by `Mandal et al. (2021) <https://www.aanda.org/articles/aa/full_html/2021/04/aa39998-20/aa39998-20.html>`__
+        
+        Form 2 is by `Intema et al. (2017) <https://www.aanda.org/articles/aa/full_html/2017/02/aa28536-16/aa28536-16.html>`__
         
         Parameters
         ----------
         
-        S : float or ndarray 
+        S : float
             Flux density in units of Jy (jansky). Can be 1 value or an numpy array.
         
         Returns
@@ -194,9 +229,11 @@ class furs():
             return S**-2.5*((A1*S**a1+B1*S**b1)**-1+(A2*S**a2+B2*S**b2)**-1)
 
     def acf(self, chi):
-        '''
+        '''2 point angular correlation function.
+        
         This is the popular form of the 2PACF; a power law.
-        The default values for amplitude and index are from Rana & Bagla (2019).
+        
+        The default values for amplitude and index are from `Rana & Bagla (2019) <https://academic.oup.com/mnras/article/485/4/5891/5420431>`__.
         
         Parameters
         ----------
@@ -206,7 +243,7 @@ class furs():
         Returns
         -------
         float
-            Output is pure number or an array accordingly as chi is a number or an array. 
+            Output is pure number or an array accordingly as ``chi`` is a number or an array. 
         '''
         return self.amp*(chi*180/np.pi)**(-self.gam)
 
@@ -223,8 +260,8 @@ class furs():
     def num_sources(self):
         '''This function gives the total number of unresolved point sources on the full sky.
         
-        This is specifically for the flux density distribution defined in dndS(),
-        and the minimum and maximum S values are set during the initialisation of the class object.
+        This is specifically for the flux density distribution defined in :func:`dndS()`,
+        and the minimum and maximum :math:`S` values are set during the initialisation of the class object :class:`furs`.
         
         Returns
         -------
@@ -238,15 +275,17 @@ class furs():
         return Ns
 
     def num_den(self):
-        '''
-        This function calculates the number density function n_clus for the 2PACF defined in acf().
-        The array will also be saved as an .npy format file in the path you gave during initialisation.
+        '''Number density.
+        
+        This function calculates the number density function :math:`n_{\\mathrm{cl}}` for the 2PACF defined in ``acf()``.
+        
+        The array will also be saved as an ``.npy`` format file in the path you gave during initialisation.
         
         Returns
         -------
         
         float
-            Number of sources per pixel. It will be an array of length Npix.
+            Number of sources per pixel. It will be an array of length :math:`N_{\\mathrm{pix}}`.
         '''
         
         Ns = self.num_sources()
@@ -311,7 +350,8 @@ class furs():
         '''Generates the brightness temperature and spectral indices at reference frequency. 
         
         3 output files are generated ``Tb_o_individual.npy``, ``Tb_o_map.npy`` and ``beta.npy``
-        To understand the structure of these output files. Look at the documentation page.
+        
+        To understand the structure of these output files see the section on Reference frequency.
         
         '''
         #-------------------------------------------------------------------------------------
@@ -320,7 +360,7 @@ class furs():
         Ncpu = comm.Get_size()
         
         if cpu_ind==0:
-            print_banner()
+            _print_banner()
             self.print_input()
         
         if Ncpu==1: print("\033[91mBetter to parallelise. Eg. 'mpirun -np 4 python3 %s', where 4 specifies the number of tasks.\033[00m" %(sys.argv[0]))
@@ -435,17 +475,19 @@ class furs():
     def gen_freq(self, nu=1e6*np.arange(50,201)):
         '''Scale the brightness temperature at reference frequency to a general frequency.
         
-        If you are running this function you must have run ref_freq().    
-        This function computes the map(s) at general frequency(ies) based on the precomputed values from ref_freq().
+        If you are running this function you must have run :func:`ref_freq`.   
+         
+        This function computes the map(s) at general frequency(ies) based on the precomputed values from :func:`ref_freq`.
         
         Parameters
         ----------
         nu : float
             frequency (in Hz) at which you want to evaluate the brightness temperature map. Can be one number or an array.
-            (Default = 1e6*np.arange(50,201))
+            (Default = `1e6*np.arange(50,201)`)
             
-        A file named ``Tb_nu_glob.npy`` is generated.
-        Additionally, the frequencies will also be saved.
+        3 files will be generated namely, ``Tb_nu_glob.npy``, ``Tb_nu_glob.npy``, and ``nu_glob.npy``.
+        
+        To understand the structure of these output files see the section on General frequency.
         '''
         #-------------------------------------------------------------------------------------
         comm = MPI.COMM_WORLD
@@ -468,7 +510,7 @@ class furs():
         beta_save_name = self.path+'beta'+self.lbl+'.npy'
 
         if cpu_ind==0:
-            print_banner()
+            _print_banner()
             print('\n\033[94mRunning furs.gen_freq() ...\033[00m\n')
             print("Beginning scaling extragalactic maps to general frequency ...")
         N_nu = np.size(nu)
@@ -531,7 +573,7 @@ class furs():
     def chromatisize(self):
         '''Account for chromatic distortions given the beam directivity array.
         
-        ``Tb_nu_map.npy`` generated by ``gen_freq()`` does not account for chromaticity. To account for this users must
+        ``Tb_nu_map.npy`` generated by :func:`gen_freq` does not account for chromaticity. To account for this users must
         provide an array, named ``D.npy``, which should be in the shape of :math:`N_{\\mathrm{pix}} \\times N_{\\nu}`.
         Put this array into the path where you have all the other outputs. There is no return value but an output file
         will be generated called ``T_ant.npy``.
@@ -580,14 +622,25 @@ class furs():
     def visual(self, t_skymap=False, nu_skymap=None, aps=False, n_skymap=False, dndS_plot = False, spectrum=True, chromatic = False, xlog=False,ylog=True, fig_ext = 'pdf'):
         '''Plotting function.
         
-        This function can produce several figures such as number density map, FURS map, angular power spectrum,
-        flux density distribution function, sky averaged FURS as function of frequency and finally the antenna temperature.
+        This function can produce several figures such as:-
+        
+        * number density map
+        
+        * FURS map
+        
+        * angular power spectrum
+        
+        * flux density distribution function
+        
+        * sky averaged FURS as function of frequency
+        
+        * antenna temperature
         
         Parameters
         ----------
         
         t_skymap : bool
-            Want to plot the FURS map (a Mollweide projection plot)? (Default = `False`).
+            Want to plot the FURS map (a Mollweide projection plot)? (Default = ``False``).
             
         nu_skymap : float, optional
             Frequency in Hz at which you want to construct the FURS map. Relevant only when you give ``t_skymap = True``.
@@ -612,7 +665,7 @@ class furs():
             Set the y-axis scale of spectrum plot in log? (Default = ``False``)
         
         fig_ext : str
-            What should be the format of the figure files? Common choices include png, pdf or jpf. (Default = ``pdf``)
+            What should be the format of the figure files? Common choices include png, pdf or jpg. (Default = ``pdf``)
         '''
         #-------------------------------------------------------------------------------------
         try:
@@ -798,7 +851,7 @@ class furs():
                 ax.tick_params(axis='both', which='minor', length=3, width=1,direction='in')
                 ax.legend(fontsize=18,frameon=False)
 
-                secax = ax.secondary_xaxis('top', functions=(nu2z,z2nu))
+                secax = ax.secondary_xaxis('top', functions=(_nu2z,_z2nu))
                 secax.set_xlabel(r'$z$',fontsize=fs, labelpad=12)
                 secax.tick_params(axis='both', which='major', length=5, width=1, labelsize=fs,direction='in')
                 secax.tick_params(axis='both', which='minor', length=3, width=1,direction='in')
