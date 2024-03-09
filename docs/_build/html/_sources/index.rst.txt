@@ -1,4 +1,4 @@
-Welcome to furs' documentation!
+Welcome to the documentation of FURS!
 =====================================
 
 .. toctree::
@@ -12,3 +12,5 @@ Welcome to furs' documentation!
    Other useful functions <otherfuncs>
    
    General remarks <genrem>
+   
+   API Reference <api>

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.5.31)  8 MAR 2024 19:18
+This is pdfTeX, Version 3.141592653-2.6-1.40.22 (TeX Live 2022/dev/Debian) (preloaded format=pdflatex 2023.5.31)  9 MAR 2024 09:57
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -848,12 +848,12 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ]
 Chapter 1.
 LaTeX Font Info:    Trying to load font information for T1+txtt on input line 1
-33.
+36.
 (/usr/share/texlive/texmf-dist/tex/latex/txfonts/t1txtt.fd
 File: t1txtt.fd 2000/12/15 v3.1
 )
 LaTeX Font Info:    Trying to load font information for TS1+qtm on input line 1
-40.
+43.
 
 (/usr/share/texmf/tex/latex/tex-gyre/ts1qtm.fd
 File: ts1qtm.fd 2009/09/25 v1.2 font definition file for TS1/qtm
@@ -861,9 +861,9 @@ File: ts1qtm.fd 2009/09/25 v1.2 font definition file for TS1/qtm
 
 ]
 LaTeX Font Info:    Font shape `T1/txtt/b/n' in size <10> not available
-(Font)              Font shape `T1/txtt/bx/n' tried instead on input line 186.
+(Font)              Font shape `T1/txtt/bx/n' tried instead on input line 189.
 LaTeX Font Info:    Font shape `T1/txtt/m/it' in size <10> not available
-(Font)              Font shape `T1/txtt/m/sl' tried instead on input line 188.
+(Font)              Font shape `T1/txtt/m/sl' tried instead on input line 191.
  [2]
 Chapter 2.
 [3
@@ -874,43 +874,62 @@ LaTeX Font Info:    Trying to load font information for TS1+txtt on input line
  (/usr/share/texlive/texmf-dist/tex/latex/txfonts/ts1txtt.fd
 File: ts1txtt.fd 2000/12/15 v3.1
 )
-Underfull \hbox (badness 10000) in paragraph at lines 460--462
+Underfull \hbox (badness 10000) in paragraph at lines 463--465
 []\T1/txtt/m/n/10 obj = furs.furs(log2Nside=6, logSmin=[]2,logSmax=[]1,dndS_for
 m=0, nu_o=150e6, beta_o=2.681,
  []
 
-[4] [5] [6] [7] [8
-
-]
+[4] [5] [6] [7] [8]
 Chapter 3.
-[9] [10
+[9
+
+] [10
 
 ]
 Chapter 4.
-(./furs.ind) [11] (./furs.aux)
+[11] [12
+
+]
+Chapter 5.
+[13] [14] [15] [16] [17
+
+
+
+] (./furs.ind [18
+
+
+] [19
+
+
+]) (./furs.aux)
 Package rerunfilecheck Info: File `furs.out' has not changed.
-(rerunfilecheck)             Checksum: 85AE00F677553997F12B898C3C25D3B4;1840.
+(rerunfilecheck)             Checksum: 837C7BD978F5EB786E0C7510431D8214;3206.
  ) 
 Here is how much of TeX's memory you used:
- 16054 strings out of 478287
- 267459 string characters out of 5849289
- 579034 words of memory out of 5000000
- 33801 multiletter control sequences out of 15000+600000
- 514983 words of font info for 68 fonts, out of 8000000 for 9000
+ 16132 strings out of 478287
+ 268568 string characters out of 5849289
+ 582948 words of memory out of 5000000
+ 33845 multiletter control sequences out of 15000+600000
+ 521244 words of font info for 71 fonts, out of 8000000 for 9000
  1142 hyphenation exceptions out of 8191
- 70i,11n,76p,635b,516s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 70i,11n,76p,1693b,607s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf/fonts/enc/dvips/tex-gyre/q-ec.enc}{/usr/share/texmf/fonts/e
-nc/dvips/tex-gyre/q-ts1.enc}</usr/share/texmf/fonts/type1/public/tex-gyre/qhvb.
-pfb></usr/share/texmf/fonts/type1/public/tex-gyre/qtmb.pfb></usr/share/texmf/fo
-nts/type1/public/tex-gyre/qtmr.pfb></usr/share/texmf/fonts/type1/public/tex-gyr
-e/qtmri.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/txfonts/t1xbtt.pf
-b></usr/share/texlive/texmf-dist/fonts/type1/public/txfonts/t1xtt.pfb></usr/sha
-re/texlive/texmf-dist/fonts/type1/public/txfonts/t1xtt.pfb></usr/share/texlive/
-texmf-dist/fonts/type1/public/txfonts/tcxtt.pfb>
-Output written on furs.pdf (15 pages, 156590 bytes).
+nc/dvips/tex-gyre/q-ts1.enc}</usr/share/texlive/texmf-dist/fonts/type1/public/a
+msfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfont
+s/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cm
+r10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb>
+</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/
+share/texmf/fonts/type1/public/tex-gyre/qhvb.pfb></usr/share/texmf/fonts/type1/
+public/tex-gyre/qhvr.pfb></usr/share/texmf/fonts/type1/public/tex-gyre/qtmb.pfb
+></usr/share/texmf/fonts/type1/public/tex-gyre/qtmr.pfb></usr/share/texmf/fonts
+/type1/public/tex-gyre/qtmri.pfb></usr/share/texlive/texmf-dist/fonts/type1/pub
+lic/txfonts/t1xbtt.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/txfont
+s/t1xtt.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/txfonts/t1xtt.pfb
+></usr/share/texlive/texmf-dist/fonts/type1/public/txfonts/tcxtt.pfb>
+Output written on furs.pdf (23 pages, 237502 bytes).
 PDF statistics:
- 238 PDF objects out of 1000 (max. 8388607)
- 203 compressed objects within 3 object streams
- 62 named destinations out of 1000 (max. 500000)
- 125 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 386 PDF objects out of 1000 (max. 8388607)
+ 334 compressed objects within 4 object streams
+ 93 named destinations out of 1000 (max. 500000)
+ 229 words of extra memory for PDF output out of 10000 (max. 10000000)
 

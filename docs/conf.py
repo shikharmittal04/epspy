@@ -3,6 +3,12 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+
+import os
+import sys
+#sys.path.append('/home/shikhar/Dropbox/Point_sources/furs/src/furs')
+sys.path.insert(0,os.path.abspath('../src/furs/'))
+
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
@@ -13,7 +19,7 @@ author = 'Shikhar Mittal'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['sphinx.ext.autodoc','sphinx.ext.mathjax','sphinx.ext.napoleon','sphinx.ext.viewcode']
+extensions = ['sphinx.ext.autodoc','sphinx.ext.mathjax']
 
 source_suffix = '.rst'
 
@@ -23,8 +29,6 @@ master_doc = 'index'
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
-
-
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

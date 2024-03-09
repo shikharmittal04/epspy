@@ -1,3 +1,6 @@
+'''
+Defines a class furs. 
+'''
 import numpy as np
 from numpy.polynomial import polynomial as pol
 import pickle
@@ -74,45 +77,45 @@ def load_furs(filename):
 
 
 class furs():
-	'''
-	This is class for initialising the properties of the unresolved radio sources.
-	
-	Attributes
-	----------
+    '''
+    This is class for initialising the properties of the unresolved radio sources.
+    
+    Attributes
+    ----------
 
-	nu_o : float
-		Reference frequency in Hz
-	
-	beta_o : float
-		Mean spectral index for extragalactic point sources
-	
-	sigma_beta : float
-		Spread in the beta values
+    nu_o : float, optional
+        Reference frequency in Hz (default = `150e6`)
+    
+    beta_o : float, optional
+        Mean spectral index for extragalactic point sources
+    
+    sigma_beta : float, optional
+        Spread in the beta values
 
-	amp : float
-		Amplitude of the power-law 2-point angular correlation function (2PACF)
-	
-	gam : float
-		-exponent of the power-law 2-point angular correlation function
-	
-	logSmin : float
-		log_10(S_min), where S_min is in Jy
-	
-	logSmax : float
-		log_10(S_max)
-	
-	dndS_form : int
-		Choose the functional form for dn/dS. Available options -> 0 (default),1 or 2
-	
-	log2Nside : int
-		Number of divisions in units of log_2
-	
-	path : str
-		Path where you would like to save and load from, the Tb's and beta's
-	        
-	lbl : str
-		Append an extra string to all the output files.
-	'''
+    amp : float, optional
+        Amplitude of the power-law 2-point angular correlation function (2PACF)
+    
+    gam : float, optional
+        -exponent of the power-law 2-point angular correlation function
+    
+    logSmin : float, optional
+        :math:`\\log_{10}(S_{\\mathrm{min}})`, where S_min is in Jy
+    
+    logSmax : float, optional
+        log_10(S_max)
+    
+    dndS_form : int, optional
+        Choose the functional form for dn/dS. Available options -> 0 (default),1 or 2
+    
+    log2Nside : int, optional
+        Number of divisions in units of log_2
+    
+    path : str, optional
+        Path where you would like to save and load from, the Tb's and beta's
+            
+    lbl : str, optional
+        Append an extra string to all the output files.
+    '''
     def __init__(self, beta_o=2.681,sigma_beta=0.5, logSmin=-2,logSmax=-1,dndS_form=0, log2Nside=6, nu_o=150e6, amp=7.8e-3,gam=0.821, path='',lbl=''):
         self.nu_o = nu_o
 
@@ -136,8 +139,8 @@ class furs():
     #End of function __init__()
     
     def print_input(self):
-    	'''Print the input parameters you gave.'''
-    	
+        '''Print the input parameters you gave.'''
+        
         print("\n\033[93mnu_o =",self.nu_o)
         print("beta_o =",self.beta_o)
         print("sigma_beta =",self.sigma_beta)
@@ -153,7 +156,7 @@ class furs():
         return None
         
     def dndS(self, S):
-        '''dn/dS
+        '''dn/dS (sr^-1 Jy^-1)
         
         Distribution of flux density, S. The default choice (0) is by Gervasi et al (2008) ApJ.
         Form 1 is by Mandal et al. (2021) A&A.
@@ -163,13 +166,13 @@ class furs():
         ----------
         
         S : float or ndarray 
-        	Flux density in units of Jy (jansky). Can be 1 value or an numpy array.
+            Flux density in units of Jy (jansky). Can be 1 value or an numpy array.
         
         Returns
         -------
         
         float
-	        Number of sources per unit solid angle per unit flux density. 1 value or an array depending on input.
+            Number of sources per unit solid angle per unit flux density. 1 value or an array depending on input.
         '''
 
         if self.dndS_form==1:
@@ -198,12 +201,12 @@ class furs():
         Parameters
         ----------
         chi : float
-        	Angle at which you want to get the 2PACF, should be in radians. One number or an array.
+            Angle at which you want to get the 2PACF, should be in radians. One number or an array.
         
         Returns
         -------
         float
-        	Output is pure number or an array accordingly as chi is a number or an array. 
+            Output is pure number or an array accordingly as chi is a number or an array. 
         '''
         return self.amp*(chi*180/np.pi)**(-self.gam)
 
@@ -225,7 +228,7 @@ class furs():
         
         Returns
         -------
-        	A pure number.
+            The total number of unresolved point sources. It is a pure number.
         '''
         S_space = np.logspace(self.logSmin,self.logSmax,1000)
         dndS_space = self.dndS(S_space)
@@ -243,7 +246,7 @@ class furs():
         -------
         
         float
-        	Number of sources per pixel. It will be an array of length Npix.
+            Number of sources per pixel. It will be an array of length Npix.
         '''
         
         Ns = self.num_sources()
@@ -305,11 +308,11 @@ class furs():
     #End of function num_den()
     
     def ref_freq(self):
-        '''
-        Tb_o_individual is an array of arrays of unequal lengths, i.e.,
-        all of Tb_o_individual[0], Tb_o_individual[1], ..., Tb_o_individual[Npix] are arrays of different lengths.
-        The length of Tb_o[j] tells us the number of sources, say N_j, on the jth pixel and
-        Tb_o_individual[j][0], Tb_o_individual[j][1], ..., Tb_o_individual[j][N_j] are the temperatures (at ref. frequency) due to 0th, 1st,...(N_j)th source on the jth pixel.
+        '''Generates the brightness temperature and spectral indices at reference frequency. 
+        
+        3 output files are generated ``Tb_o_individual.npy``, ``Tb_o_map.npy`` and ``beta.npy``
+        To understand the structure of these output files. Look at the documentation page.
+        
         '''
         #-------------------------------------------------------------------------------------
         comm = pkl5.Intracomm(MPI.COMM_WORLD)
@@ -389,7 +392,7 @@ class furs():
         else:
             '''
             I am the master CPU. Receiving all Tb's and beta's.
-            I will save the Tb's and beta's as hickle objects (in format '.hkl').
+            I will save the Tb's and beta's as .npy objects.
             '''
             print('Done.\n')
             Tb_o = Tb_o_local
@@ -430,11 +433,19 @@ class furs():
 
 
     def gen_freq(self, nu=1e6*np.arange(50,201)):
-        '''
+        '''Scale the brightness temperature at reference frequency to a general frequency.
+        
         If you are running this function you must have run ref_freq().    
         This function computes the map(s) at general frequency(ies) based on the precomputed values from ref_freq().
-        nu is the frequency (in Hz) at which you want to evaluate the brightness temperature map.
-        nu can be one number or an array.
+        
+        Parameters
+        ----------
+        nu : float
+            frequency (in Hz) at which you want to evaluate the brightness temperature map. Can be one number or an array.
+            (Default = 1e6*np.arange(50,201))
+            
+        A file named ``Tb_nu_glob.npy`` is generated.
+        Additionally, the frequencies will also be saved.
         '''
         #-------------------------------------------------------------------------------------
         comm = MPI.COMM_WORLD
@@ -518,11 +529,12 @@ class furs():
     #End of function gen_freq()
     
     def chromatisize(self):
-        '''
-        Use this function to account for chromaticity given the antenna beam directivity pattern, D.
-        No input argument is required but this function will load the array D. It should be in your directory where all other output will be stored.
-        The array D should be named D and should be in the shape of Npix X Nnu.
-        There is no return value but an output file will be generated called `T_data.npy`.
+        '''Account for chromatic distortions given the beam directivity array.
+        
+        ``Tb_nu_map.npy`` generated by ``gen_freq()`` does not account for chromaticity. To account for this users must
+        provide an array, named ``D.npy``, which should be in the shape of :math:`N_{\\mathrm{pix}} \\times N_{\\nu}`.
+        Put this array into the path where you have all the other outputs. There is no return value but an output file
+        will be generated called ``T_ant.npy``.
         '''
         #-------------------------------------------------------------------------------------
         try:
@@ -565,14 +577,42 @@ class furs():
         return None
     #End of function chromatisize    
         
-    def visual(self, nu_skymap=None, t_skymap=False, aps=False, n_skymap=False, dndS_plot = False, spectrum=True, chromatic = False, xlog=False,ylog=True, fig_ext = 'pdf'):
-        '''
-        Use this function for creating a sky map at a given freqeuncy ('t_skymap') and/or
-        the global extragalactic foregrounds as a function of frequency ('spectrum').
-        'nu_skymap' is required only for making the sky map. It should be one number in Hz.
-        By default we only plot the spectrum and not the skymap.
-        'xlog' and 'ylog' are the boolean values deciding the scale of x and y axis, respectively only for the spectrum plot. In the spectrum if you want to add the curve accounting for the chromaticity set `chromatic` to `True`.
-        Additional figures can be created, such as angular power spectrum (set `aps` to `True`), flux density distribution (`dndS_plot` to `True`), and number density distribution (set `n_skymap` to `True`).
+    def visual(self, t_skymap=False, nu_skymap=None, aps=False, n_skymap=False, dndS_plot = False, spectrum=True, chromatic = False, xlog=False,ylog=True, fig_ext = 'pdf'):
+        '''Plotting function.
+        
+        This function can produce several figures such as number density map, FURS map, angular power spectrum,
+        flux density distribution function, sky averaged FURS as function of frequency and finally the antenna temperature.
+        
+        Parameters
+        ----------
+        
+        t_skymap : bool
+            Want to plot the FURS map (a Mollweide projection plot)? (Default = `False`).
+            
+        nu_skymap : float, optional
+            Frequency in Hz at which you want to construct the FURS map. Relevant only when you give ``t_skymap = True``.
+            (Default = ``nu_o``)
+            
+        aps : bool
+            Want to plot the angular power spectrum? (Default = ``False``)
+            
+        n_skymap : bool
+            Want to plot the number density map (a Mollweide projection plot)? (Default = ``False``).
+            
+        dndS : bool
+            Want to plot the flux density distribution? (Default = ``False``). The form of :math:`\\mathrm{d}n/\\mathrm{d}S` is set during initialisation.
+        
+        spectrum : bool
+            Want to plot the sky averaged FURS? (Default = ``True``).
+        
+        xlog : bool
+            Set the x-axis scale of spectrum plot in log? (Default = ``False``)
+            
+        ylog : bool 
+            Set the y-axis scale of spectrum plot in log? (Default = ``False``)
+        
+        fig_ext : str
+            What should be the format of the figure files? Common choices include png, pdf or jpf. (Default = ``pdf``)
         '''
         #-------------------------------------------------------------------------------------
         try:

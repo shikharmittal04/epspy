@@ -64,7 +64,7 @@
 
 
 \title{furs}
-\date{Mar 08, 2024}
+\date{Mar 09, 2024}
 \release{}
 \author{Shikhar Mittal}
 \newcommand{\sphinxlogo}{\vbox{}}
@@ -89,7 +89,10 @@
 
 
 \chapter{Basics}
-\label{\detokenize{basics:basics}}\label{\detokenize{basics::doc}}\begin{quote}\begin{description}
+\label{\detokenize{basics:basics}}\label{\detokenize{basics::doc}}
+
+\section{Overview}
+\label{\detokenize{basics:overview}}\begin{quote}\begin{description}
 \sphinxlineitem{Name}
 \sphinxAtStartPar
 Foregrounds due to Unresolved Radio Sources
@@ -242,7 +245,7 @@ the \sphinxhref{https://arxiv.org/abs/2311.03447}{Mittal et al (2024)}.
 \label{\detokenize{detexp:initialisation}}
 \sphinxAtStartPar
 \sphinxcode{\sphinxupquote{furs.furs()}} initialises the class object with default settings.
-There are total 10 available optional arguments as follows:
+There are total 11 available optional arguments as follows:
 \begin{enumerate}
 \sphinxsetlistlabels{\arabic}{enumi}{enumii}{}{.}%
 \item {} 
@@ -484,7 +487,7 @@ fluctuation for which follows the 2PACF whose parameters are set by
 \sphinxAtStartPar
 Finally, it visits each pixel on the sky and assigns each source a
 flux density chosen from a flux distribution function,
-:math: \sphinxtitleref{\textbackslash{}mathrm\{d\}n/\textbackslash{}mathrm\{d\}S} and a
+\(\mathrm{d}n/\mathrm{d}S\) and a
 spectral index which is normally distributed. The normal distribution
 is set by \sphinxcode{\sphinxupquote{beta\_o}} and \sphinxcode{\sphinxupquote{sigma\_beta}}.
 
@@ -492,7 +495,7 @@ is set by \sphinxcode{\sphinxupquote{beta\_o}} and \sphinxcode{\sphinxupquote{si
 
 \sphinxAtStartPar
 Sky pixelisation is set by \sphinxcode{\sphinxupquote{log2Nside}}. The number of pixels is
-:math: \sphinxtitleref{N\_\{\textbackslash{}mathrm\{pix\}\} = 12 \textbackslash{}times 2\textasciicircum{}\{2k\}}, where :math: \sphinxtitleref{k=} \sphinxcode{\sphinxupquote{log2Nside}}.
+\(N_{\mathrm{pix}} = 12\times 2^{2k}\), where \(k=\) \sphinxcode{\sphinxupquote{log2Nside}}.
 
 \sphinxAtStartPar
 The function does not return anything, but produces 4 output files,
@@ -505,8 +508,8 @@ The files are described below.
 \sphinxAtStartPar
 \sphinxcode{\sphinxupquote{n\_clus.npy}} is a 1D array which stores number density of
 unresolved radio sources as number per pixel. \sphinxcode{\sphinxupquote{n\_clus{[}i{]}}} gives the
-number of sources on the :math: \sphinxtitleref{i\textasciicircum{}\{\textbackslash{}mathrm\{th\}\}} pixel, where
-:math: \sphinxtitleref{i=0,1,\textbackslash{}ldots,N\_\{\textbackslash{}mathrm\{pix\}\}\sphinxhyphen{}1}. Note that in general \sphinxcode{\sphinxupquote{n\_clus{[}i{]}}}
+number of sources on the \(i^{\mathrm{th}}\) pixel, where
+\(i=0,1,\ldots,N_{\mathrm{pix}}-1\). Note that in general \sphinxcode{\sphinxupquote{n\_clus{[}i{]}}}
 will not be a natural number; we simulate for a rounded\sphinxhyphen{}off value.
 
 \item {} 
@@ -515,11 +518,11 @@ Both \sphinxcode{\sphinxupquote{Tb\_o\_individual.npy}} and \sphinxcode{\sphinxu
 unequal sizes and share equal amount of memory. Typically, these
 files will be huge (for default settings they will of size \textasciitilde{} 17 MB
 each). Each of \sphinxcode{\sphinxupquote{Tb\_o\_individual{[}0{]}}}, \sphinxcode{\sphinxupquote{Tb\_o\_individual{[}1{]}}}, …,
-is an array and they are total \$N\_\{mathrm\{pix\}\}\$ in number
-corresponding to :math: \sphinxtitleref{N\_\{\textbackslash{}mathrm\{pix\}\}} pixels. The last array is
+is an array and they are total \(N_{\mathrm{pix}}\) in number
+corresponding to \(N_{\mathrm{pix}}\) pixels. The last array is
 \sphinxcode{\sphinxupquote{Tb\_o\_individual{[}Npix\sphinxhyphen{}1{]}}}. The length of array
 \sphinxcode{\sphinxupquote{Tb\_o\_individual{[}i{]}}} is equal to the number of sources on the
-\$i\textasciicircum{}\{mathrm\{th\}\}\$ pixel, which is \sphinxcode{\sphinxupquote{round(n\_clus{[}i{]})}}. The values
+\(i^{\mathrm{th}}\) pixel, which is \sphinxcode{\sphinxupquote{round(n\_clus{[}i{]})}}. The values
 itself are the brightness temperature contributed by each source in
 kelvin at reference frequency.
 
@@ -560,9 +563,9 @@ not return anything but produces 3 files namely \sphinxcode{\sphinxupquote{Tb\_n
 \sphinxsetlistlabels{\arabic}{enumi}{enumii}{}{.}%
 \item {} 
 \sphinxAtStartPar
-\sphinxcode{\sphinxupquote{Tb\_nu\_map}} is a 2D array of shape :math: \sphinxtitleref{N\_\{\textbackslash{}mathrm\{pix\}\}\textbackslash{}times
-N\_\{\textbackslash{}nu\}}, so that \sphinxcode{\sphinxupquote{Tb\_nu\_map{[}i,j{]}}} gives the brightness temperature
-on the :math: \sphinxtitleref{i\textasciicircum{}\{\textbackslash{}mathrm\{th\}\}} pixel at \sphinxcode{\sphinxupquote{nu{[}j{]}}} frequency. :math: \sphinxtitleref{N\_\{\textbackslash{}nu\}} is
+\sphinxcode{\sphinxupquote{Tb\_nu\_map}} is a 2D array of shape \(N_{\mathrm{pix}}\times
+N_{\nu}\), so that \sphinxcode{\sphinxupquote{Tb\_nu\_map{[}i,j{]}}} gives the brightness temperature
+on the \(i^{\mathrm{th}}\) pixel at \sphinxcode{\sphinxupquote{nu{[}j{]}}} frequency. \(N_{\nu}\) is
 the number of frequencies you gave in the argument of \sphinxcode{\sphinxupquote{gen\_freq()}}.
 
 \item {} 
@@ -600,13 +603,13 @@ registered will be different. You can use the function
 
 \sphinxAtStartPar
 Since this is experiment specific you will need to provide an external
-data file: the beam directivity pattern, :math: \sphinxtitleref{D}. This should be a 2D array
-of shape :math: \sphinxtitleref{N\_\{\textbackslash{}mathrm\{pix\}\}\textbackslash{}times N\_\{\textbackslash{}nu\}}, such that \sphinxcode{\sphinxupquote{D{[}i,j{]}}} should
-give the beam directivity at \$i\textasciicircum{}\{mathrm\{th\}\}\$ pixel at nu{[}j{]} frequency.
-The frequencies at which you generate your data :math: \sphinxtitleref{D} should be the same
+data file: the beam directivity pattern, \(D\). This should be a 2D array
+of shape \(N_{\mathrm{pix}}\times N_{\\nu}\), such that \sphinxcode{\sphinxupquote{D{[}i,j{]}}} should
+give the beam directivity at \(i^{\mathrm{th}}\) pixel at nu{[}j{]} frequency.
+The frequencies at which you generate your data \(D\) should be the same
 as the frequencies you gave in \sphinxcode{\sphinxupquote{gen\_freq()}}. (In case you forgot,
-\sphinxcode{\sphinxupquote{gen\_freq()}} will have saved the frequecy array in your \sphinxcode{\sphinxupquote{obj.path}}
-path.) Put this array :math: \sphinxtitleref{D} in your \sphinxcode{\sphinxupquote{obj.path}} path by the name of
+\sphinxcode{\sphinxupquote{gen\_freq()}} will have saved the frequency array in your \sphinxcode{\sphinxupquote{obj.path}}
+path.) Put this array \(D\) in your \sphinxcode{\sphinxupquote{obj.path}} path by the name of
 \sphinxcode{\sphinxupquote{D.npy}}.
 
 \sphinxAtStartPar
@@ -614,12 +617,25 @@ Only after running \sphinxcode{\sphinxupquote{ref\_freq}} and \sphinxcode{\sphin
 as
 
 \begin{sphinxVerbatim}[commandchars=\\\{\}]
+\PYG{k+kn}{from} \PYG{n+nn}{furs} \PYG{k+kn}{import} \PYG{n}{furs}
+
+\PYG{c+c1}{\PYGZsh{}Step\PYGZhy{}1 initialise the object with default settings}
+\PYG{n}{obj} \PYG{o}{=} \PYG{n}{furs}\PYG{o}{.}\PYG{n}{furs}\PYG{p}{(}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{}Step\PYGZhy{}2 generate the data at the reference frequency}
+\PYG{n}{obj}\PYG{o}{.}\PYG{n}{ref\PYGZus{}freq}\PYG{p}{(}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{}Step\PYGZhy{}3 generate the sky maps at multiple frequencies as well as their sky average}
+\PYG{n}{obj}\PYG{o}{.}\PYG{n}{gen\PYGZus{}freq}\PYG{p}{(}\PYG{p}{)}
+
+\PYG{c+c1}{\PYGZsh{}If you have already ran ref\PYGZus{}freq and gen\PYGZus{}freq previously then comment}
+\PYG{c+c1}{\PYGZsh{}obj.ref\PYGZus{}freq() and obj.gen\PYGZus{}freq().}
 \PYG{n}{obj}\PYG{o}{.}\PYG{n}{chromatisize}\PYG{p}{(}\PYG{p}{)}
 \end{sphinxVerbatim}
 
 \sphinxAtStartPar
 No input argument is required. The return value is \sphinxcode{\sphinxupquote{None}}. This
-function will generate a file called \sphinxcode{\sphinxupquote{T\_data.npy}} in your path. This
+function will generate a file called \sphinxcode{\sphinxupquote{T\_ant.npy}} in your path. This
 will be a 1D array with length of number of frequencies.
 
 
@@ -1001,7 +1017,328 @@ So when you came back next time you can load it as
 You can check that indeed the specfications are correctly loaded by
 printing them via command \sphinxcode{\sphinxupquote{obj.print\_input()}}.
 
+\sphinxstepscope
 
+
+\chapter{API Reference}
+\label{\detokenize{api:module-furs}}\label{\detokenize{api:api-reference}}\label{\detokenize{api::doc}}\index{module@\spxentry{module}!furs@\spxentry{furs}}\index{furs@\spxentry{furs}!module@\spxentry{module}}
+\sphinxAtStartPar
+Defines a class furs.
+\index{furs (class in furs)@\spxentry{furs}\spxextra{class in furs}}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{api:furs.furs}}
+\pysigstartsignatures
+\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{class\DUrole{w}{ }}}\sphinxcode{\sphinxupquote{furs.}}\sphinxbfcode{\sphinxupquote{furs}}}{\sphinxparam{\DUrole{n}{beta\_o}\DUrole{o}{=}\DUrole{default_value}{2.681}}\sphinxparamcomma \sphinxparam{\DUrole{n}{sigma\_beta}\DUrole{o}{=}\DUrole{default_value}{0.5}}\sphinxparamcomma \sphinxparam{\DUrole{n}{logSmin}\DUrole{o}{=}\DUrole{default_value}{\sphinxhyphen{}2}}\sphinxparamcomma \sphinxparam{\DUrole{n}{logSmax}\DUrole{o}{=}\DUrole{default_value}{\sphinxhyphen{}1}}\sphinxparamcomma \sphinxparam{\DUrole{n}{dndS\_form}\DUrole{o}{=}\DUrole{default_value}{0}}\sphinxparamcomma \sphinxparam{\DUrole{n}{log2Nside}\DUrole{o}{=}\DUrole{default_value}{6}}\sphinxparamcomma \sphinxparam{\DUrole{n}{nu\_o}\DUrole{o}{=}\DUrole{default_value}{150000000.0}}\sphinxparamcomma \sphinxparam{\DUrole{n}{amp}\DUrole{o}{=}\DUrole{default_value}{0.0078}}\sphinxparamcomma \sphinxparam{\DUrole{n}{gam}\DUrole{o}{=}\DUrole{default_value}{0.821}}\sphinxparamcomma \sphinxparam{\DUrole{n}{path}\DUrole{o}{=}\DUrole{default_value}{\textquotesingle{}\textquotesingle{}}}\sphinxparamcomma \sphinxparam{\DUrole{n}{lbl}\DUrole{o}{=}\DUrole{default_value}{\textquotesingle{}\textquotesingle{}}}}{}
+\pysigstopsignatures
+\sphinxAtStartPar
+This is class for initialising the properties of the unresolved radio sources.
+
+
+\section{Attributes}
+\label{\detokenize{api:attributes}}\begin{description}
+\sphinxlineitem{nu\_o}{[}float, optional{]}
+\sphinxAtStartPar
+Reference frequency in Hz (default = \sphinxtitleref{150e6})
+
+\sphinxlineitem{beta\_o}{[}float, optional{]}
+\sphinxAtStartPar
+Mean spectral index for extragalactic point sources
+
+\sphinxlineitem{sigma\_beta}{[}float, optional{]}
+\sphinxAtStartPar
+Spread in the beta values
+
+\sphinxlineitem{amp}{[}float, optional{]}
+\sphinxAtStartPar
+Amplitude of the power\sphinxhyphen{}law 2\sphinxhyphen{}point angular correlation function (2PACF)
+
+\sphinxlineitem{gam}{[}float, optional{]}
+\sphinxAtStartPar
+\sphinxhyphen{}exponent of the power\sphinxhyphen{}law 2\sphinxhyphen{}point angular correlation function
+
+\sphinxlineitem{logSmin}{[}float, optional{]}
+\sphinxAtStartPar
+\(\log_{10}(S_{\mathrm{min}})\), where S\_min is in Jy
+
+\sphinxlineitem{logSmax}{[}float, optional{]}
+\sphinxAtStartPar
+log\_10(S\_max)
+
+\sphinxlineitem{dndS\_form}{[}int, optional{]}
+\sphinxAtStartPar
+Choose the functional form for dn/dS. Available options \sphinxhyphen{}\textgreater{} 0 (default),1 or 2
+
+\sphinxlineitem{log2Nside}{[}int, optional{]}
+\sphinxAtStartPar
+Number of divisions in units of log\_2
+
+\sphinxlineitem{path}{[}str, optional{]}
+\sphinxAtStartPar
+Path where you would like to save and load from, the Tb’s and beta’s
+
+\sphinxlineitem{lbl}{[}str, optional{]}
+\sphinxAtStartPar
+Append an extra string to all the output files.
+
+\end{description}
+\index{acf() (furs.furs method)@\spxentry{acf()}\spxextra{furs.furs method}}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{api:furs.furs.acf}}
+\pysigstartsignatures
+\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{acf}}}{\sphinxparam{\DUrole{n}{chi}}}{}
+\pysigstopsignatures
+\sphinxAtStartPar
+This is the popular form of the 2PACF; a power law.
+The default values for amplitude and index are from Rana \& Bagla (2019).
+
+
+\subsection{Parameters}
+\label{\detokenize{api:parameters}}\begin{description}
+\sphinxlineitem{chi}{[}float{]}
+\sphinxAtStartPar
+Angle at which you want to get the 2PACF, should be in radians. One number or an array.
+
+\end{description}
+
+
+\subsection{Returns}
+\label{\detokenize{api:returns}}\begin{description}
+\sphinxlineitem{float}
+\sphinxAtStartPar
+Output is pure number or an array accordingly as chi is a number or an array.
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{chromatisize() (furs.furs method)@\spxentry{chromatisize()}\spxextra{furs.furs method}}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{api:furs.furs.chromatisize}}
+\pysigstartsignatures
+\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{chromatisize}}}{}{}
+\pysigstopsignatures
+\sphinxAtStartPar
+Account for chromatic distortions given the beam directivity array.
+
+\sphinxAtStartPar
+\sphinxcode{\sphinxupquote{Tb\_nu\_map.npy}} generated by \sphinxcode{\sphinxupquote{gen\_freq()}} does not account for chromaticity. To account for this users must
+provide an array, named \sphinxcode{\sphinxupquote{D.npy}}, which should be in the shape of \(N_{\mathrm{pix}} \times N_{\nu}\).
+Put this array into the path where you have all the other outputs. There is no return value but an output file
+will be generated called \sphinxcode{\sphinxupquote{T\_ant.npy}}.
+
+\end{fulllineitems}
+
+\index{dndS() (furs.furs method)@\spxentry{dndS()}\spxextra{furs.furs method}}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{api:furs.furs.dndS}}
+\pysigstartsignatures
+\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{dndS}}}{\sphinxparam{\DUrole{n}{S}}}{}
+\pysigstopsignatures
+\sphinxAtStartPar
+dn/dS (sr\textasciicircum{}\sphinxhyphen{}1 Jy\textasciicircum{}\sphinxhyphen{}1)
+
+\sphinxAtStartPar
+Distribution of flux density, S. The default choice (0) is by Gervasi et al (2008) ApJ.
+Form 1 is by Mandal et al. (2021) A\&A.
+Form 2 is by Intema et al. (2017) A\&A.
+
+
+\subsection{Parameters}
+\label{\detokenize{api:id1}}\begin{description}
+\sphinxlineitem{S}{[}float or ndarray {]}
+\sphinxAtStartPar
+Flux density in units of Jy (jansky). Can be 1 value or an numpy array.
+
+\end{description}
+
+
+\subsection{Returns}
+\label{\detokenize{api:id2}}\begin{description}
+\sphinxlineitem{float}
+\sphinxAtStartPar
+Number of sources per unit solid angle per unit flux density. 1 value or an array depending on input.
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{gen\_freq() (furs.furs method)@\spxentry{gen\_freq()}\spxextra{furs.furs method}}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{api:furs.furs.gen_freq}}
+\pysigstartsignatures
+\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{gen\_freq}}}{\sphinxparam{\DUrole{n}{nu}\DUrole{o}{=}\DUrole{default_value}{array({[}5.00e+07, 5.10e+07, 5.20e+07, 5.30e+07, 5.40e+07, 5.50e+07, 5.60e+07, 5.70e+07, 5.80e+07, 5.90e+07, 6.00e+07, 6.10e+07, 6.20e+07, 6.30e+07, 6.40e+07, 6.50e+07, 6.60e+07, 6.70e+07, 6.80e+07, 6.90e+07, 7.00e+07, 7.10e+07, 7.20e+07, 7.30e+07, 7.40e+07, 7.50e+07, 7.60e+07, 7.70e+07, 7.80e+07, 7.90e+07, 8.00e+07, 8.10e+07, 8.20e+07, 8.30e+07, 8.40e+07, 8.50e+07, 8.60e+07, 8.70e+07, 8.80e+07, 8.90e+07, 9.00e+07, 9.10e+07, 9.20e+07, 9.30e+07, 9.40e+07, 9.50e+07, 9.60e+07, 9.70e+07, 9.80e+07, 9.90e+07, 1.00e+08, 1.01e+08, 1.02e+08, 1.03e+08, 1.04e+08, 1.05e+08, 1.06e+08, 1.07e+08, 1.08e+08, 1.09e+08, 1.10e+08, 1.11e+08, 1.12e+08, 1.13e+08, 1.14e+08, 1.15e+08, 1.16e+08, 1.17e+08, 1.18e+08, 1.19e+08, 1.20e+08, 1.21e+08, 1.22e+08, 1.23e+08, 1.24e+08, 1.25e+08, 1.26e+08, 1.27e+08, 1.28e+08, 1.29e+08, 1.30e+08, 1.31e+08, 1.32e+08, 1.33e+08, 1.34e+08, 1.35e+08, 1.36e+08, 1.37e+08, 1.38e+08, 1.39e+08, 1.40e+08, 1.41e+08, 1.42e+08, 1.43e+08, 1.44e+08, 1.45e+08, 1.46e+08, 1.47e+08, 1.48e+08, 1.49e+08, 1.50e+08, 1.51e+08, 1.52e+08, 1.53e+08, 1.54e+08, 1.55e+08, 1.56e+08, 1.57e+08, 1.58e+08, 1.59e+08, 1.60e+08, 1.61e+08, 1.62e+08, 1.63e+08, 1.64e+08, 1.65e+08, 1.66e+08, 1.67e+08, 1.68e+08, 1.69e+08, 1.70e+08, 1.71e+08, 1.72e+08, 1.73e+08, 1.74e+08, 1.75e+08, 1.76e+08, 1.77e+08, 1.78e+08, 1.79e+08, 1.80e+08, 1.81e+08, 1.82e+08, 1.83e+08, 1.84e+08, 1.85e+08, 1.86e+08, 1.87e+08, 1.88e+08, 1.89e+08, 1.90e+08, 1.91e+08, 1.92e+08, 1.93e+08, 1.94e+08, 1.95e+08, 1.96e+08, 1.97e+08, 1.98e+08, 1.99e+08, 2.00e+08{]})}}}{}
+\pysigstopsignatures
+\sphinxAtStartPar
+Scale the brightness temperature at reference frequency to a general frequency.
+
+\sphinxAtStartPar
+If you are running this function you must have run ref\_freq().    
+This function computes the map(s) at general frequency(ies) based on the precomputed values from ref\_freq().
+
+
+\subsection{Parameters}
+\label{\detokenize{api:id3}}\begin{description}
+\sphinxlineitem{nu}{[}float{]}
+\sphinxAtStartPar
+frequency (in Hz) at which you want to evaluate the brightness temperature map. Can be one number or an array.
+(Default = 1e6*np.arange(50,201))
+
+\end{description}
+
+\sphinxAtStartPar
+A file named \sphinxcode{\sphinxupquote{Tb\_nu\_glob.npy}} is generated.
+Additionally, the frequencies will also be saved.
+
+\end{fulllineitems}
+
+\index{num\_den() (furs.furs method)@\spxentry{num\_den()}\spxextra{furs.furs method}}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{api:furs.furs.num_den}}
+\pysigstartsignatures
+\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{num\_den}}}{}{}
+\pysigstopsignatures
+\sphinxAtStartPar
+This function calculates the number density function n\_clus for the 2PACF defined in acf().
+The array will also be saved as an .npy format file in the path you gave during initialisation.
+
+
+\subsection{Returns}
+\label{\detokenize{api:id4}}\begin{description}
+\sphinxlineitem{float}
+\sphinxAtStartPar
+Number of sources per pixel. It will be an array of length Npix.
+
+\end{description}
+
+\end{fulllineitems}
+
+\index{num\_sources() (furs.furs method)@\spxentry{num\_sources()}\spxextra{furs.furs method}}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{api:furs.furs.num_sources}}
+\pysigstartsignatures
+\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{num\_sources}}}{}{}
+\pysigstopsignatures
+\sphinxAtStartPar
+This function gives the total number of unresolved point sources on the full sky.
+
+\sphinxAtStartPar
+This is specifically for the flux density distribution defined in dndS(),
+and the minimum and maximum S values are set during the initialisation of the class object.
+
+
+\subsection{Returns}
+\label{\detokenize{api:id5}}\begin{quote}
+
+\sphinxAtStartPar
+The total number of unresolved point sources. It is a pure number.
+\end{quote}
+
+\end{fulllineitems}
+
+\index{print\_input() (furs.furs method)@\spxentry{print\_input()}\spxextra{furs.furs method}}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{api:furs.furs.print_input}}
+\pysigstartsignatures
+\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{print\_input}}}{}{}
+\pysigstopsignatures
+\sphinxAtStartPar
+Print the input parameters you gave.
+
+\end{fulllineitems}
+
+\index{ref\_freq() (furs.furs method)@\spxentry{ref\_freq()}\spxextra{furs.furs method}}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{api:furs.furs.ref_freq}}
+\pysigstartsignatures
+\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{ref\_freq}}}{}{}
+\pysigstopsignatures
+\sphinxAtStartPar
+Generates the brightness temperature and spectral indices at reference frequency.
+
+\sphinxAtStartPar
+3 output files are generated \sphinxcode{\sphinxupquote{Tb\_o\_individual.npy}}, \sphinxcode{\sphinxupquote{Tb\_o\_map.npy}} and \sphinxcode{\sphinxupquote{beta.npy}}
+To understand the structure of these output files. Look at the documentation page.
+
+\end{fulllineitems}
+
+\index{visual() (furs.furs method)@\spxentry{visual()}\spxextra{furs.furs method}}
+
+\begin{fulllineitems}
+\phantomsection\label{\detokenize{api:furs.furs.visual}}
+\pysigstartsignatures
+\pysiglinewithargsret{\sphinxbfcode{\sphinxupquote{visual}}}{\sphinxparam{\DUrole{n}{t\_skymap}\DUrole{o}{=}\DUrole{default_value}{False}}\sphinxparamcomma \sphinxparam{\DUrole{n}{nu\_skymap}\DUrole{o}{=}\DUrole{default_value}{None}}\sphinxparamcomma \sphinxparam{\DUrole{n}{aps}\DUrole{o}{=}\DUrole{default_value}{False}}\sphinxparamcomma \sphinxparam{\DUrole{n}{n\_skymap}\DUrole{o}{=}\DUrole{default_value}{False}}\sphinxparamcomma \sphinxparam{\DUrole{n}{dndS\_plot}\DUrole{o}{=}\DUrole{default_value}{False}}\sphinxparamcomma \sphinxparam{\DUrole{n}{spectrum}\DUrole{o}{=}\DUrole{default_value}{True}}\sphinxparamcomma \sphinxparam{\DUrole{n}{chromatic}\DUrole{o}{=}\DUrole{default_value}{False}}\sphinxparamcomma \sphinxparam{\DUrole{n}{xlog}\DUrole{o}{=}\DUrole{default_value}{False}}\sphinxparamcomma \sphinxparam{\DUrole{n}{ylog}\DUrole{o}{=}\DUrole{default_value}{True}}\sphinxparamcomma \sphinxparam{\DUrole{n}{fig\_ext}\DUrole{o}{=}\DUrole{default_value}{\textquotesingle{}pdf\textquotesingle{}}}}{}
+\pysigstopsignatures
+\sphinxAtStartPar
+Plotting function.
+
+\sphinxAtStartPar
+This function can produce several figures such as number density map, FURS map, angular power spectrum,
+flux density distribution function, sky averaged FURS as function of frequency and finally the antenna temperature.
+
+
+\subsection{Parameters}
+\label{\detokenize{api:id6}}\begin{description}
+\sphinxlineitem{t\_skymap}{[}bool{]}
+\sphinxAtStartPar
+Want to plot the FURS map (a Mollweide projection plot)? (Default = \sphinxtitleref{False}).
+
+\sphinxlineitem{nu\_skymap}{[}float, optional{]}
+\sphinxAtStartPar
+Frequency in Hz at which you want to construct the FURS map. Relevant only when you give \sphinxcode{\sphinxupquote{t\_skymap = True}}.
+(Default = \sphinxcode{\sphinxupquote{nu\_o}})
+
+\sphinxlineitem{aps}{[}bool{]}
+\sphinxAtStartPar
+Want to plot the angular power spectrum? (Default = \sphinxcode{\sphinxupquote{False}})
+
+\sphinxlineitem{n\_skymap}{[}bool{]}
+\sphinxAtStartPar
+Want to plot the number density map (a Mollweide projection plot)? (Default = \sphinxcode{\sphinxupquote{False}}).
+
+\sphinxlineitem{dndS}{[}bool{]}
+\sphinxAtStartPar
+Want to plot the flux density distribution? (Default = \sphinxcode{\sphinxupquote{False}}). The form of \(\mathrm{d}n/\mathrm{d}S\) is set during initialisation.
+
+\sphinxlineitem{spectrum}{[}bool{]}
+\sphinxAtStartPar
+Want to plot the sky averaged FURS? (Default = \sphinxcode{\sphinxupquote{True}}).
+
+\sphinxlineitem{xlog}{[}bool{]}
+\sphinxAtStartPar
+Set the x\sphinxhyphen{}axis scale of spectrum plot in log? (Default = \sphinxcode{\sphinxupquote{False}})
+
+\sphinxlineitem{ylog}{[}bool {]}
+\sphinxAtStartPar
+Set the y\sphinxhyphen{}axis scale of spectrum plot in log? (Default = \sphinxcode{\sphinxupquote{False}})
+
+\sphinxlineitem{fig\_ext}{[}str{]}
+\sphinxAtStartPar
+What should be the format of the figure files? Common choices include png, pdf or jpf. (Default = \sphinxcode{\sphinxupquote{pdf}})
+
+\end{description}
+
+\end{fulllineitems}
+
+
+\end{fulllineitems}
+
+
+
+\renewcommand{\indexname}{Python Module Index}
+\begin{sphinxtheindex}
+\let\bigletter\sphinxstyleindexlettergroup
+\bigletter{f}
+\item\relax\sphinxstyleindexentry{furs}\sphinxstyleindexpageref{api:\detokenize{module-furs}}
+\end{sphinxtheindex}
 
 \renewcommand{\indexname}{Index}
 \printindex

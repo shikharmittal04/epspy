@@ -1,10 +1,3 @@
-Basics
-======
-
-:Name: Foregrounds due to Unresolved Radio Sources
-:Author: Shikhar Mittal
-:Homepage: https://github.com/shikharmittal04/furs
-
 Why do you need this code?
 --------------------------
 
@@ -90,6 +83,11 @@ performance one could also run the code as
 
 However, in general and for more realistic flux density ranges and high
 resolution maps, it is recommended to run the code on HPCs.
+
+Documentation
+-------------
+
+For more details on the working of the code and understanding the output files refer to the `documentation <>`_. 
 
 License and citation
 --------------------

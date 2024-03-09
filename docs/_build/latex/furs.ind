@@ -1,0 +1,50 @@
+\begin{sphinxtheindex}
+\let\bigletter\sphinxstyleindexlettergroup
+\let\spxpagem \sphinxstyleindexpagemain
+\let\spxentry \sphinxstyleindexentry
+\let\spxextra \sphinxstyleindexextra
+
+  \bigletter A
+  \item \spxentry{acf()}\spxextra{furs.furs method}, \hyperpage{13}
+
+  \indexspace
+  \bigletter C
+  \item \spxentry{chromatisize()}\spxextra{furs.furs method}, \hyperpage{14}
+
+  \indexspace
+  \bigletter D
+  \item \spxentry{dndS()}\spxextra{furs.furs method}, \hyperpage{14}
+
+  \indexspace
+  \bigletter F
+  \item \spxentry{furs}
+    \subitem \spxentry{module}, \hyperpage{13}
+  \item \spxentry{furs}\spxextra{class in furs}, \hyperpage{13}
+
+  \indexspace
+  \bigletter G
+  \item \spxentry{gen\_freq()}\spxextra{furs.furs method}, \hyperpage{14}
+
+  \indexspace
+  \bigletter M
+  \item \spxentry{module}
+    \subitem \spxentry{furs}, \hyperpage{13}
+
+  \indexspace
+  \bigletter N
+  \item \spxentry{num\_den()}\spxextra{furs.furs method}, \hyperpage{15}
+  \item \spxentry{num\_sources()}\spxextra{furs.furs method}, \hyperpage{15}
+
+  \indexspace
+  \bigletter P
+  \item \spxentry{print\_input()}\spxextra{furs.furs method}, \hyperpage{15}
+
+  \indexspace
+  \bigletter R
+  \item \spxentry{ref\_freq()}\spxextra{furs.furs method}, \hyperpage{15}
+
+  \indexspace
+  \bigletter V
+  \item \spxentry{visual()}\spxextra{furs.furs method}, \hyperpage{15}
+
+\end{sphinxtheindex}
