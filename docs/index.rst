@@ -1,5 +1,5 @@
-Welcome to the documentation of FURS!
-=====================================
+Welcome to the documentation of furspy!
+=======================================
 
 .. toctree::
    :maxdepth: 2

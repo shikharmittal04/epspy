@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Other functions &mdash; furs  documentation</title>
+  <title>Other functions &mdash; furspy  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=19f00094" />
 
@@ -18,6 +18,7 @@
         <script src="_static/documentation_options.js?v=5929fcd5"></script>
         <script src="_static/doctools.js?v=888ff710"></script>
         <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
@@ -34,7 +35,7 @@
           
           
           <a href="index.html" class="icon icon-home">
-            furs
+            furspy
           </a>
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
@@ -59,7 +60,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">furs</a>
+          <a href="index.html">furspy</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -79,58 +80,49 @@
              
   <section id="other-functions">
 <h1>Other functions<a class="headerlink" href="#other-functions" title="Link to this heading"></a></h1>
-<p>There are 5 additional useful methods of the class <code class="docutils literal notranslate"><span class="pre">furs</span></code>. These are:-</p>
+<p>The main functionality of the package was already discussed in previous sections. Here we will learn about 5 additional useful methods of the class <a class="reference internal" href="api.html#furs.furs" title="furs.furs"><code class="xref py py-class docutils literal notranslate"><span class="pre">furs.furs</span></code></a>. These are</p>
 <ol class="arabic simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">acf(chi)</span></code></p>
-<ul class="simple">
-<li><p>returns the 2PACF, $C(chi)$</p></li>
-<li><p>requires one argument, the angle $chi$ in radians; can be a
-number or an array</p></li>
-<li><p>output is a dimensionless quantity</p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">dndS(S)</span></code></p>
-<ul class="simple">
-<li><p>returns flux distribution, $mathrm{d}n/mathrm{d}S$. The
-functional form will be according to your choice for <code class="docutils literal notranslate"><span class="pre">dndS_form</span></code>
-you gave during initialisation. Default is 0.</p></li>
-<li><p>requires one argument, the flux density $S$ in Jy; can be a number
-or an array</p></li>
-<li><p>output is in units of number per unit flux density per unit solid
-angle, i.e. $mathrm{Jy^{-1}sr^{-1}}$</p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">num_den()</span></code></p>
-<ul class="simple">
-<li><p>returns the clustered number density as number per pixel,
-$n_{mathrm{clus}}$</p></li>
-<li><p>no arguments required</p></li>
-<li><p>output is an array of length $N_{mathrm{pix}}$</p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">num_sources()</span></code></p>
-<ul class="simple">
-<li><p>returns the total number of unresolved extragalactic radio sources
-for the full sky, $N_{mathrm{s}}$</p></li>
-<li><p>no arguments required</p></li>
-<li><p>output is a pure number</p></li>
-</ul>
-</li>
-<li><p><code class="docutils literal notranslate"><span class="pre">print_input()</span></code></p>
-<ul class="simple">
-<li><p>If you want to print the all raw parameter values you gave, you
-may use this function to print them</p></li>
-<li><p>no arguments required</p></li>
-<li><p>no return value</p></li>
-</ul>
-</li>
+<li><p>The 2-point angular correlation function (2PACF, <span class="math notranslate nohighlight">\(C=C(\chi)\)</span>), <code class="xref py py-func docutils literal notranslate"><span class="pre">acf()</span></code></p></li>
+<li><p>The flux density distribution function (<span class="math notranslate nohighlight">\(\mathrm{d}n/\mathrm{d}S\)</span>), <code class="xref py py-func docutils literal notranslate"><span class="pre">dndS()</span></code>. As this function is a method of class <a class="reference internal" href="api.html#furs.furs" title="furs.furs"><code class="xref py py-class docutils literal notranslate"><span class="pre">furs.furs</span></code></a>, the choice of the form of of <span class="math notranslate nohighlight">\(\mathrm{d}n/\mathrm{d}S\)</span> will have been set when you initialise your class <a class="reference internal" href="api.html#furs.furs" title="furs.furs"><code class="xref py py-class docutils literal notranslate"><span class="pre">furs.furs</span></code></a> object as</p></li>
 </ol>
-<p>Example usage: to find the number of sources between $10^{-6}$ and
-$10^{-1}mathrm{Jy}$ do</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">obj</span> <span class="o">=</span> <span class="n">furs</span><span class="p">(</span><span class="n">logSmin</span><span class="o">=-</span><span class="mi">6</span><span class="p">,</span><span class="n">logSmax</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">Ns</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">num_sources</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">furpy</span> <span class="kn">import</span> <span class="n">furs</span>
+
+<span class="n">obj</span> <span class="o">=</span> <span class="n">furs</span><span class="o">.</span><span class="n">furs</span><span class="p">()</span>
 </pre></div>
 </div>
+<ol class="arabic simple" start="3">
+<li><p>Total number of sources on the full sky ( <span class="math notranslate nohighlight">\(N_{\mathrm{s}}\)</span> ), <code class="xref py py-func docutils literal notranslate"><span class="pre">num_sources()</span></code>. This  function has direct correspondence with the form of <span class="math notranslate nohighlight">\(\mathrm{d}n/\mathrm{d}S\)</span>.</p></li>
+<li><p>Number of source per pixel ( <span class="math notranslate nohighlight">\(n_{\mathrm{cl}}\)</span> ), <code class="xref py py-func docutils literal notranslate"><span class="pre">num_den()</span></code>. As in the <code class="xref py py-func docutils literal notranslate"><span class="pre">num_sources()</span></code>, the total number density returned will correspond to the chosen form of <span class="math notranslate nohighlight">\(\mathrm{d}n/\mathrm{d}S\)</span>.</p></li>
+<li><p><code class="xref py py-func docutils literal notranslate"><span class="pre">print_input()</span></code> can be useful if you want see what parameters you are currently running with.</p></li>
+</ol>
+<p>Note that these functions are computationally cheap and thus can be run directly in a jupyter notebook or interactively on the terminal.</p>
+<p><strong>Examples</strong></p>
+<p>Suppose you want to find the number of sources between <span class="math notranslate nohighlight">\(S=10^{-6}\)</span> and <span class="math notranslate nohighlight">\(10^{-1}\mathrm{Jy}\)</span> for a <span class="math notranslate nohighlight">\(7^{\mathrm{th}}\)</span> order log-log polynomial fit to Euclidean number count then do</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">furspy</span> <span class="kn">import</span> <span class="n">furs</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">furs</span><span class="o">.</span><span class="n">furs</span><span class="p">(</span><span class="n">dndS_form</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">logSmin</span><span class="o">=-</span><span class="mi">6</span><span class="p">,</span><span class="n">logSmax</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Ns</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">num_sources</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Ns</span>
+<span class="go">249825819.67727068</span>
+</pre></div>
+</div>
+<p>Let us calculate the number density.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ncl</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">num_den</span><span class="p">()</span>
+<span class="go">Total number of sources, Ns = 249825820</span>
+<span class="go">Total number of pixels, Npix = 49152</span>
+<span class="go">Average number of sources per pixel, n_bar = 5082.72</span>
+<span class="go">Done.</span>
+<span class="go">Average overdensity for the clustered sky (should be ~ 0) = 0.007</span>
+<span class="go">The clustered number density has been saved into file:</span>
+<span class="go"> n_clus</span>
+</pre></div>
+</div>
+<p>(Note that since this is a random process you might get different numbers.)</p>
+<p>Let us also check if the sum of the elements of array <code class="docutils literal notranslate"><span class="pre">ncl</span></code> is <code class="docutils literal notranslate"><span class="pre">Ns</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ncl</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="go">251605169.7207427</span>
+</pre></div>
+</div>
+<p>There some discrepancy but do not be worried as this is just a numerical artefact. In fact the fractional error is already printed and is about 0.7%, which is sufficiently small.</p>
 </section>
 
 

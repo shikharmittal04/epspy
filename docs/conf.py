@@ -6,13 +6,12 @@
 
 import os
 import sys
-#sys.path.append('/home/shikhar/Dropbox/Point_sources/furs/src/furs')
-sys.path.insert(0,os.path.abspath('../src/furs/'))
+sys.path.insert(0,os.path.abspath('../src/furspy/'))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'furs'
+project = 'furspy'
 copyright = '2024, Shikhar Mittal'
 author = 'Shikhar Mittal'
 
