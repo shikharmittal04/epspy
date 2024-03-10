@@ -146,10 +146,10 @@ where a recommendation for <code class="docutils literal notranslate"><span clas
 </section>
 <section id="chromatic-distortions">
 <h2>Chromatic distortions<a class="headerlink" href="#chromatic-distortions" title="Link to this heading"></a></h2>
-<p><code class="docutils literal notranslate"><span class="pre">Tb_nu_map</span></code> and hence <code class="docutils literal notranslate"><span class="pre">Tb_nu_glob</span></code> so generated do NOT account for chromatic distortions. They are simply the model outputs for foregrounds due to unresolved radio sources. However, in reality because of the chromatic nature of the antenna beam the actual foregrounds spectrum registered will be different. You can use the function <code class="xref py py-func docutils literal notranslate"><span class="pre">chromatisize()</span></code> to account for the chromaticity. It essentially couples the foregrounds to the beam directivity.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Tb_nu_map</span></code> and hence <code class="docutils literal notranslate"><span class="pre">Tb_nu_glob</span></code> so generated do NOT account for chromatic distortions. They are simply the model outputs for foregrounds due to unresolved radio sources. However, in reality because of the chromatic nature of the antenna beam the actual foregrounds spectrum registered will be different. You can use the function <code class="xref py py-func docutils literal notranslate"><span class="pre">couple2D()</span></code> to account for the chromaticity. It essentially couples the foregrounds to the beam directivity.</p>
 <p>Since this is experiment specific you will need to provide an external data file: the beam directivity pattern, <span class="math notranslate nohighlight">\(D\)</span>. This should be a 2D array of shape <span class="math notranslate nohighlight">\(N_{\mathrm{pix}}\times N_{\nu}\)</span>, such that <code class="docutils literal notranslate"><span class="pre">D[i,k]</span></code> should give the beam directivity at <span class="math notranslate nohighlight">\(i^{\mathrm{th}}\)</span> pixel at <code class="docutils literal notranslate"><span class="pre">nu[k]</span></code> frequency. The frequencies at which you generate your data <span class="math notranslate nohighlight">\(D\)</span> should be the same as the frequencies you gave in <code class="docutils literal notranslate"><span class="pre">gen_freq()</span></code>. (In case you forgot, <code class="xref py py-func docutils literal notranslate"><span class="pre">gen_freq()</span></code> will have saved the frequency array in your <code class="docutils literal notranslate"><span class="pre">obj.path</span></code> path.) Put this array <span class="math notranslate nohighlight">\(D\)</span> in your <code class="docutils literal notranslate"><span class="pre">obj.path</span></code> path by the name of
 <code class="docutils literal notranslate"><span class="pre">D.npy</span></code>.</p>
-<p>Only after running <code class="xref py py-func docutils literal notranslate"><span class="pre">ref_freq()</span></code> and <code class="xref py py-func docutils literal notranslate"><span class="pre">gen_freq()</span></code>, run <code class="xref py py-func docutils literal notranslate"><span class="pre">chromatisize()</span></code> as</p>
+<p>Only after running <code class="xref py py-func docutils literal notranslate"><span class="pre">ref_freq()</span></code> and <code class="xref py py-func docutils literal notranslate"><span class="pre">gen_freq()</span></code>, run <code class="xref py py-func docutils literal notranslate"><span class="pre">couple2D()</span></code> as</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">furspy</span> <span class="kn">import</span> <span class="n">furs</span>
 
 <span class="n">obj</span> <span class="o">=</span> <span class="n">furs</span><span class="o">.</span><span class="n">furs</span><span class="p">()</span>
@@ -160,10 +160,14 @@ where a recommendation for <code class="docutils literal notranslate"><span clas
 
 <span class="c1">#If you have already ran ref_freq and gen_freq previously then comment</span>
 <span class="c1">#obj.ref_freq() and obj.gen_freq().</span>
-<span class="n">obj</span><span class="o">.</span><span class="n">chromatisize</span><span class="p">()</span>
+<span class="n">obj</span><span class="o">.</span><span class="n">couple2D</span><span class="p">()</span>
 </pre></div>
 </div>
 <p>No input argument is required. The return value is <code class="docutils literal notranslate"><span class="pre">None</span></code>. This function will generate a file called <code class="docutils literal notranslate"><span class="pre">T_ant.npy</span></code> in your path. This will be a 1D array with length of number of frequencies.</p>
+<p>This function will also print the best-fitting parameters (along with <span class="math notranslate nohighlight">\(1\sigma\)</span> uncertainty) <span class="math notranslate nohighlight">\(T_{\mathrm{f}}, \beta_{\mathrm{f}}\)</span> and <span class="math notranslate nohighlight">\(\Delta\beta_{\mathrm{f}}\)</span> based on a simple least-squares fitting of power-law-with-a-running-spectral-index function as follows</p>
+<div class="math notranslate nohighlight">
+\[T_{\mathrm{f}}\left(\frac{\nu}{\nu_0}\right)^{(-\beta_{\mathrm{f}}\,+\,\Delta\beta_{\mathrm{f}}\,\ln{\nu/\nu_0})}\]</div>
+<p>to the antenna temperature data.</p>
 </section>
 <section id="visualisation">
 <h2>Visualisation<a class="headerlink" href="#visualisation" title="Link to this heading"></a></h2>
@@ -177,9 +181,9 @@ where a recommendation for <code class="docutils literal notranslate"><span clas
 
 <span class="n">obj</span><span class="o">.</span><span class="n">gen_freq</span><span class="p">()</span>
 
-<span class="n">obj</span><span class="o">.</span><span class="n">chromatisize</span><span class="p">()</span>
+<span class="n">obj</span><span class="o">.</span><span class="n">couple2D</span><span class="p">()</span>
 
-<span class="c1">#comment out obj.ref_freq(), obj.gen_freq(), obj.chromatisize() if you have already run them.</span>
+<span class="c1">#comment out obj.ref_freq(), obj.gen_freq(), obj.couple2D() if you have already run them.</span>
 <span class="n">obj</span><span class="o">.</span><span class="n">visual</span><span class="p">()</span>
 </pre></div>
 </div>

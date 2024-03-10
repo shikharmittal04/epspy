@@ -1,0 +1,14 @@
+\indexentry{module@\spxentry{module}!furs@\spxentry{furs}|hyperpage}{11}
+\indexentry{furs@\spxentry{furs}!module@\spxentry{module}|hyperpage}{11}
+\indexentry{save\_furs() (in module furs)@\spxentry{save\_furs()}\spxextra{in module furs}|hyperpage}{11}
+\indexentry{load\_furs() (in module furs)@\spxentry{load\_furs()}\spxextra{in module furs}|hyperpage}{11}
+\indexentry{furs (class in furs)@\spxentry{furs}\spxextra{class in furs}|hyperpage}{11}
+\indexentry{acf() (furs.furs method)@\spxentry{acf()}\spxextra{furs.furs method}|hyperpage}{12}
+\indexentry{couple2D() (furs.furs method)@\spxentry{couple2D()}\spxextra{furs.furs method}|hyperpage}{13}
+\indexentry{dndS() (furs.furs method)@\spxentry{dndS()}\spxextra{furs.furs method}|hyperpage}{13}
+\indexentry{gen\_freq() (furs.furs method)@\spxentry{gen\_freq()}\spxextra{furs.furs method}|hyperpage}{13}
+\indexentry{num\_den() (furs.furs method)@\spxentry{num\_den()}\spxextra{furs.furs method}|hyperpage}{14}
+\indexentry{num\_sources() (furs.furs method)@\spxentry{num\_sources()}\spxextra{furs.furs method}|hyperpage}{14}
+\indexentry{print\_input() (furs.furs method)@\spxentry{print\_input()}\spxextra{furs.furs method}|hyperpage}{14}
+\indexentry{ref\_freq() (furs.furs method)@\spxentry{ref\_freq()}\spxextra{furs.furs method}|hyperpage}{14}
+\indexentry{visual() (furs.furs method)@\spxentry{visual()}\spxextra{furs.furs method}|hyperpage}{14}

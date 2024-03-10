@@ -24,7 +24,7 @@ This package can be installed as
 
 .. code:: bash
 
-   pip install furs
+   pip install furspy
 
 It is recommended to work on a Python version > 3.8. Packages required are 
 
@@ -48,7 +48,7 @@ The following code captures the main functionalities of this package.
 
 .. code:: python
 
-   from furs import furs
+   from furspy import furs
 
    #Step-1 initialise the object with default settings
    obj = furs.furs()

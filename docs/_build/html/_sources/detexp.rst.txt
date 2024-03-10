@@ -82,12 +82,12 @@ where a recommendation for ``size in MB`` will be printed by :func:`ref_freq` fu
 Chromatic distortions
 ^^^^^^^^^^^^^^^^^^^^^
 
-``Tb_nu_map`` and hence ``Tb_nu_glob`` so generated do NOT account for chromatic distortions. They are simply the model outputs for foregrounds due to unresolved radio sources. However, in reality because of the chromatic nature of the antenna beam the actual foregrounds spectrum registered will be different. You can use the function :func:`chromatisize()` to account for the chromaticity. It essentially couples the foregrounds to the beam directivity.
+``Tb_nu_map`` and hence ``Tb_nu_glob`` so generated do NOT account for chromatic distortions. They are simply the model outputs for foregrounds due to unresolved radio sources. However, in reality because of the chromatic nature of the antenna beam the actual foregrounds spectrum registered will be different. You can use the function :func:`couple2D()` to account for the chromaticity. It essentially couples the foregrounds to the beam directivity.
 
 Since this is experiment specific you will need to provide an external data file: the beam directivity pattern, :math:`D`. This should be a 2D array of shape :math:`N_{\mathrm{pix}}\times N_{\nu}`, such that ``D[i,k]`` should give the beam directivity at :math:`i^{\mathrm{th}}` pixel at ``nu[k]`` frequency. The frequencies at which you generate your data :math:`D` should be the same as the frequencies you gave in ``gen_freq()``. (In case you forgot, :func:`gen_freq` will have saved the frequency array in your ``obj.path`` path.) Put this array :math:`D` in your ``obj.path`` path by the name of
 ``D.npy``.
 
-Only after running :func:`ref_freq` and :func:`gen_freq`, run :func:`chromatisize` as
+Only after running :func:`ref_freq` and :func:`gen_freq`, run :func:`couple2D` as
 
 .. code:: python
 
@@ -101,9 +101,17 @@ Only after running :func:`ref_freq` and :func:`gen_freq`, run :func:`chromatisiz
    
    #If you have already ran ref_freq and gen_freq previously then comment
    #obj.ref_freq() and obj.gen_freq(). 
-   obj.chromatisize()
+   obj.couple2D()
 
-No input argument is required. The return value is ``None``. This function will generate a file called ``T_ant.npy`` in your path. This will be a 1D array with length of number of frequencies.
+No input argument is required. The return value is ``None``. This function will generate a file called ``T_ant.npy`` in your path. This will be a 1D array with length of number of frequencies. 
+
+This function will also print the best-fitting parameters (along with :math:`1\sigma` uncertainty) :math:`T_{\mathrm{f}}, \beta_{\mathrm{f}}` and :math:`\Delta\beta_{\mathrm{f}}` based on a simple least-squares fitting of power-law-with-a-running-spectral-index function as follows
+
+.. math::
+
+   T_{\mathrm{f}}\left(\frac{\nu}{\nu_0}\right)^{(-\beta_{\mathrm{f}}\,+\,\Delta\beta_{\mathrm{f}}\,\ln{\nu/\nu_0})}
+
+to the antenna temperature data.
 
 Visualisation
 ^^^^^^^^^^^^^
@@ -122,9 +130,9 @@ You may use the function :func:`visual` for both the above purposes. It is possi
 
    obj.gen_freq()
 
-   obj.chromatisize()
+   obj.couple2D()
 
-   #comment out obj.ref_freq(), obj.gen_freq(), obj.chromatisize() if you have already run them.
+   #comment out obj.ref_freq(), obj.gen_freq(), obj.couple2D() if you have already run them.
    obj.visual()
 
 For all the available options for this function see the :ref:`api`. This function will produce figures in the path specficied during initialisation.
