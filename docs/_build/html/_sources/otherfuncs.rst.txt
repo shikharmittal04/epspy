@@ -1,5 +1,5 @@
-Other functions
----------------
+Other useful functions
+----------------------
 
 The main functionality of the package was already discussed in previous sections. Here we will learn about 5 additional useful methods of the class :class:`furs.furs`. These are 
 

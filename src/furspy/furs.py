@@ -202,7 +202,7 @@ class furs():
         ----------
         
         S : float
-            Flux density in units of Jy (jansky). Can be 1 value or an numpy array.
+            Flux density in units of Jy (jansky). Can be 1 value or a numpy array.
         
         Returns
         -------
@@ -266,6 +266,8 @@ class furs():
         
         Returns
         -------
+        
+        float
             The total number of unresolved point sources. It is a pure number.
         '''
         S_space = np.logspace(self.logSmin,self.logSmax,1000)
