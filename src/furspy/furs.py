@@ -351,7 +351,7 @@ class furs():
         
         3 output files are generated ``Tb_o_individual.npy``, ``Tb_o_map.npy`` and ``beta.npy``
         
-        To understand the structure of these output files see the section on Reference frequency.
+        To understand the structure of these output files see the section on :ref:`ref-freq`.
         
         '''
         #-------------------------------------------------------------------------------------
@@ -487,7 +487,7 @@ class furs():
             
         3 files will be generated namely, ``Tb_nu_glob.npy``, ``Tb_nu_glob.npy``, and ``nu_glob.npy``.
         
-        To understand the structure of these output files see the section on General frequency.
+        To understand the structure of these output files see the section on :ref:`gen-freq`.
         '''
         #-------------------------------------------------------------------------------------
         comm = MPI.COMM_WORLD
@@ -619,7 +619,7 @@ class furs():
         return None
     #End of function chromatisize    
         
-    def visual(self, t_skymap=False, nu_skymap=None, aps=False, n_skymap=False, dndS_plot = False, spectrum=True, chromatic = False, xlog=False,ylog=True, fig_ext = 'pdf'):
+    def visual(self, t_skymap=False, nu_skymap=None, aps=False, n_skymap=False, dndS_plot = False, spectrum=True, antenna = False, xlog=False,ylog=True, fig_ext = 'pdf'):
         '''Plotting function.
         
         This function can produce several figures such as:-
@@ -658,6 +658,9 @@ class furs():
         spectrum : bool
             Want to plot the sky averaged FURS? (Default = ``True``).
         
+        antenna : bool
+        	Add the antenna temperature? (Default = ``False``). You should have run :func:`chromatisize` to use this.
+        	 
         xlog : bool
             Set the x-axis scale of spectrum plot in log? (Default = ``False``)
             
@@ -827,7 +830,7 @@ class furs():
                 #ax.axhline(y=Tcmb_o,color='k',ls='--',lw=1.5, label='CMB')
                 ax.plot(nu/1e6,Tb_mean,color='r',lw=1.5,ls=':',label=r'$\beta= $ %.2f'%self.beta_o)
                 
-                if chromatic==False:
+                if antenna==False:
                     ax.plot(nu/1e6,Tb_nu_glob,color='b',lw=1.5,label='FURS')
                     ax.set_ylabel(r'$T_{\mathrm{sky}}^{\mathrm{furs}}\,$(K)',fontsize=fs)
                 else:

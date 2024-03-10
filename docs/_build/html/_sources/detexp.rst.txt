@@ -6,7 +6,7 @@ Initialisation
 The first step to use this package is to initialise the properties of the unresolved sources. This is done using the class 
 :class:`furs.furs`. If you give no arguments default settings are assumed.
 
-There are total 11 available optional arguments. See the API reference section. If you want to chose a different set of parameters, then your python script should have the following initialisation
+There are total 11 available optional arguments. See the :ref:`api`. If you want to chose a different set of parameters, then your python script should have the following initialisation
 
 .. code:: python
 
@@ -14,6 +14,8 @@ There are total 11 available optional arguments. See the API reference section. 
    obj = furs.furs(log2Nside=6, logSmin=-2,logSmax=-1,dndS_form=0, nu_o=150e6, beta_o=2.681,sigma_beta=0.5, amp=7.8e-3,gam=0.821, path='', lbl='')
 
 (Replace the above values by values of your choice.) 
+
+.. _ref-freq:
 
 Reference frequency
 ^^^^^^^^^^^^^^^^^^^
@@ -48,14 +50,13 @@ The following should be your python script
    
    obj.ref_freq()
 
+
+.. _gen-freq:
+
 General frequency
 ^^^^^^^^^^^^^^^^^
 
-The next important task is performed by the function :func:`gen_freq`. It
-scales the brightness temperature at reference frequency for each source
-according to a power law to a desired range of frequencies. The desired
-frequencies should be supplied (in Hz) as a :mod:`numpy` array to this
-function. For example the following should be your python script
+The next important task is performed by the function :func:`gen_freq`. It scales the brightness temperature at reference frequency for each source according to a power law to a desired range of frequencies. The desired frequencies should be supplied (in Hz) as a :mod:`numpy` array to this function. For example the following should be your python script
 
 .. code:: python
 
@@ -81,7 +82,7 @@ where a recommendation for ``size in MB`` will be printed by :func:`ref_freq` fu
 Chromatic distortions
 ^^^^^^^^^^^^^^^^^^^^^
 
-``Tb_nu_map`` and hence ``Tb_nu_glob`` so generated do NOT account for chromatic distortions. They are simply the model outputs for foregrounds due to unresolved radio sources. However, in reality because of the chromatic nature of the antenna beam the actual foregrounds spectrum registered will be different. You can use the function :func:`chromatisize()` to account for the chromaticity.
+``Tb_nu_map`` and hence ``Tb_nu_glob`` so generated do NOT account for chromatic distortions. They are simply the model outputs for foregrounds due to unresolved radio sources. However, in reality because of the chromatic nature of the antenna beam the actual foregrounds spectrum registered will be different. You can use the function :func:`chromatisize()` to account for the chromaticity. It essentially couples the foregrounds to the beam directivity.
 
 Since this is experiment specific you will need to provide an external data file: the beam directivity pattern, :math:`D`. This should be a 2D array of shape :math:`N_{\mathrm{pix}}\times N_{\nu}`, such that ``D[i,k]`` should give the beam directivity at :math:`i^{\mathrm{th}}` pixel at ``nu[k]`` frequency. The frequencies at which you generate your data :math:`D` should be the same as the frequencies you gave in ``gen_freq()``. (In case you forgot, :func:`gen_freq` will have saved the frequency array in your ``obj.path`` path.) Put this array :math:`D` in your ``obj.path`` path by the name of
 ``D.npy``.
@@ -126,5 +127,5 @@ You may use the function :func:`visual` for both the above purposes. It is possi
    #comment out obj.ref_freq(), obj.gen_freq(), obj.chromatisize() if you have already run them.
    obj.visual()
 
-For all the available options for this function see the API reference section. This function will produce figures in the path specficied during initialisation.
+For all the available options for this function see the :ref:`api`. This function will produce figures in the path specficied during initialisation.
 
