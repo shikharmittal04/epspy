@@ -1,3 +1,5 @@
+.. _detexp:
+
 Detailed explanation
 --------------------
 

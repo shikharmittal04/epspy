@@ -69,7 +69,7 @@ Save the above code as (say) ``eg_script.py`` and run it as
 
     python eg_script.py
 
-Running the code will generate several files. The terminal messages will guide you to these output files. The most important of all files of your interest will be ``Tb_nu_map.npy``. However, you may never have to deal with them yourself. To visualise your outputs use the function :func:`visual`. See :ref:`api` for the available features for :func:`visual`.
+Running the code will generate several files. The terminal messages will guide you to these output files. The most important of all files of your interest will be ``Tb_nu_map.npy``. However, you may never have to deal with them yourself. To visualise your outputs use the function :func:`visual`. See :ref:`api` for the available features for :func:`visual`. To learn more about the output files and code working see :ref:`detexp`.
 
 The default values have been chosen such that the above script can be run on a PC. Since modern PCs have at least 4 cores, for a better performance one could also run the code as
 
