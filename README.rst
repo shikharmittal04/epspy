@@ -1,3 +1,9 @@
+Overview
+--------
+
+:Name: Foregrounds due to Unresolved Radio Sources
+:Author: `Shikhar Mittal <https://sites.google.com/view/shikharmittal/home>`_
+
 Why do you need this code?
 --------------------------
 
@@ -59,21 +65,20 @@ Save the above code as (say) ``eg_script.py`` and run it as
 
     python eg_script.py
 
-Running the co de will generate several files. The terminal messages will guide you to these output files. The most important of all files of your interest will be ``Tb_nu_map.npy``. However, you may never have to deal with them yourself. To visualise your outputs use the function
-``visual()``. Refer to the documentation for more details.
+Running the above will generate several files. The terminal messages will guide you to these output files. The most important of all files of your interest will be ``Tb_nu_map.npy``. To visualise your outputs use the function ``visual()``. Refer to the documentation for more details.
 
-The default values have been chosen such that the above script can be run on a PC. Since modern PCs have at least 4 cores, for a better performance one could also run the code as 
+The default values in this package have been chosen such that the users can run their scripts on a PC. Since modern PCs have at least 4 cores, for a better performance, one could also run ``eg_script.py`` parallely as 
 
 .. code:: bash
 
     mpirun -np 4 python eg_script.py
 
-However, in general and for more realistic flux density ranges and high resolution maps, it is recommended to run the code on HPCs.
+In general, and for more realistic flux density ranges and high resolution maps, it is recommended to use the code on high performance clusters.
 
 Documentation
 -------------
 
-For more details on the working of the code and understanding the output files refer to the `documentation <>`_. 
+For more details on the working of the package and understanding the output files refer to the `documentation <>`_. 
 
 License and citation
 --------------------
