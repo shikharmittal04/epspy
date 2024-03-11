@@ -8,7 +8,7 @@ Initialisation
 The first step to use this package is to initialise the properties of the unresolved sources. This is done using the class 
 :class:`furs.furs`. If you give no arguments default settings are assumed.
 
-There are total 11 available optional arguments. See the :ref:`api`. If you want to chose a different set of parameters, then your python script should have the following initialisation
+There are total 11 available optional arguments. See the :ref:`api`. If you want to choose a different set of parameters, then your python script should have the following initialisation
 
 .. code:: python
 
@@ -79,7 +79,7 @@ The default value of frequencies at which :func:`gen_freq` will scale is :math:`
 3. ``nu_glob.npy`` is simply the frequency array you gave else it is the default value.
 
 Note that this function loads ``Tb_o_individual.npy`` and ``beta.npy``. These files can easily be 10s of GB in size for 'realistic' ``logSmin`` and ``logSmax``. Common personal computers have ~ 4 GB RAM. It is thus recommended to run this code on supercomputers. For job submission scipt users are requested to specify ``#SBATCH --mem-per-cpu=[size in MB]``,
-where a recommendation for ``size in MB`` will be printed by :func:`ref_freq` function.
+where a recommendation for ``size in MB`` will be printed by :func:`ref_freq` function if the requirements are more than 2 GB.
 
 Chromatic distortions
 ^^^^^^^^^^^^^^^^^^^^^
