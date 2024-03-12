@@ -56,6 +56,7 @@ def save_furs(obj, filename):
     
     Parameters
     ----------
+
     obj : class
         This should be the class object you want to save.
         
@@ -82,12 +83,14 @@ def load_furs(filename):
     
     Parameters
     ----------
+
     filename : str
         This should be the name of the file you gave in :func:`save_furs()` for saving class object :class:`furs`.
         Important: provide the full path for ``filename`` with the extension ``.pkl``.
         
     Returns
     -------
+
     class object    
     '''
     try:
@@ -106,7 +109,7 @@ def load_furs(filename):
 
 class furs():
     '''
-    This is class for initialising the properties of the unresolved radio sources.
+    This is the class for initialising the properties of the unresolved radio sources.
     
     Attributes
     ----------
@@ -124,7 +127,7 @@ class furs():
         Amplitude of the power-law 2-point angular correlation function (2PACF)
     
     gam : float, optional
-        :math:`-` exponent of the power-law 2-point angular correlation function
+        Negative exponent of the power-law 2-point angular correlation function
     
     logSmin : float, optional
         :math:`\\log_{10}(S_{\\mathrm{min}})`, where :math:`S_{\\mathrm{min}}` is in Jy
@@ -171,7 +174,7 @@ class furs():
     #End of function __init__()
     
     def print_input(self):
-        '''Print the input parameters you gave.'''
+        '''Prints the input parameters you gave.'''
         
         print("\n\033[93mnu_o =",self.nu_o)
         print("beta_o =",self.beta_o)
@@ -188,7 +191,7 @@ class furs():
         return None
         
     def dndS(self, S):
-        ''':math:`\\mathrm{d}n/\\mathrm{d}S\\,(\\mathrm{sr}^{-1}\\mathrm{Jy}^{-1})`
+        ''':math:`\\mathrm{d}n/\\mathrm{d}S=\\mathrm{d}n/\\mathrm{d}S(S)`
         
         Distribution of flux density, S.
         
@@ -208,7 +211,7 @@ class furs():
         -------
         
         float
-            Number of sources per unit solid angle per unit flux density. 1 value or an array depending on input.
+            Number of sources per unit solid angle per unit flux density :math:`(\\mathrm{sr}^{-1}\\mathrm{Jy}^{-1})`. 1 value or an array depending on input.
         '''
 
         if self.dndS_form==1:
@@ -230,21 +233,21 @@ class furs():
             return S**-2.5*((A1*S**a1+B1*S**b1)**-1+(A2*S**a2+B2*S**b2)**-1)
 
     def acf(self, chi):
-        '''2 point angular correlation function.
+        ''':math:`C(\\chi)=A\\chi^{-\\gamma}`
         
-        This is the popular form of the 2PACF; a power law.
-        
-        The default values for amplitude and index are from `Rana & Bagla (2019) <https://academic.oup.com/mnras/article/485/4/5891/5420431>`__.
-        
+        2 point angular correlation function (2PACF). The amplitude A and negative power law index are set when you initialise the class object. If you want to simulate an isotropic sky set ``amp=0``. The default values for amplitude and index are from `Rana & Bagla (2019) <https://academic.oup.com/mnras/article/485/4/5891/5420431>`__.
+                
         Parameters
         ----------
+
         chi : float
             Angle at which you want to get the 2PACF, should be in radians. One number or an array.
         
         Returns
         -------
+
         float
-            Output is pure number or an array accordingly as ``chi`` is a number or an array. 
+            A pure number or an array accordingly as ``chi`` is a number or an array. 
         '''
         return self.amp*(chi*180/np.pi)**(-self.gam)
 
@@ -259,10 +262,9 @@ class furs():
     '''
     
     def num_sources(self):
-        '''This function gives the total number of unresolved point sources on the full sky.
-        
-        This is specifically for the flux density distribution defined in :func:`dndS()`,
-        and the minimum and maximum :math:`S` values are set during the initialisation of the class object :class:`furs`.
+        ''':math:`N_{\\mathrm{s}}`
+
+        The total number of unresolved point sources on the full sky. The result is dependent on the form of :math:`\\mathrm{d}n/\\mathrm{d}S` and the minimum and maximum :math:`S` values. All of them are set during the initialisation of the class object :class:`furs`.
         
         Returns
         -------
@@ -278,17 +280,15 @@ class furs():
         return Ns
 
     def num_den(self):
-        '''Number density.
+        ''':math:`n_{\\mathrm{cl}}=n_{\\mathrm{cl}}(\\hat{n})`
         
-        This function calculates the number density function :math:`n_{\\mathrm{cl}}` for the 2PACF defined in ``acf()``.
-        
-        The array will also be saved as an ``.npy`` format file in the path you gave during initialisation.
+        The number density function. It is dependent on the choice of 2PACF and :math:`\\mathrm{d}n/\\mathrm{d}S`.
         
         Returns
         -------
         
         float
-            Number of sources per pixel. It will be an array of length :math:`N_{\\mathrm{pix}}`.
+            An array of length :math:`N_{\\mathrm{pix}}` whose elements are the number of sources on the corresponding pixel. The array will also be saved as an ``.npy`` format file in the path you gave during initialisation.
         '''
         
         Ns = self.num_sources()
@@ -298,6 +298,7 @@ class furs():
         print('Average number of sources per pixel, n_bar = {:.2f}'.format(nbar))
         
         if self.amp==0:
+            print('Simulating an isotropic sky ...')
             n_clus = np.random.poisson(lam=nbar,size=self.Npix)
         else:
             #Method 1:
@@ -319,7 +320,7 @@ class furs():
                 Cl_clus[i] = self.acf2cl(i)
             '''
             
-            #Now calculating the clustered map fluctuation...
+            print('Simulating a clustered sky ...')
             del_clus = hp.synfast(Cl_clus,self.Nside)
             
             where_n_neg = np.where(del_clus<-1.0)[0]
@@ -344,7 +345,7 @@ class furs():
         
         n_clus_save_name = self.path+'n_clus'+self.lbl
         np.save(n_clus_save_name,n_clus)
-        print('\033[32mThe clustered number density has been saved into file:\n',n_clus_save_name,'\033[00m')
+        print('\033[32mThe number density file has been saved as:\n',n_clus_save_name,'\033[00m')
             
         return n_clus
     #End of function num_den()
@@ -354,7 +355,7 @@ class furs():
         
         3 output files are generated ``Tb_o_individual.npy``, ``Tb_o_map.npy`` and ``beta.npy``
         
-        To understand the structure of these output files see the section on :ref:`ref-freq`.
+        To understand the structure of these output files see :ref:`ref-freq`.
         
         '''
         #-------------------------------------------------------------------------------------
@@ -490,7 +491,7 @@ class furs():
             
         3 files will be generated namely, ``Tb_nu_glob.npy``, ``Tb_nu_glob.npy``, and ``nu_glob.npy``.
         
-        To understand the structure of these output files see the section on :ref:`gen-freq`.
+        To understand the structure of these output files see :ref:`gen-freq`.
         '''
         #-------------------------------------------------------------------------------------
         comm = MPI.COMM_WORLD
@@ -657,7 +658,7 @@ class furs():
             Want to plot the FURS map (a Mollweide projection plot)? (Default = ``False``).
             
         nu_skymap : float, optional
-            Frequency in Hz at which you want to construct the FURS map. Relevant only when you give ``t_skymap = True``.
+            Frequency in Hz at which you want to construct the FURS map. Relevant only when you give ``t_skymap = True``. Currently, only 1 value supported.
             (Default = ``nu_o``)
             
         aps : bool, optional
@@ -743,7 +744,7 @@ class furs():
                     print("\033[91mMultiple values given for 'nu_skymap' with 't_skymap=True'. Plotting only at the reference frequency ...\033[00m")
                     Tb_plot = Tb_o_map
 
-                hp.mollview(Tb_plot,title=None,unit=r'$T_{\mathrm{sky}}^{\mathrm{ex}}\,$(K)',cmap=colormaps['coolwarm'],norm = 'log') #,min=0.05,max=200
+                hp.mollview(Tb_plot,title=None,unit=r'$T_{\mathrm{furs}}\,$(K)',cmap=colormaps['coolwarm'],norm = 'log') #,min=0.05,max=200
                 hp.graticule()
                 
                 fig_path = self.path+'Tb_map_'+str(int(nu_skymap/1e6))+'-MHz.'+fig_ext
@@ -781,7 +782,7 @@ class furs():
                 
                 ax.yaxis.set_ticks_position('both')
                 ax.xaxis.set_ticks_position('both')
-                ax.tick_params(axis='both', which='major', length=5, width=1, labelsize=fs,direction='in')
+                ax.tick_params(axis='both', which='major', length=5, width=1, labelsize=fs,direction='in',pad=8)
                 ax.tick_params(axis='both', which='minor', length=3, width=1,direction='in')
                 ax.legend(fontsize=18,frameon=False)
                 ax.minorticks_on()
@@ -810,6 +811,7 @@ class furs():
                 plt.close()
             
             if dndS_plot:
+                print('Creating flux density distribution function ...')
                 fig,ax=plt.subplots(figsize=(8.3,7.5),dpi=300)
                 fig.subplots_adjust(left=0.12, bottom=0.07, right=0.88, top=0.97)
                 
@@ -836,7 +838,7 @@ class furs():
             if spectrum:
                 Tb_mean = Tb_o_glob*(nu/self.nu_o)**-self.beta_o
                 
-                print('\nCreating Tb vs nu plot ...')
+                print('\nCreating T vs nu plot ...')
                 left=0.12
                 fig,ax=plt.subplots(figsize=(8, 7.9))
                 fig.subplots_adjust(left=left, bottom=0.06, right=1-left, top=0.94)
@@ -846,13 +848,13 @@ class furs():
                 
                 if antenna==False:
                     ax.plot(nu/1e6,Tb_nu_glob,color='b',lw=1.5,label='FURS')
-                    ax.set_ylabel(r'$T_{\mathrm{sky}}^{\mathrm{furs}}\,$(K)',fontsize=fs)
+                    ax.set_ylabel(r'$\langle T_{\mathrm{furs}}\rangle\,$(K)',fontsize=fs)
                 else:
                     T_ant = np.load(self.path+'T_ant'+self.lbl+'.npy')
                     ax.plot(nu/1e6,Tb_nu_glob,color='b',lw=1.5,label='Achromatic')
                     ax.plot(nu/1e6,T_ant,color='limegreen',lw=1.5,label='Chromatic')
                     ax.set_ylabel(r'$T\,$(K)',fontsize=fs)
-                    print('Added the antenna temperature (accounting for chromaticity) to the figure.')
+                    print('Added the antenna temperature to the figure.')
                 
                 if xlog:
                     ax.set_xscale('log')
