@@ -14,3 +14,5 @@ Welcome to the documentation of ``furspy``!
    General remarks <genrem>
    
    API Reference <api>
+   
+   FAQs <faqs>
