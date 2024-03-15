@@ -3,6 +3,7 @@ Overview
 
 :Name: Foregrounds due to Unresolved Radio Sources
 :Author: `Shikhar Mittal <https://sites.google.com/view/shikharmittal/home>`_
+:Paper: `Mittal et al. (2024) <>`_
 
 Why do you need this code?
 --------------------------
@@ -65,7 +66,7 @@ Save the above code as (say) ``eg_script.py`` and run it as
 
     python eg_script.py
 
-Running the above will generate several files. The terminal messages will guide you to these output files. The most important of all files of your interest will be ``Tb_nu_map.npy``. To visualise your outputs use the function ``visual()``. Refer to the documentation for more details.
+Running the above will generate several files. The terminal messages will guide you to these output files. The most important of all files of your interest will be ``Tb_nu_map.npy``. To visualise your outputs use the function ``visual()``. Refer to the documentation for more details. To learn about the physics of this package see our `paper <>`_.
 
 The default values in this package have been chosen such that the users can run their scripts on a PC. Since modern PCs have at least 4 cores, for a better performance, one could also run ``eg_script.py`` parallely as 
 

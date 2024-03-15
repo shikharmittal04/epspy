@@ -5,7 +5,7 @@ The main functionality of the package was already discussed in previous sections
 
 1. The 2-point angular correlation function (2PACF, :math:`C=C(\chi)`), :func:`acf`
 
-2. The flux density distribution function (:math:`\mathrm{d}n/\mathrm{d}S`), :func:`dndS`. As this function is a method of class :class:`furs.furs`, the choice of the form of of :math:`\mathrm{d}n/\mathrm{d}S` will have been set when you initialise your class :class:`furs.furs` object as
+2. The flux density distribution function (:math:`\mathrm{d}n/\mathrm{d}S`), :func:`dndS`. As this function is a method of class :class:`furs.furs`, the choice of the form of :math:`\mathrm{d}n/\mathrm{d}S` will have been set when you initialise your class :class:`furs.furs` object as
 
 .. code:: python
    
@@ -13,9 +13,9 @@ The main functionality of the package was already discussed in previous sections
    
    obj = furs.furs()
 
-3. Total number of sources on the full sky ( :math:`N_{\mathrm{s}}` ), :func:`num_sources()`. This  function has direct correspondence with the form of :math:`\mathrm{d}n/\mathrm{d}S`.  
+3. Total number of sources on the full sky ( :math:`N_{\mathrm{s}}` ), :func:`num_sources()`. This function has direct correspondence with the form of :math:`\mathrm{d}n/\mathrm{d}S` and the choice of :math:`S_{\mathrm{min}}` and :math:`S_{\mathrm{max}}`.  
 
-4. Number of source per pixel ( :math:`n_{\mathrm{cl}}` ), :func:`num_den()`. As in the :func:`num_sources()`, the total number density returned will correspond to the chosen form of :math:`\mathrm{d}n/\mathrm{d}S`.
+4. Number of source per pixel ( :math:`n_{\mathrm{cl}}` ), :func:`num_den()`. As in the :func:`num_sources()`, the total number density returned will correspond to the chosen form of :math:`\mathrm{d}n/\mathrm{d}S` the choice of :math:`S_{\mathrm{min}}` and :math:`S_{\mathrm{max}}`.
    
 5. :func:`print_input()` can be useful if you want see what parameters you are currently running with.
 

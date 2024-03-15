@@ -35,3 +35,12 @@ You may now check that indeed the specfications are correctly loaded by printing
    obj=furs.load_furs('/give/full/path/to/myobj.pkl')
    obj.print_input()
 
+
+There is also an argument ``lbl``, which you can use to put an extra label to you output files. For example,
+
+.. code:: python
+   
+   from furspy import furs
+   
+   obj = furs.furs(lbl='mylabel')
+

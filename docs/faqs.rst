@@ -1,7 +1,7 @@
 Frequently Asked Questions
 --------------------------
 
-1. When I run ``visual()``, I am getting the following error 
+1. When I run ``visual()``, I get the following error 
 
 ``RuntimeError: Failed to process string with tex because latex could not be found``
 
@@ -36,6 +36,6 @@ Solution borrowed from `Stack Overflow -could-not-build-wheels <https://stackove
 
 3. Will this package run on windows?
 
-No, because it uses :mod:`healpy` and since :mod:`healpy` is not (yet) supported on windows, this package cannot be used on windows. However, there is still a workaround without having to dual boot your PC with ubuntu. You have use the Windows Subsystem for Linux (WSL). See the official `ubuntu <https://ubuntu.com/desktop/wsl>`_ page and `this <https://learn.microsoft.com/en-us/windows/wsl/install>`_ page.
+No, because it uses :mod:`healpy` and since :mod:`healpy` is not (yet) supported on windows, this package cannot be used on windows. However, there is still a workaround without having to dual boot your PC with ubuntu. You can use the Windows Subsystem for Linux (WSL). See the official `ubuntu <https://ubuntu.com/desktop/wsl>`_ page and `this <https://learn.microsoft.com/en-us/windows/wsl/install>`_ page.
 
 

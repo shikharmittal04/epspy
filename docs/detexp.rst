@@ -22,27 +22,27 @@ There are total 11 available optional arguments. See the :ref:`api`. If you want
 Reference frequency
 ^^^^^^^^^^^^^^^^^^^
 
-The function :func:`ref_freq` does 3 tasks:-
+The next step is to run :func:`ref_freq`. The function :func:`ref_freq` does 3 tasks:-
 
 1. Calcuates the total number of unresolved sources corresponding to your specified ``logSmin`` and ``logSmin``. Then it creates a 'clustered' sky density of unresolved radio sources, fluctuation for which follows the 2PACF whose parameters are set by ``amp`` and ``gam``.
    
 2. Next, it visits each pixel on the sky and assigns each source a flux density chosen from a flux distribution function, :math:`\mathrm{d}n/\mathrm{d}S`
 
-3. Finally, it assigns a spectral index to each source which is normally distributed. The normal distribution is set by ``beta_o`` and ``sigma_beta``.
+3. Finally, it assigns a spectral index to each source from a normal distribution. The normal distribution is set by ``beta_o`` and ``sigma_beta``.
 
 Sky pixelisation is set by ``log2Nside``. The number of pixels is :math:`N_{\mathrm{pix}} = 12\times 2^{2k}`, where :math:`k=` ``log2Nside``.
 
-The function does not return anything, but produces 4 output files, namely ``n_clus.npy``, ``Tb_o_individual.npy``, ``Tb_o_map.npy``, and ``beta.npy`` in the path specified by ``path`` during initialisation. The files are described below.
+The function does not return anything, but produces 4 files, namely ``n_clus.npy``, ``Tb_o_individual.npy``, ``Tb_o_map.npy``, and ``beta.npy`` in the path specified by ``path`` during initialisation. The files are described below.
 
 - ``n_clus.npy`` is a 1D array which stores number density of unresolved radio sources as number per pixel. ``n_clus[i]`` gives the number of sources on the :math:`i^{\mathrm{th}}` pixel, where :math:`i=0,1,\ldots,N_{\mathrm{pix}}-1`. Note that in general ``n_clus[i]`` will not be a natural number; we simulate for a rounded-off value.
 
-- Both ``Tb_o_individual.npy`` and ``beta.npy`` are array of arrays of unequal sizes and share equal amount of memory. Typically, these files will be huge (for default settings they will of size ~ 17 MB each). Each of ``Tb_o_individual[0]``, ``Tb_o_individual[1]``, ..., is an array and they are total :math:`N_{\mathrm{pix}}` in number corresponding to :math:`N_{\mathrm{pix}}` pixels. The last array is ``Tb_o_individual[Npix-1]``. The length of array ``Tb_o_individual[i]`` is equal to the number of sources on the :math:`i^{\mathrm{th}}` pixel, which is ``round(n_clus[i])``. The values itself are the brightness temperature contributed by each source in kelvin at reference frequency. Note that ``Tb_o_individual.npy`` and ``beta.npy`` are 'Object' arrays. If you want to load them yourself then set ``allow_pickle=True`` in ``numpy.load()``
+- Both ``Tb_o_individual.npy`` and ``beta.npy`` are array of arrays of unequal sizes. Both files will occupy the same amount of memory and for 'realistic' values will be huge (for default settings they will of size ~ 17 MB each). Each of ``Tb_o_individual[0]``, ``Tb_o_individual[1]``, ..., is an array and they are total :math:`N_{\mathrm{pix}}` in number corresponding to :math:`N_{\mathrm{pix}}` pixels. The last array is ``Tb_o_individual[Npix-1]``. The length of array ``Tb_o_individual[i]`` is equal to the number of sources on the :math:`i^{\mathrm{th}}` pixel, which is ``round(n_clus[i])``. The values itself are the brightness temperature contributed by each source in kelvin at reference frequency. Note that ``Tb_o_individual.npy`` and ``beta.npy`` are 'Object' arrays. If you want to load them yourself then set ``allow_pickle=True`` in ``numpy.load()``
 
 - The structure of ``beta`` is same as ``Tb_o_individual``. The values itself are the spectral indices assigned to each source.
 
 - ``Tb_o_map`` is an array similar in structure to ``n_clus``. It is the pixel wise brightness temperature contributed by the extragalactic radio sources at the reference frequency. Thus, ``Tb_o_map[i] = numpy.sum(Tb_o_individual[i])``.
 
-The following should be your python script
+To run up to :func:`ref_freq` the following should be your python script
 
 .. code:: python
 
@@ -84,9 +84,9 @@ where a recommendation for ``size in MB`` will be printed by :func:`ref_freq` fu
 Chromatic distortions
 ^^^^^^^^^^^^^^^^^^^^^
 
-``Tb_nu_map`` and hence ``Tb_nu_glob`` so generated do NOT account for chromatic distortions. They are simply the model outputs for foregrounds due to unresolved radio sources. However, in reality because of the chromatic nature of the antenna beam the actual foregrounds spectrum registered will be different. You can use the function :func:`couple2D()` to account for the chromaticity. It essentially couples the foregrounds to the beam directivity.
+``Tb_nu_map`` and hence ``Tb_nu_glob`` so generated do NOT account for chromatic distortions. They are simply the model outputs for foregrounds due to unresolved radio sources. However, in reality because of the chromatic nature of the antenna beam the actual foregrounds spectrum registered will be different. You can use the function :func:`couple2D()` to account for the chromaticity. It essentially couples the foregrounds to the beam directivity, i.e., it will multiply the FURS map to beam directivity, and average over the pixels.
 
-Since this is experiment specific you will need to provide an external data file: the beam directivity pattern, :math:`D`. This should be a 2D array of shape :math:`N_{\mathrm{pix}}\times N_{\nu}`, such that ``D[i,k]`` should give the beam directivity at :math:`i^{\mathrm{th}}` pixel at ``nu[k]`` frequency. The frequencies at which you generate your data :math:`D` should be the same as the frequencies you gave in ``gen_freq()``. (In case you forgot, :func:`gen_freq` will have saved the frequency array in your ``obj.path`` path.) Put this array :math:`D` in your ``obj.path`` path by the name of
+Since this is experiment specific you will need to provide an external data file: the beam directivity pattern, :math:`D`. Its structure should be the same as ``Tb_nu_map``, i.e., it should be a 2D array of shape :math:`N_{\mathrm{pix}}\times N_{\nu}`, such that ``D[i,k]`` should give the beam directivity at :math:`i^{\mathrm{th}}` pixel at ``nu[k]`` frequency. The frequencies at which you generate your data :math:`D` should be the same as the frequencies you gave in ``gen_freq()``. (In case you forgot, :func:`gen_freq` will have saved the frequency array in your ``obj.path`` path by the name of ``nu_glob.npy``.) Put this array :math:`D` in your ``obj.path`` path by the name of
 ``D.npy``.
 
 Only after running :func:`ref_freq` and :func:`gen_freq`, run :func:`couple2D` as
@@ -113,14 +113,14 @@ This function will also print the best-fitting parameters (along with :math:`1\s
 
    T_{\mathrm{f}}\left(\frac{\nu}{\nu_0}\right)^{(-\beta_{\mathrm{f}}\,+\,\Delta\beta_{\mathrm{f}}\,\ln{\nu/\nu_0})}
 
-to the antenna temperature data.
+to the antenna temperature data, ``T_ant.npy``.
 
 Visualisation
 ^^^^^^^^^^^^^
 
 The final part of the code is to visualise the results. Main data for inspection is in the file ``Tb_nu_map.npy``. Each of ``Tb_nu_map[:,k]`` is an array in the standard ring ordered ``HEALPix`` format and is thus ready for visualisation as a Mollweide projection. You may also be interested in inspecting the global spectrum of extragalactic emission, i.e, temperature as a function of frequency. This is simply the data in the file ``Tb_nu_glob.npy`` generated by :func:`gen_freq`.
 
-You may use the function :func:`visual` for both the above purposes. It is possible to make several other additional figures by simply setting the optional arguments to ``True`` (see below). This function is again a method of class object :class:`furs.furs` and is thus your python script should contain
+You may use the function :func:`visual` for both the above purposes. It is possible to make several other additional figures by simply setting the optional arguments to ``True``. This function is again a method of class object :class:`furs.furs` and thus your python script should contain
 
 .. code:: python
    
