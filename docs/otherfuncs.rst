@@ -1,5 +1,8 @@
-Other useful functions
-----------------------
+More functions
+--------------
+
+Functions of class :class:`furs.furs`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The main functionality of the package was already discussed in previous sections. Here we will learn about 5 additional useful methods of the class :class:`furs.furs`. These are 
 
@@ -56,4 +59,47 @@ Let us also check if the sum of the elements of array ``ncl`` is ``Ns``
    251605169.7207427
 
 There some discrepancy but do not be worried as this is just a numerical artefact. In fact the fractional error is already printed and is about 0.7%, which is sufficiently small.
+
+
+Functions of module :mod:`furs`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In case you forgot what data set you generated with what parameter specifications, you can always save your class object using the function :func:`save_furs` in the directory where all other outputs are saved and load back using :func:`load_furs`. (Both functions are part of module ``furs.py``.)
+
+Thus, after initialising your class object (i.e. ``obj = furs.furs([YOUR SPECIFICATIONS])``), you can add to your script ``furs.save_furs(obj,'myobj')``.
+
+**Examples**
+
+.. code:: python
+   
+   from furspy import furs
+   
+   obj = furs.furs()
+   furs.save_furs(obj,'myobj')
+
+So when you came back next time you can load it as
+
+.. code:: python
+   
+   from furspy import furs
+   obj=furs.load_furs('/give/full/path/to/myobj.pkl')
+
+Remember to give the full path to the ``myobj`` with the extension ``.pkl``. 
+
+You may now check that indeed the specfications are correctly loaded by printing them using function :func:`print_input()`.
+
+.. code:: python
+   
+   from furspy import furs
+   obj=furs.load_furs('/give/full/path/to/myobj.pkl')
+   obj.print_input()
+
+
+There is also an argument ``lbl``, which you can use to put an extra label to you output files. For example,
+
+.. code:: python
+   
+   from furspy import furs
+   
+   obj = furs.furs(lbl='mylabel')
 

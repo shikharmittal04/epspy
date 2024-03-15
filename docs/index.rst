@@ -9,9 +9,7 @@ Welcome to the documentation of ``furspy``!
 
    Detailed explanation <detexp>
 
-   Other useful functions <otherfuncs>
-   
-   General remarks <genrem>
+   More functions <otherfuncs>
    
    API Reference <api>
    
