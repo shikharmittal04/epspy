@@ -111,7 +111,7 @@ class furs():
     '''
     This is the class for initialising the properties of the unresolved radio sources.
     
-    Attributes
+    Parameters
     ----------
 
     nu_o : float, optional
@@ -146,7 +146,19 @@ class furs():
             
     lbl : str, optional
         Append an extra string to all the output files.
-        
+    
+    Derived attributes
+    ------------------
+    
+    Nside : int
+    	The nside required in healpy package.
+    	
+    Npix : int
+    	Number of pixels
+    
+    Ns : float
+    	Total number of unresolved radio sources on the sky in the :math:`S` range :math:`S_{\\mathrm{min}}` and :math:`S_{\\mathrm{max}}`.
+    	
     Methods
     -------
     
@@ -171,6 +183,17 @@ class furs():
         
         self.Nside= 2**self.log2Nside
         self.Npix = hp.nside2npix(self.Nside)
+        
+        
+        S_space = np.logspace(self.logSmin,self.logSmax,1000)
+        dndS_space = self.dndS(S_space)
+
+        Ns_per_sr = np.trapz(dndS_space,S_space)
+        self.Ns = 4*np.pi*Ns_per_sr
+        mempertask = 1.1*16e-6*self.Ns
+        if mempertask > 2000:
+            print("\033[96mRecommendation for '--mem-per-task' {:d} MB\n\033[00m".format(round(mempertask)))
+        
     #End of function __init__()
     
     def print_input(self):
@@ -261,24 +284,6 @@ class furs():
         return 2*np.pi*scint.quad(lambda chi: self.acf(chi)*P_ell(ell,chi)*np.sin(chi),0.0,np.pi)[0]
     '''
     
-    def num_sources(self):
-        ''':math:`N_{\\mathrm{s}}`
-
-        The total number of unresolved point sources on the full sky. The result is dependent on the form of :math:`\\mathrm{d}n/\\mathrm{d}S` and the minimum and maximum :math:`S` values. All of them are set during the initialisation of the class object :class:`furs.furs`.
-        
-        Returns
-        -------
-        
-        float
-            The total number of unresolved point sources. It is a pure number.
-        '''
-        S_space = np.logspace(self.logSmin,self.logSmax,1000)
-        dndS_space = self.dndS(S_space)
-
-        Ns_per_sr = np.trapz(dndS_space,S_space)
-        Ns = 4*np.pi*Ns_per_sr
-        return Ns
-
     def num_den(self):
         ''':math:`n_{\\mathrm{cl}}=n_{\\mathrm{cl}}(\\hat{n})`
         
@@ -291,9 +296,8 @@ class furs():
             An array of length :math:`N_{\\mathrm{pix}}` whose elements are the number of sources on the corresponding pixel. The array will also be saved in a ``.npy`` format in the path you gave during initialisation.
         '''
         
-        Ns = self.num_sources()
-        nbar = Ns/self.Npix
-        print('\nTotal number of sources, Ns = {:d}'.format(round(Ns)))
+        nbar = self.Ns/self.Npix
+        print('\nTotal number of sources, Ns = {:d}'.format(round(self.Ns)))
         print('Total number of pixels, Npix =',self.Npix)
         print('Average number of sources per pixel, n_bar = {:.2f}'.format(nbar))
         
@@ -468,9 +472,9 @@ class furs():
             print('\033[32mThe spectral index for each source saved into:\n',beta_save_name,'\033[00m')
             print('\n\033[94m================ End of function furs.ref_freq() ================\033[00m\n')
             
-            mempertask = 2e-6*os.path.getsize(Tb_o_individual_save_name+'.npy')
-            if mempertask > 2000:
-                print("\033[96mRecommendation for '--mem-per-task' to run gen_freq() {:d} MB\n\033[00m".format(round(mempertask)))
+            #mempertask = 2.4e-6*os.path.getsize(Tb_o_individual_save_name+'.npy')
+            #if mempertask > 2000:
+            #    print("\033[96mRecommendation for '--mem-per-task' {:d} MB\n\033[00m".format(round(mempertask)))
         comm.Barrier()
         return None
     #End of function ref_freq()
@@ -755,8 +759,7 @@ class furs():
                 
             if aps:
                 n_clus = np.load(self.path+'n_clus'+self.lbl+'.npy')
-                Ns=self.num_sources()
-                nbar = Ns/self.Npix
+                nbar = self.Ns/self.Npix
                 
                 fig,ax=plt.subplots(figsize=(8.3,7.5),dpi=300)
                 fig.subplots_adjust(left=0.12, bottom=0.07, right=0.88, top=0.97)

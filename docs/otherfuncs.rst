@@ -16,11 +16,9 @@ The main functionality of the package was already discussed in previous sections
    
    obj = furs.furs()
 
-3. Total number of sources on the full sky ( :math:`N_{\mathrm{s}}` ), :func:`num_sources()`. This function has direct correspondence with the form of :math:`\mathrm{d}n/\mathrm{d}S` and the choice of :math:`S_{\mathrm{min}}` and :math:`S_{\mathrm{max}}`.  
-
-4. Number of source per pixel ( :math:`n_{\mathrm{cl}}` ), :func:`num_den()`. As in the :func:`num_sources()`, the total number density returned will correspond to the chosen form of :math:`\mathrm{d}n/\mathrm{d}S` the choice of :math:`S_{\mathrm{min}}` and :math:`S_{\mathrm{max}}`.
+3. Number of source per pixel ( :math:`n_{\mathrm{cl}}` ), :func:`num_den()`. This function has direct correspondence with the form of :math:`\mathrm{d}n/\mathrm{d}S` and the choice of :math:`S_{\mathrm{min}}` and :math:`S_{\mathrm{max}}`.
    
-5. :func:`print_input()` can be useful if you want see what parameters you are currently running with.
+4. :func:`print_input()` can be useful if you want see what parameters you are currently running with.
 
 Note that these functions are computationally cheap and thus can be run directly in a jupyter notebook or interactively on the terminal.
 
@@ -32,9 +30,9 @@ Suppose you want to find the number of sources between :math:`S=10^{-6}` and :ma
 
    >>> from furspy import furs
    >>> obj = furs.furs(dndS_form=1, logSmin=-6,logSmax=-1)
-   >>> Ns = obj.num_sources()
+   >>> Ns = round(obj.Ns)
    >>> Ns
-   249825819.67727068
+   249825820
 
 Let us calculate the number density.
 
@@ -77,7 +75,9 @@ Thus, after initialising your class object (i.e. ``obj = furs.furs([YOUR SPECIFI
    obj = furs.furs()
    furs.save_furs(obj,'myobj')
 
-So when you came back next time you can load it as
+Now check if your there is a file called ``myobj.pkl`` in ``obj.path`` directory. 
+
+When you came back next time you can load you class object as
 
 .. code:: python
    
@@ -86,7 +86,7 @@ So when you came back next time you can load it as
 
 Remember to give the full path to the ``myobj`` with the extension ``.pkl``. 
 
-You may now check that indeed the specfications are correctly loaded by printing them using function :func:`print_input()`.
+You may now check that indeed the specifications are correctly loaded by printing them using function :func:`print_input()`.
 
 .. code:: python
    
@@ -101,5 +101,6 @@ There is also an argument ``lbl``, which you can use to put an extra label to yo
    
    from furspy import furs
    
-   obj = furs.furs(lbl='mylabel')
+   obj = furs.furs(lbl='_mylabel')
 
+Now all files names will have `_mylabel` appended to them. For example, when you run :func:`num_den`, the output file name will be called ``n_clus_mylabel``.
