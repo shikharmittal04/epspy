@@ -151,14 +151,14 @@ class furs():
     ------------------
     
     Nside : int
-    	The nside required in healpy package.
-    	
+        The nside required in healpy package.
+        
     Npix : int
-    	Number of pixels
+        Number of pixels
     
     Ns : float
-    	Total number of unresolved radio sources on the sky in the :math:`S` range :math:`S_{\\mathrm{min}}` and :math:`S_{\\mathrm{max}}`.
-    	
+        Total number of unresolved radio sources on the sky in the :math:`S` range :math:`S_{\\mathrm{min}}` and :math:`S_{\\mathrm{max}}`.
+        
     Methods
     -------
     
@@ -191,8 +191,16 @@ class furs():
         Ns_per_sr = np.trapz(dndS_space,S_space)
         self.Ns = 4*np.pi*Ns_per_sr
         mempertask = 1.1*16e-6*self.Ns
-        if mempertask > 2000:
-            print("\033[96mRecommendation for '--mem-per-task' {:d} MB\n\033[00m".format(round(mempertask)))
+        
+        try:
+            comm = MPI.COMM_WORLD
+            cpu_ind = comm.Get_rank()
+            Ncpu = comm.Get_size()
+        except:
+            cpu_ind=0
+        if cpu_ind==0:
+            if mempertask > 2000:
+                print("\033[96mRecommendation for '--mem-per-task' {:d} MB\n\033[00m".format(round(mempertask)))
         
     #End of function __init__()
     
