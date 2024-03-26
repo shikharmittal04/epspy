@@ -1,6 +1,9 @@
+#Copyright 2024, Shikhar Mittal.
 '''
-This is the module :mod:`furs`.
-It contains public functions :func:`save_furs`, :func:`load_furs` and a class :class:`furs`. 
+Application programming interface
+
+This is the module :mod:`eps`.
+It contains public functions :func:`save_eps`, :func:`load_eps` and a class :class:`eps`. 
 '''
 import numpy as np
 from numpy.polynomial import polynomial as pol
@@ -34,6 +37,8 @@ def _print_banner():
     ██╔══╝   ██║   ██║ ██╔══██╗ ╚════██║
     ██║      ╚██████╔╝ ██║  ██║ ███████║
     ╚═╝       ╚═════╝  ╚═╝  ╚═╝ ╚══════╝
+    
+    Copyright 2024, Shikhar Mittal.
     \033[00m"""                                
     print(banner)
     return None
@@ -48,14 +53,14 @@ def _z2nu(z):
 
 #--------------------------------------------------------------------------------------------
 #The following 2 functions will be useful if you want to save and load your class object.
-def save_furs(obj, filename):
-    '''Saves the class object :class:`furs`.
+def save_eps(obj, filename):
+    '''Saves the class object :class:`eps`.
     
-    Save the class object :class:`furs` for later use. It will save the object in the path where you have all the other outputs
+    Save the class object :class:`eps` for later use. It will save the object in the path where you have all the other outputs
     form this package.
     
     Parameters
-    ----------
+    ~~~~~~~~~~
 
     obj : class
         This should be the class object you want to save.
@@ -78,18 +83,18 @@ def save_furs(obj, filename):
         print('\033[32m',filename,'saved as',fullpath,'\033[00m\n')
     return None
     
-def load_furs(filename):
-    '''To load the class object :class:`furs`.
+def load_eps(filename):
+    '''To load the class object :class:`eps`.
     
     Parameters
-    ----------
+    ~~~~~~~~~~
 
     filename : str
-        This should be the name of the file you gave in :func:`save_furs()` for saving class object :class:`furs`.
+        This should be the name of the file you gave in :func:`save_eps()` for saving class object :class:`eps`.
         Important: provide the full path for ``filename`` with the extension ``.pkl``.
         
     Returns
-    -------
+    ~~~~~~~
 
     class object    
     '''
@@ -101,18 +106,18 @@ def load_furs(filename):
         cpu_ind=0
     if cpu_ind==0:
         with open(filename, 'rb') as inp:
-            fursobj = pickle.load(inp)
-        print('Loaded the FURS class object.\n')
-    return fursobj
+            epsobj = pickle.load(inp)
+        print('Loaded the eps class object.\n')
+    return epsobj
 #--------------------------------------------------------------------------------------------
 
 
-class furs():
+class eps():
     '''
     This is the class for initialising the properties of the unresolved radio sources.
     
     Parameters
-    ----------
+    ~~~~~~~~~~
 
     nu_o : float, optional
         Reference frequency in Hz
@@ -148,7 +153,7 @@ class furs():
         Append an extra string to all the output files.
     
     Derived attributes
-    ------------------
+    ~~~~~~~~~~~~~~~~~~
     
     Nside : int
         The nside required in healpy package.
@@ -156,11 +161,11 @@ class furs():
     Npix : int
         Number of pixels
     
-    Ns : float
+    Nps : float
         Total number of unresolved radio sources on the sky in the :math:`S` range :math:`S_{\\mathrm{min}}` and :math:`S_{\\mathrm{max}}`.
         
     Methods
-    -------
+    ~~~~~~~
     
     '''
     def __init__(self, beta_o=2.681,sigma_beta=0.5, logSmin=-2,logSmax=-1,dndS_form=0, log2Nside=6, nu_o=150e6, amp=7.8e-3,gam=0.821, path='',lbl=''):
@@ -188,9 +193,9 @@ class furs():
         S_space = np.logspace(self.logSmin,self.logSmax,1000)
         dndS_space = self.dndS(S_space)
 
-        Ns_per_sr = np.trapz(dndS_space,S_space)
-        self.Ns = 4*np.pi*Ns_per_sr
-        mempertask = 1.1*16e-6*self.Ns
+        Nps_per_sr = np.trapz(dndS_space,S_space)
+        self.Nps = 4*np.pi*Nps_per_sr
+        mempertask = 1.1*16e-6*self.Nps
         
         try:
             comm = MPI.COMM_WORLD
@@ -233,16 +238,16 @@ class furs():
         Form 2 is by `Intema et al. (2017) <https://www.aanda.org/articles/aa/full_html/2017/02/aa28536-16/aa28536-16.html>`__. It is a :math:`5^{\\mathrm{th}}` order log-log polynomial fit to the Euclidean number count.
         
         Parameters
-        ----------
+        ^^^^^^^^^^
         
         S : float
             Flux density in units of Jy (jansky). Can be 1 value or a :mod:`numpy` array.
         
         Returns
-        -------
+        ^^^^^^^
         
         float
-            Number of sources per unit solid angle per unit flux density :math:`(\\mathrm{sr}^{-1}\\mathrm{Jy}^{-1})`. 1 value or an array depending on input.
+            Number of point sources per unit solid angle per unit flux density :math:`(\\mathrm{sr}^{-1}\\mathrm{Jy}^{-1})`. 1 value or an array depending on input.
         '''
 
         if self.dndS_form==1:
@@ -269,13 +274,13 @@ class furs():
         2-point angular correlation function (2PACF). The amplitude :math:`A` and negative power law index are set when you initialise the class object. If you want to simulate an isotropic sky, set ``amp=0``. The default values for amplitude and index are from `Rana & Bagla (2019) <https://academic.oup.com/mnras/article/485/4/5891/5420431>`__.
                 
         Parameters
-        ----------
+        ^^^^^^^^^^
 
         chi : float
             Angle at which you want to get the 2PACF, should be in radians. One number or an array.
         
         Returns
-        -------
+        ^^^^^^^
 
         float
             A pure number or an array accordingly as ``chi`` is a number or an array. 
@@ -293,25 +298,25 @@ class furs():
     '''
     
     def num_den(self):
-        ''':math:`n_{\\mathrm{cl}}=n_{\\mathrm{cl}}(\\hat{n})`
+        ''':math:`n_{\\mathrm{ps}}=n_{\\mathrm{ps}}(\\hat{n})`
         
         The number density function. It is dependent on the choice of 2PACF and :math:`\\mathrm{d}n/\\mathrm{d}S`.
         
         Returns
-        -------
+        ^^^^^^^
         
         float
-            An array of length :math:`N_{\\mathrm{pix}}` whose elements are the number of sources on the corresponding pixel. The array will also be saved in a ``.npy`` format in the path you gave during initialisation.
+            An array of length :math:`N_{\\mathrm{pix}}` whose elements are the number of sources on the corresponding pixel. The array will also be saved as ``n_ps.npy`` in the path you gave during initialisation.
         '''
         
-        nbar = self.Ns/self.Npix
-        print('\nTotal number of sources, Ns = {:d}'.format(round(self.Ns)))
+        nbar = self.Nps/self.Npix
+        print('\nTotal number of point sources, Nps = {:d}'.format(round(self.Nps)))
         print('Total number of pixels, Npix =',self.Npix)
         print('Average number of sources per pixel, n_bar = {:.2f}'.format(nbar))
         
         if self.amp==0:
             print('Simulating an isotropic sky ...')
-            n_clus = np.random.poisson(lam=nbar,size=self.Npix)
+            n_ps = np.random.poisson(lam=nbar,size=self.Npix)
         else:
             #Method 1:
             '''
@@ -346,20 +351,20 @@ class furs():
             print('Done.\nAverage overdensity for the clustered sky (should be ~ 0) = {:.3f}'.format(np.mean(del_clus)))
 
             #and the corresponding clustered number density function given the fluctuation...
-            n_clus = nbar*(1+del_clus)
+            n_ps = nbar*(1+del_clus)
         
-        where_n_less_than_1 = np.where(np.round(n_clus)<1.0)
+        where_n_less_than_1 = np.where(np.round(n_ps)<1.0)
         Npix_less_than_1 = 100*np.size(where_n_less_than_1)/self.Npix
         if Npix_less_than_1>50:
             print('\n\033[91m{:.2f}% pixels have no sources!'.format(Npix_less_than_1))
             print('This can happen either because there are very few sources in your chosen flux density range or your resolution is too high.')
             print('Recommendation: either increase (`logSmax`-`logSmin`) or decrease `log2Nside`.\n\033[00m')
         
-        n_clus_save_name = self.path+'n_clus'+self.lbl
-        np.save(n_clus_save_name,n_clus)
-        print('\033[32mThe number density file has been saved as:\n',n_clus_save_name,'\033[00m')
+        n_ps_save_name = self.path+'n_ps'+self.lbl
+        np.save(n_ps_save_name,n_ps)
+        print('\033[32mThe number density file has been saved as:\n',n_ps_save_name,'\033[00m')
             
-        return n_clus
+        return n_ps
     #End of function num_den()
     
     def ref_freq(self):
@@ -384,28 +389,26 @@ class furs():
         #-------------------------------------------------------------------------------------
         #Find the number density distribution on the master CPU and share it with all CPUs.
         if cpu_ind==0:
-            '''
-            Find the number density distribution on the master CPU.
-            '''
+            #Find the number density distribution on the master CPU.
             if os.path.isdir(self.path)==False:
                 print('The requested directory does not exist. Creating one ...')
                 os.mkdir(self.path)
 
-            print('\n\033[94mRunning furs.ref_freq() ...\033[00m\n')          
+            print('\n\033[94mRunning eps.ref_freq() ...\033[00m\n')          
             print('Finding the number density distribution ...')
-            n_clus = self.num_den()
+            n_ps = self.num_den()
 
             print("\nAssigning flux density and power-law index ...")
         else:
-            n_clus = None
+            n_ps = None
 
-        n_clus = comm.bcast(n_clus, root=0) #Now all CPUs have the same number density distribution.
+        n_ps = comm.bcast(n_ps, root=0) #Now all CPUs have the same number density distribution.
         #-------------------------------------------------------------------------------------
         #For each pixel on the sky and for each source on that pixel, assign flux and spectral index.
         
         S_space = np.logspace(self.logSmin,self.logSmax,1000)
         dndS_space = self.dndS(S_space)
-        Ns_per_sr = np.trapz(dndS_space,S_space)
+        Nps_per_sr = np.trapz(dndS_space,S_space)
 
         ppc = int(self.Npix/Ncpu)    #pixels per cpu
         Omega_pix = hp.nside2pixarea(self.Nside) #Solid angle per pixel
@@ -415,8 +418,8 @@ class furs():
         beta_local = np.zeros(ppc, dtype=object)
 
         for j in np.arange(cpu_ind*ppc,(cpu_ind+1)*ppc):
-            N = round(n_clus[j])    #no.of sources on jth pixel
-            So_j = np.array(random.choices(S_space,weights=dndS_space/Ns_per_sr,k=N))   #select N flux densities for jth pixel, in Jy
+            N = round(n_ps[j])    #no.of sources on jth pixel
+            So_j = np.array(random.choices(S_space,weights=dndS_space/Nps_per_sr,k=N))   #select N flux densities for jth pixel, in Jy
             beta_local[j-cpu_ind*ppc] = np.random.normal(loc=self.beta_o,scale=self.sigma_beta,size=N) #select N spectral indices for jth pixel
                         
             Tb_o_local_individual[j-cpu_ind*ppc] = 1e-26*So_j*cE**2/(2*kB*self.nu_o**2*Omega_pix)
@@ -429,8 +432,8 @@ class furs():
             Tb_o_remain = np.zeros(rm_pix)
             beta_remain = np.zeros(rm_pix, dtype=object)
             for j in np.arange(Ncpu*ppc,self.Npix):
-                N = round(n_clus[j])  #no.of sources on jth pixel
-                So_j = np.array(random.choices(S_space,weights=dndS_space/Ns_per_sr,k=N))   #select N flux densities for jth pixel
+                N = round(n_ps[j])  #no.of sources on jth pixel
+                So_j = np.array(random.choices(S_space,weights=dndS_space/Nps_per_sr,k=N))   #select N flux densities for jth pixel
                 beta_remain[j-Ncpu*ppc] = np.random.normal(loc=self.beta_o,scale=self.sigma_beta,size=N)   #select N spectral indices for jth pixel
                 Tb_o_remain_individual[j-Ncpu*ppc] = 1e-26*So_j*cE**2/(2*kB*self.nu_o**2*Omega_pix)
                 Tb_o_remain[j-Ncpu*ppc] = np.sum(Tb_o_remain_individual[j-Ncpu*ppc])
@@ -439,17 +442,14 @@ class furs():
         comm.Barrier()
         #Now all CPUs have done their jobs of calculating the Tb's and beta's. 
         if cpu_ind!=0:
-            '''
-            I am a worker CPU. Sending my Tb's and beta's to master CPU.
-            '''
+            #I am a worker CPU. Sending my Tb's and beta's to master CPU.
             comm.send(Tb_o_local, dest=0, tag=11)
             comm.send(Tb_o_local_individual, dest=0, tag=13)
             comm.send(beta_local, dest=0, tag=29)
         else:
-            '''
-            I am the master CPU. Receiving all Tb's and beta's.
-            I will save the Tb's and beta's as .npy objects.
-            '''
+            #I am the master CPU. Receiving all Tb's and beta's.
+            #I will save the Tb's and beta's as .npy objects.
+            
             print('Done.\n')
             Tb_o = Tb_o_local
             Tb_o_individual = Tb_o_local_individual
@@ -470,19 +470,14 @@ class furs():
             
            
             np.save(Tb_o_individual_save_name,Tb_o_individual)
-            #hkl.dump(Tb_o_individual, Tb_o_individual_save_name, mode='w')
             np.save(Tb_o_save_name,Tb_o)
             np.save(beta_save_name,beta)
-            #hkl.dump(beta, beta_save_name, mode='w')
                 
             print('\033[32mThe brightness temperature (at reference frequency) for each source saved into:\n',Tb_o_individual_save_name,'\033[00m\n')
             print('\033[32mThe pixel wise brightness temperature (at reference frequency) saved into:\n',Tb_o_save_name,'\033[00m\n')
             print('\033[32mThe spectral index for each source saved into:\n',beta_save_name,'\033[00m')
-            print('\n\033[94m================ End of function furs.ref_freq() ================\033[00m\n')
-            
-            #mempertask = 2.4e-6*os.path.getsize(Tb_o_individual_save_name+'.npy')
-            #if mempertask > 2000:
-            #    print("\033[96mRecommendation for '--mem-per-task' {:d} MB\n\033[00m".format(round(mempertask)))
+            print('\n\033[94m================ End of function eps.ref_freq() ================\033[00m\n')
+    
         comm.Barrier()
         return None
     #End of function ref_freq()
@@ -496,7 +491,7 @@ class furs():
         This function computes the map(s) at general frequency(ies) based on the precomputed values from :func:`ref_freq`.
         
         Parameters
-        ----------
+        ^^^^^^^^^^
         nu : float
             frequency (in Hz) at which you want to evaluate the foregrounds due to unresolved radio sources. Can be one number or an array.
             (Default = `1e6*np.arange(50,201)`)
@@ -527,7 +522,7 @@ class furs():
 
         if cpu_ind==0:
             _print_banner()
-            print('\n\033[94mRunning furs.gen_freq() ...\033[00m\n')
+            print('\n\033[94mRunning eps.gen_freq() ...\033[00m\n')
             print("Beginning scaling extragalactic maps to general frequency ...")
         N_nu = np.size(nu)
         Tb_nu_final = np.zeros((self.Npix,N_nu),dtype='float64')    
@@ -556,14 +551,10 @@ class furs():
         comm.Barrier()
         #Now all CPUs have done their job of calculating the Tb's and beta's. 
         if cpu_ind!=0:
-            '''
-            I am a worker CPU. Sending my Tb to master CPU.
-            '''
+            #I am a worker CPU. Sending my Tb to master CPU.
             comm.Send([Tb_nu_final,MPI.FLOAT], dest=0, tag=11)
         else:
-            '''
-            I am the master CPU. Receiving all Tb's.
-            '''
+            #I am the master CPU. Receiving all Tb's.
             for i in range(1,Ncpu):
                 receive_local = np.empty((self.Npix, N_nu),dtype='float64')
                 comm.Recv([receive_local,MPI.FLOAT],source=i, tag=11)
@@ -578,7 +569,7 @@ class furs():
 
             print('Done.\n\033[32mFile saved as',Tb_nu_save_name,'\033[00m')
             print('It is an array of shape',np.shape(Tb_nu_final))
-            print('\n\033[94m================ End of function furs.gen_freq() ================\033[00m\n')
+            print('\n\033[94m================ End of function eps.gen_freq() ================\033[00m\n')
 
             nu_save_name = self.path+'nu_glob.npy'
             np.save(nu_save_name,nu)
@@ -608,7 +599,7 @@ class furs():
 
         
         if cpu_ind==0:
-            print('\n\033[94mRunning furs.couple2D() ...\033[00m\n')
+            print('\n\033[94mRunning eps.couple2D() ...\033[00m\n')
             
             D_file_path = self.path+'D.npy'
             D = np.load(D_file_path)
@@ -636,13 +627,13 @@ class furs():
             popt,pcov = op.curve_fit(fitter,nu,T_ant,p0=[Tb_o_glob,self.beta_o,0.0])
             
             print('\nT_f, beta_f, Dbeta_f = {:.3f} {:.3f} {:.3f}'.format(popt[0],popt[1],popt[2]))
-            print('1-sigma uncertainty = ',np.sqrt(np.diag(pcov)),'\n')
+            print('1sigma uncertainty = ',np.sqrt(np.diag(pcov)),'\n')
             
             T_ant_save_name = self.path+'T_ant'+self.lbl
             np.save(T_ant_save_name,T_ant)
             print('Done.\n\033[32mFile saved as\n',T_ant_save_name,'\033[00m')
             print('It is an array of shape',np.shape(T_ant))
-            print('\n\033[94m================ End of function furs.couple2D() ================\033[00m\n')
+            print('\n\033[94m================ End of function eps.couple2D() ================\033[00m\n')
         return None
     #End of function couple2D    
         
@@ -653,24 +644,24 @@ class furs():
         
         * number density map
         
-        * FURS map
+        * Foregrounds due to extragalactic point sources map
         
         * angular power spectrum
         
         * flux density distribution function
         
-        * sky averaged FURS as function of frequency
+        * sky averaged foregrounds as function of frequency
         
         * antenna temperature
         
         Parameters
-        ----------
+        ^^^^^^^^^^
         
         t_skymap : bool, optional
-            Want to plot the FURS map (a Mollweide projection plot)? (Default = ``False``).
+            Want to plot the FEPS map (a Mollweide projection plot)? (Default = ``False``).
             
         nu_skymap : float, optional
-            Frequency in Hz at which you want to construct the FURS map. Relevant only when you give ``t_skymap = True``. Currently, only 1 value supported.
+            Frequency in Hz at which you want to construct the foregrounds due to extragalactic PS map. Relevant only when you give ``t_skymap = True``. Currently, only 1 value supported.
             (Default = ``nu_o``)
             
         aps : bool, optional
@@ -683,7 +674,7 @@ class furs():
             Want to plot the flux density distribution? (Default = ``False``). The form of :math:`\\mathrm{d}n/\\mathrm{d}S` is set during initialisation.
         
         spectrum : bool, optional
-            Want to plot the sky averaged FURS? (Default = ``True``).
+            Want to plot the sky averaged foregrounds due to extragalactic PS? (Default = ``True``).
         
         antenna : bool, optional
             Add the antenna temperature? (Default = ``False``). You should have run :func:`couple2D` to use this.
@@ -708,7 +699,7 @@ class furs():
         #-------------------------------------------------------------------------------------
         fs=22
         if cpu_ind==0:
-            print('\n\033[94mRunning furs.visual() ...\033[00m\n')
+            print('\n\033[94mRunning eps.visual() ...\033[00m\n')
             if Ncpu>1:
                 print("\033[91m'visual' does not require parallelisation.\033[00m")
                 print("\033[91mYou can run as 'python3 %s'.\033[00m\n" %(sys.argv[0]))
@@ -756,7 +747,7 @@ class furs():
                     print("\033[91mMultiple values given for 'nu_skymap' with 't_skymap=True'. Plotting only at the reference frequency ...\033[00m")
                     Tb_plot = Tb_o_map
 
-                hp.mollview(Tb_plot,title=None,unit=r'$T_{\mathrm{furs}}\,$(K)',cmap=colormaps['coolwarm'],norm = 'log') #,min=0.05,max=200
+                hp.mollview(Tb_plot,title=None,unit=r'$T_{\mathrm{ps}}\,$(K)',cmap=colormaps['coolwarm'],norm = 'log') #,min=0.05,max=200
                 hp.graticule()
                 
                 fig_path = self.path+'Tb_map_'+str(int(nu_skymap/1e6))+'-MHz.'+fig_ext
@@ -766,14 +757,14 @@ class furs():
                 plt.close()
                 
             if aps:
-                n_clus = np.load(self.path+'n_clus'+self.lbl+'.npy')
-                nbar = self.Ns/self.Npix
+                n_ps = np.load(self.path+'n_ps'+self.lbl+'.npy')
+                nbar = self.Nps/self.Npix
                 
                 fig,ax=plt.subplots(figsize=(8.3,7.5),dpi=300)
                 fig.subplots_adjust(left=0.12, bottom=0.07, right=0.88, top=0.97)
                 
                 if self.amp!=0:
-                    del_clus = (n_clus - nbar)/nbar
+                    del_clus = (n_ps - nbar)/nbar
                     Cl_rec = hp.anafast(del_clus)
                     th = tcl.theta(200)
                     cor = self.acf(th)
@@ -782,7 +773,7 @@ class furs():
                     ax.loglog(range(200),Cl_clus,'b--',label='Input (clustered)')
                     ax.loglog(range(self.Nside*3),Cl_rec,'limegreen',label='Recovered (clustered)')
                 else:
-                    n_poisson=n_clus
+                    n_poisson=n_ps
                 
                 del_poisson = (n_poisson - nbar)/nbar
                 Cl_poisson = hp.anafast(del_poisson)
@@ -809,14 +800,14 @@ class furs():
             if n_skymap:
                 print('Creating number density map ...')
                 
-                n_clus = np.load(self.path+'n_clus'+self.lbl+'.npy')
-                nmax = int(np.max(n_clus))+1
-                nmin = int(np.min(n_clus))
+                n_ps = np.load(self.path+'n_ps'+self.lbl+'.npy')
+                nmax = int(np.max(n_ps))+1
+                nmin = int(np.min(n_ps))
                 
-                hp.mollview(n_clus,title=None,unit='$n$',min=nmin,max=nmax)
+                hp.mollview(n_ps,title=None,unit='$n$',min=nmin,max=nmax)
                 hp.graticule()
                 
-                fig_path = self.path+'n_clus.' + fig_ext
+                fig_path = self.path+'n_ps.' + fig_ext
                 plt.savefig(fig_path, bbox_inches='tight')
                 print('Done.\n\033[32mNumber density map saved as:\n',fig_path,'\033[00m\n')
                 plt.close()
@@ -834,7 +825,6 @@ class furs():
                 ax.set_ylabel(r'$\mathrm{d}n/\mathrm{d}S\,(\mathrm{Jy}^{-1}\mathrm{sr}^{-1})$',fontsize=fs)
                 ax.tick_params(axis='both', which='major', length=5, width=1, labelsize=fs,direction='in',pad=8)
                 ax.tick_params(axis='both', which='minor', length=3, width=1, direction='in')
-                #ax.legend(fontsize=18,frameon=False)
                 ax.minorticks_on()
                 ax.set_xlim([10**self.logSmin,10**self.logSmax])
                 ax.yaxis.set_ticks_position('both')
@@ -846,25 +836,21 @@ class furs():
                 print('Done.\n\033[32mFlux density distribution saved as:\n',fig_path,'\033[00m\n')
                 plt.close()
             
-            if spectrum:
-                Tb_mean = Tb_o_glob*(nu/self.nu_o)**-self.beta_o
-                
+            if spectrum:                
                 print('\nCreating T vs nu plot ...')
                 left=0.12
                 fig,ax=plt.subplots(figsize=(8, 7.9))
                 fig.subplots_adjust(left=left, bottom=0.06, right=1-left, top=0.94)
                 
-                #ax.axhline(y=Tcmb_o,color='k',ls='--',lw=1.5, label='CMB')
-                ax.plot(nu/1e6,Tb_mean,color='r',lw=1.5,ls=':',label=r'$\beta= $ %.2f'%self.beta_o)
-                
                 if antenna==False:
-                    ax.plot(nu/1e6,Tb_nu_glob,color='b',lw=1.5,label='FURS')
-                    ax.set_ylabel(r'$\langle T_{\mathrm{furs}}\rangle\,$(K)',fontsize=fs)
+                    ax.plot(nu/1e6,Tb_nu_glob,color='b',lw=1.5)
+                    ax.set_ylabel(r'$\langle T_{\mathrm{ps}}\rangle\,$(K)',fontsize=fs)
                 else:
                     T_ant = np.load(self.path+'T_ant'+self.lbl+'.npy')
-                    ax.plot(nu/1e6,Tb_nu_glob,color='b',lw=1.5,label='Achromatic')
-                    ax.plot(nu/1e6,T_ant,color='limegreen',lw=1.5,label='Chromatic')
+                    ax.plot(nu/1e6,Tb_nu_glob,color='b',lw=1.5,label=r'$\langle T_{\mathrm{ps}}\rangle$')
+                    ax.plot(nu/1e6,T_ant,color='limegreen',lw=1.5,label=r'$T_{\mathrm{A,ps}}$')
                     ax.set_ylabel(r'$T\,$(K)',fontsize=fs)
+                    ax.legend(fontsize=18,frameon=False)
                     print('Added the antenna temperature to the figure.')
                 
                 if xlog:
@@ -873,13 +859,10 @@ class furs():
                     ax.set_yscale('log')
                 
                 ax.set_xlabel(r'$\nu\,$(MHz)',fontsize=fs)
-                
-
                 ax.minorticks_on()
                 ax.yaxis.set_ticks_position('both')
                 ax.tick_params(axis='both', which='major', length=5, width=1, labelsize=fs,direction='in')
                 ax.tick_params(axis='both', which='minor', length=3, width=1,direction='in')
-                ax.legend(fontsize=18,frameon=False)
 
                 secax = ax.secondary_xaxis('top', functions=(_nu2z,_z2nu))
                 secax.set_xlabel(r'$z$',fontsize=fs, labelpad=12)
@@ -895,7 +878,7 @@ class furs():
                 plt.close()
                 print('Done.\n\033[32mT vs frequency saved as:\n',fig_path,'\n\033[00m')
             
-            print('\n\033[94m================ End of function furs.visual() ================\033[00m\n')
+            print('\n\033[94m================ End of function eps.visual() ================\033[00m\n')
     #End of function visual()
-#End of class furs()
+#End of class eps()
 

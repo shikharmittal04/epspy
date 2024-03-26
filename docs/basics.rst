@@ -12,9 +12,9 @@ Overview
 Why do you need this code?
 --------------------------
 
-Use this code to generate the Foregrounds due to Unresolved Radio Sources (FURS).
+Use this code to generate the foregrounds due to extragalactic point radio sources.
 
-A cosmological global 21-cm signal hides under foregrounds due to galactic and extragalactic emissions. These foregrounds can easily be 4 to 5 orders of magnitude higher than the signal of interest. For a reliable inference it is important to accurately model these foregrounds. While we have a reasonable understanding of galactic emission (typically fit as log-log polynomial), we do not understand the extragalactic contributions. This package models the foregrounds due to unresolved extragalactic radio sources. [#f1]_
+A cosmological global 21-cm signal hides under foregrounds due to galactic and extragalactic emissions. These foregrounds can easily be 4 to 5 orders of magnitude higher than the signal of interest. For a reliable inference it is important to accurately model these foregrounds. While we have a reasonable understanding of galactic emission (typically fit as log-log polynomial), we do not understand the extragalactic contributions. This package models the foregrounds due to extragalactic point radio sources. [#f1]_
 
 Read more about it in the paper `Mittal et al (2024) <https://arxiv.org/abs/2311.03447>`_.
 
@@ -49,10 +49,10 @@ The following code captures the main functionalities of this package.
 
 .. code:: python
 
-   from furspy import furs
+   from furspy import eps
 
    #Step-1 initialise the object with default settings
-   obj = furs.furs()
+   obj = eps.eps()
 
    #Step-2 generate the data at the reference frequency
    obj.ref_freq()

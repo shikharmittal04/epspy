@@ -2,7 +2,7 @@ Welcome to the documentation of ``furspy``!
 ===========================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 5
    :caption: Contents:
 
    Basics <basics>
