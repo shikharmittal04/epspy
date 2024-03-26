@@ -804,7 +804,7 @@ class eps():
                 nmax = int(np.max(n_ps))+1
                 nmin = int(np.min(n_ps))
                 
-                hp.mollview(n_ps,title=None,unit='$n$',min=nmin,max=nmax)
+                hp.mollview(n_ps,title=None,unit=r'$n_{\mathrm{ps}}$',min=nmin,max=nmax)
                 hp.graticule()
                 
                 fig_path = self.path+'n_ps.' + fig_ext
