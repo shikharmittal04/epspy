@@ -3,10 +3,10 @@
 API Reference
 =============
 
-.. automodule:: furs
+.. automodule:: eps
 
-.. autofunction:: save_furs
-.. autofunction:: load_furs
+.. autofunction:: save_eps
+.. autofunction:: load_eps
 
-.. autoclass:: furs
+.. autoclass:: eps
     :members:

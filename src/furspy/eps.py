@@ -618,9 +618,8 @@ class eps():
                 print('Terminating ...\033[00m\n')
                 sys.exit()
             
-            Omega_pix = hp.nside2pixarea(self.Nside) #Solid angle per pixel
             print('Performing integral of foregrounds weighted by directivity over the sky ...')
-            T_ant = 1/(4*np.pi)*Omega_pix*np.sum(Tb_nu_map*D,axis=0)
+            T_ant = np.mean(Tb_nu_map*D,axis=0)
             
             Tb_o_map = np.load(self.path+'Tb_o_map'+self.lbl+'.npy')
             Tb_o_glob = np.mean(Tb_o_map)

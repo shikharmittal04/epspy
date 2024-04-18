@@ -16,7 +16,7 @@ The main functionality of the package was already discussed in previous sections
    
    obj = eps.eps()
 
-3. Number of source per pixel ( :math:`n_{\mathrm{cl}}` ), :func:`num_den()`. This function has direct correspondence with the form of :math:`\mathrm{d}n/\mathrm{d}S` and the choice of :math:`S_{\mathrm{min}}` and :math:`S_{\mathrm{max}}`.
+3. Number of source per pixel ( :math:`n_{\mathrm{ps}}` ), :func:`num_den()`. This function has direct correspondence with the form of :math:`\mathrm{d}n/\mathrm{d}S` and the choice of :math:`S_{\mathrm{min}}` and :math:`S_{\mathrm{max}}`.
    
 4. :func:`print_input()` can be useful if you want see what parameters you are currently running with.
 
@@ -30,26 +30,26 @@ Suppose you want to find the number of sources between :math:`S=10^{-6}` and :ma
 
    >>> from furspy import eps
    >>> obj = eps.eps(dndS_form=1, logSmin=-6,logSmax=-1)
-   >>> Ns = round(obj.Ns)
-   >>> Ns
+   >>> Nps = round(obj.Nps)
+   >>> Nps
    249825820
 
 Let us calculate the number density.
 
 .. code::
 
-   >>> ncl = obj.num_den()
-   Total number of sources, Ns = 249825820
+   >>> nps = obj.num_den()
+   Total number of sources, Nps = 249825820
    Total number of pixels, Npix = 49152
    Average number of sources per pixel, n_bar = 5082.72
    Done.
    Average overdensity for the clustered sky (should be ~ 0) = 0.007
    The clustered number density has been saved into file:
-    n_clus 
+    n_ps 
 
 (Note that since this is a random process you might get different numbers.)
 
-Let us also check if the sum of the elements of array ``ncl`` is ``Ns``
+Let us also check if the sum of the elements of array ``nps`` is ``Nps``
 
 .. code::
 
@@ -103,4 +103,4 @@ There is also an argument ``lbl``, which you can use to put an extra label to yo
    
    obj = eps.eps(lbl='_mylabel')
 
-Now all files names will have `_mylabel` appended to them. For example, when you run :func:`num_den`, the output file name will be called ``n_clus_mylabel``.
+Now all files names will have `_mylabel` appended to them. For example, when you run :func:`num_den`, the output file name will be called ``n_ps_mylabel``.

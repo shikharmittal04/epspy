@@ -32,15 +32,15 @@ The next step is to run :func:`ref_freq`. The function :func:`ref_freq` does 3 t
 
 Sky pixelisation is set by ``log2Nside``. The number of pixels is :math:`N_{\mathrm{pix}} = 12\times 2^{2k}`, where :math:`k=` ``log2Nside``.
 
-The function does not return anything, but produces 4 files, namely ``n_clus.npy``, ``Tb_o_individual.npy``, ``Tb_o_map.npy``, and ``beta.npy`` in the path specified by ``path`` during initialisation. The files are described below.
+The function does not return anything, but produces 4 files, namely ``n_ps.npy``, ``Tb_o_individual.npy``, ``Tb_o_map.npy``, and ``beta.npy`` in the path specified by ``path`` during initialisation. The files are described below.
 
-- ``n_clus.npy`` is a 1D array which stores number density of unresolved radio sources as number per pixel. ``n_clus[i]`` gives the number of sources on the :math:`i^{\mathrm{th}}` pixel, where :math:`i=0,1,\ldots,N_{\mathrm{pix}}-1`. Note that in general ``n_clus[i]`` will not be a natural number; we simulate for a rounded-off value.
+- ``n_ps.npy`` is a 1D array which stores number density of unresolved radio sources as number per pixel. ``n_ps[i]`` gives the number of sources on the :math:`i^{\mathrm{th}}` pixel, where :math:`i=0,1,\ldots,N_{\mathrm{pix}}-1`. Note that in general ``n_ps[i]`` will not be a natural number; we simulate for a rounded-off value.
 
-- Both ``Tb_o_individual.npy`` and ``beta.npy`` are array of arrays of unequal sizes. Both files will occupy the same amount of memory and for 'realistic' values will be huge (for default settings they will of size ~ 17 MB each). Each of ``Tb_o_individual[0]``, ``Tb_o_individual[1]``, ..., is an array and they are total :math:`N_{\mathrm{pix}}` in number corresponding to :math:`N_{\mathrm{pix}}` pixels. The last array is ``Tb_o_individual[Npix-1]``. The length of array ``Tb_o_individual[i]`` is equal to the number of sources on the :math:`i^{\mathrm{th}}` pixel, which is ``round(n_clus[i])``. The values itself are the brightness temperature contributed by each source in kelvin at reference frequency. Note that ``Tb_o_individual.npy`` and ``beta.npy`` are 'Object' arrays. If you want to load them yourself then set ``allow_pickle=True`` in ``numpy.load()``
+- Both ``Tb_o_individual.npy`` and ``beta.npy`` are array of arrays of unequal sizes. Both files will occupy the same amount of memory and for 'realistic' values will be huge (for default settings they will of size ~ 17 MB each). Each of ``Tb_o_individual[0]``, ``Tb_o_individual[1]``, ..., is an array and they are total :math:`N_{\mathrm{pix}}` in number corresponding to :math:`N_{\mathrm{pix}}` pixels. The last array is ``Tb_o_individual[Npix-1]``. The length of array ``Tb_o_individual[i]`` is equal to the number of sources on the :math:`i^{\mathrm{th}}` pixel, which is ``round(n_ps[i])``. The values itself are the brightness temperature contributed by each source in kelvin at reference frequency. Note that ``Tb_o_individual.npy`` and ``beta.npy`` are 'Object' arrays. If you want to load them yourself then set ``allow_pickle=True`` in ``numpy.load()``
 
 - The structure of ``beta`` is same as ``Tb_o_individual``. The values itself are the spectral indices assigned to each source.
 
-- ``Tb_o_map`` is an array similar in structure to ``n_clus``. It is the pixel wise brightness temperature contributed by the extragalactic radio sources at the reference frequency. Thus, ``Tb_o_map[i] = numpy.sum(Tb_o_individual[i])``.
+- ``Tb_o_map`` is an array similar in structure to ``n_ps``. It is the pixel wise brightness temperature contributed by the extragalactic radio sources at the reference frequency. Thus, ``Tb_o_map[i] = numpy.sum(Tb_o_individual[i])``.
 
 To run up to :func:`ref_freq` the following should be your python script
 
