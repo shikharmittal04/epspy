@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "furs"
+name = "epspy"
 version = "1.0.0"
 dependencies = [
   "transformcl",
@@ -13,10 +13,10 @@ dependencies = [
 dynamic = ["version"]
 requires-python = ">=3.8"
 authors = [{name = "Shikhar Mittal", email = "shikhar.mittal4@gmail.com"}]
-description = "Foregrounds due to Unresolved Radio Sources"
+description = "Extragalactic Point Sources"
 readme = "README.md"
 license = {file = "LICENSE"}
-keywords = ["extragalactic","unresolved radio sources","foregrounds"]
+keywords = ["extragalactic","point sources","foregrounds"]
 classifiers = [
 "License :: OSI Approved :: MIT License",
 "Programming Language :: Python :: 3.8",
@@ -28,4 +28,4 @@ classifiers = [
 ]
 
 [project.urls]
-Repository = "https://github.com/shikharmittal04/furs.git"
+Repository = "https://github.com/shikharmittal04/epspy.git"
