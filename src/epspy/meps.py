@@ -31,13 +31,12 @@ np.seterr(all='ignore')
 
 def _print_banner():
     banner = """\033[94m
-    ███████╗ ██╗   ██╗ ██████╗  ███████╗
-    ██╔════╝ ██║   ██║ ██╔══██╗ ██╔════╝
-    █████╗   ██║   ██║ ██████╔╝ ███████╗
-    ██╔══╝   ██║   ██║ ██╔══██╗ ╚════██║
-    ██║      ╚██████╔╝ ██║  ██║ ███████║
-    ╚═╝       ╚═════╝  ╚═╝  ╚═╝ ╚══════╝
-    
+    ███████╗██████╗ ███████╗
+    ██╔════╝██╔══██╗██╔════╝
+    █████╗  ██████╔╝███████╗
+    ██╔══╝  ██╔═══╝ ╚════██║
+    ███████╗██║     ███████║
+    ╚══════╝╚═╝     ╚══════╝
     Copyright 2024, Shikhar Mittal.
     \033[00m"""                                
     print(banner)
@@ -114,7 +113,7 @@ def load_eps(filename):
 
 class eps():
     '''
-    This is the class for initialising the properties of the unresolved radio sources.
+    This is the Class for Extragalactic Point Sources.
     
     Parameters
     ~~~~~~~~~~
@@ -162,7 +161,7 @@ class eps():
         Number of pixels
     
     Nps : float
-        Total number of unresolved radio sources on the sky in the :math:`S` range :math:`S_{\\mathrm{min}}` and :math:`S_{\\mathrm{max}}`.
+        Total number of extragalactic point sources on the sky in the :math:`S` range :math:`S_{\\mathrm{min}}` and :math:`S_{\\mathrm{max}}`.
         
     Methods
     ~~~~~~~
@@ -493,7 +492,7 @@ class eps():
         Parameters
         ^^^^^^^^^^
         nu : float
-            frequency (in Hz) at which you want to evaluate the foregrounds due to unresolved radio sources. Can be one number or an array.
+            frequency (in Hz) at which you want to evaluate the foregrounds due to extragalactic point sources. Can be one number or an array.
             (Default = `1e6*np.arange(50,201)`)
             
         3 files will be generated namely, ``Tb_nu_glob.npy``, ``Tb_nu_glob.npy``, and ``nu_glob.npy``.

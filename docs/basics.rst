@@ -4,7 +4,7 @@ Basics
 Overview
 --------
 
-:Name: Foregrounds due to Unresolved Radio Sources
+:Name: Extragalactic Point Sources
 :Author: `Shikhar Mittal <https://sites.google.com/view/shikharmittal/home>`_
 :Homepage: https://github.com/shikharmittal04/furs
 :Paper: `Mittal et al. (2024) <>`_
@@ -25,7 +25,7 @@ This package can be installed as
 
 .. code:: bash
 
-   pip install furspy
+   pip install epspy
 
 It is recommended to work on a Python version > 3.8. Packages required are 
 
@@ -49,10 +49,10 @@ The following code captures the main functionalities of this package.
 
 .. code:: python
 
-   from furspy import eps
+   from epspy import meps
 
    #Step-1 initialise the object with default settings
-   obj = eps.eps()
+   obj = meps.eps()
 
    #Step-2 generate the data at the reference frequency
    obj.ref_freq()

@@ -1,16 +1,16 @@
 Overview
 --------
 
-:Name: Foregrounds due to Unresolved Radio Sources
+:Name: Extragalactic Point Sources
 :Author: `Shikhar Mittal <https://sites.google.com/view/shikharmittal/home>`_
 :Paper: `Mittal et al. (2024) <>`_
 
 Why do you need this code?
 --------------------------
 
-Use this code to generate the Foregrounds due to Unresolved Radio Sources (FURS).
+Use this code to generate the foregrounds due to extragalactic point sources.
 
-A cosmological global 21-cm signal hides under foregrounds due to galactic and extragalactic emissions. These foregrounds can easily be 4 to 5 orders of magnitude higher than the signal of interest. For a reliable inference it is important to accurately model these foregrounds. While we have a reasonable understanding of galactic emission (typically fit as log-log polynomial), we do not understand the extragalactic contributions. This package models the foregrounds due to unresolved extragalactic radio sources. [#f1]_
+A cosmological global 21-cm signal hides under foregrounds due to galactic and extragalactic emissions. These foregrounds can easily be 4 to 5 orders of magnitude higher than the signal of interest. For a reliable inference it is important to accurately model these foregrounds. While we have a reasonable understanding of galactic emission (typically fit as log-log polynomial), we do not understand the extragalactic contributions. This package models the foregrounds due to extragalactic radio sources. [#f1]_
 
 Read more about it in the paper `Mittal et al (2024) <https://arxiv.org/abs/2311.03447>`_.
 
@@ -21,7 +21,7 @@ This package can be installed as
 
 .. code:: bash
 
-   pip install furspy
+   pip install epspy
 
 It is recommended to work on a Python version > 3.8. Packages required are 
 
@@ -38,17 +38,17 @@ Quick start
 
 The code is run in two main steps:
 
--  Assign the unresolved sources flux densities (at a chosen reference frequency) and spectral indices.
+-  Assign the point sources flux densities (at a chosen reference frequency) and spectral indices.
 -  Then generate the sky maps at desired frequencies of observation.
 
 The following code captures the main functionalities of this package.
 
 .. code:: python
 
-   from furspy import furs
+   from epspy import meps
 
    #Step-1 initialise the object with default settings
-   obj = furs.furs()
+   obj = meps.eps()
 
    #Step-2 generate the data at the reference frequency
    obj.ref_freq()

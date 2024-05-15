@@ -3,7 +3,7 @@
 API Reference
 =============
 
-.. automodule:: eps
+.. automodule:: meps
 
 .. autofunction:: save_eps
 .. autofunction:: load_eps

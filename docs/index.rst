@@ -1,4 +1,4 @@
-Welcome to the documentation of ``furspy``!
+Welcome to the documentation of ``epspy``!
 ===========================================
 
 .. toctree::
