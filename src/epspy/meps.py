@@ -2,8 +2,7 @@
 '''
 Application programming interface
 
-This is the module :mod:`eps`.
-It contains public functions :func:`save_eps`, :func:`load_eps` and a class :class:`eps`. 
+This is the module for extragalactic point sources (hence the name 'meps'). It contains public functions :func:`save_eps`, :func:`load_eps` and a class :class:`eps`. 
 '''
 import numpy as np
 from numpy.polynomial import polynomial as pol
@@ -56,7 +55,7 @@ def save_eps(obj, filename):
     '''Saves the class object :class:`eps`.
     
     Save the class object :class:`eps` for later use. It will save the object in the path where you have all the other outputs
-    form this package.
+    from this package.
     
     Parameters
     ~~~~~~~~~~
@@ -113,25 +112,25 @@ def load_eps(filename):
 
 class eps():
     '''
-    This is the Class for Extragalactic Point Sources.
+    This is the class for extragalactic point sources.
     
     Parameters
     ~~~~~~~~~~
 
     nu_o : float, optional
-        Reference frequency in Hz
+        Reference frequency, :math:`\\nu_0`, in Hz
     
     beta_o : float, optional
-        Mean spectral index for extragalactic point sources
+        Mean spectral index for extragalactic point sources; :math:`\\beta_0`
     
     sigma_beta : float, optional
-        Spread in the beta values
+        Standard deviation, :math:`\\sigma_{\\beta}`, of the Gaussian distribution of :math:`\\beta`
 
     amp : float, optional
-        Amplitude of the power-law 2-point angular correlation function (2PACF)
+        Amplitude, :math:`A`, of the power-law 2-point angular correlation function (2PACF)
     
     gam : float, optional
-        Negative exponent of the power-law 2-point angular correlation function
+        Negative exponent, :math:`\\gamma`, of the power-law 2PACF
     
     logSmin : float, optional
         :math:`\\log_{10}(S_{\\mathrm{min}})`, where :math:`S_{\\mathrm{min}}` is in Jy
@@ -140,28 +139,28 @@ class eps():
         :math:`\\log_{10}(S_{\\mathrm{max}})`, where :math:`S_{\\mathrm{max}}` is in Jy
     
     dndS_form : int, optional
-        Choose the functional form for :math:`\\mathrm{d}n/\\mathrm{d}S`. Available options -> 0 (default),1 or 2
+        Choose the functional form for :math:`\\mathrm{d}n/\\mathrm{d}S`. Available options -> 0 (default),1 or 2. For more details see the API for :func:`dndS`.
     
     log2Nside : int, optional
-        Number of divisions of the base HEALPix pixel in units of :math:`\\log_2`
+        Number of divisions of the base HEALPix pixel in units of :math:`\\log_2`. It sets the sky pixelisation. The number of pixels is :math:`N_{\\mathrm{pix}} = 12\\times 2^{2k}`, where :math:`k=` ``log2Nside``
     
     path : str, optional
         Path where you would like to put all your outputs
             
     lbl : str, optional
-        Append an extra string to all the output files.
+        Append an extra string to all the output file names
     
     Derived attributes
     ~~~~~~~~~~~~~~~~~~
     
     Nside : int
-        The nside required in healpy package.
+        The :code:`nside` required in healpy package
         
     Npix : int
-        Number of pixels
+        Number of pixels; :math:`N_{\\mathrm{pix}}`
     
     Nps : float
-        Total number of extragalactic point sources on the sky in the :math:`S` range :math:`S_{\\mathrm{min}}` and :math:`S_{\\mathrm{max}}`.
+        Total number of extragalactic point sources on the sky in the :math:`S` range :math:`S_{\\mathrm{min}}` and :math:`S_{\\mathrm{max}}`; :math:`N_{\\mathrm{ps}}`
         
     Methods
     ~~~~~~~
@@ -270,7 +269,7 @@ class eps():
     def acf(self, chi):
         ''':math:`C(\\chi)=A\\chi^{-\\gamma}`
         
-        2-point angular correlation function (2PACF). The amplitude :math:`A` and negative power law index are set when you initialise the class object. If you want to simulate an isotropic sky, set ``amp=0``. The default values for amplitude and index are from `Rana & Bagla (2019) <https://academic.oup.com/mnras/article/485/4/5891/5420431>`__.
+        2-point angular correlation function (2PACF). The amplitude :math:`A` and negative power-law index :math:`\\gamma` are set when you initialise the class object. If you want to simulate an isotropic sky, set ``amp=0``. The default values for amplitude and index are from `Rana & Bagla (2019) <https://academic.oup.com/mnras/article/485/4/5891/5420431>`__.
                 
         Parameters
         ^^^^^^^^^^
@@ -305,7 +304,7 @@ class eps():
         ^^^^^^^
         
         float
-            An array of length :math:`N_{\\mathrm{pix}}` whose elements are the number of sources on the corresponding pixel. The array will also be saved as ``n_ps.npy`` in the path you gave during initialisation.
+            An array of length :math:`N_{\\mathrm{pix}}` whose elements are the number of point sources on the corresponding pixel. The array will also be saved as ``n_ps.npy`` in the path you gave during initialisation.
         '''
         
         nbar = self.Nps/self.Npix
@@ -640,17 +639,17 @@ class eps():
         
         This function can produce several figures such as:-
         
-        * number density map
+        * flux density distribution function
         
-        * Foregrounds due to extragalactic point sources map
+        * number density map
         
         * angular power spectrum
         
-        * flux density distribution function
+        * map of foregrounds due to extragalactic point sources (FEPS)
         
-        * sky averaged foregrounds as function of frequency
+        * sky-averaged FEPS as function of frequency
         
-        * antenna temperature
+        * antenna temperature as function of frequency
         
         Parameters
         ^^^^^^^^^^
@@ -659,7 +658,7 @@ class eps():
             Want to plot the FEPS map (a Mollweide projection plot)? (Default = ``False``).
             
         nu_skymap : float, optional
-            Frequency in Hz at which you want to construct the foregrounds due to extragalactic PS map. Relevant only when you give ``t_skymap = True``. Currently, only 1 value supported.
+            Frequency in Hz at which you want to construct the FEPS map. Relevant only when you give ``t_skymap = True``. Currently, only 1 value supported.
             (Default = ``nu_o``)
             
         aps : bool, optional
@@ -672,7 +671,7 @@ class eps():
             Want to plot the flux density distribution? (Default = ``False``). The form of :math:`\\mathrm{d}n/\\mathrm{d}S` is set during initialisation.
         
         spectrum : bool, optional
-            Want to plot the sky averaged foregrounds due to extragalactic PS? (Default = ``True``).
+            Want to plot the sky-averaged FEPS? (Default = ``True``).
         
         antenna : bool, optional
             Add the antenna temperature? (Default = ``False``). You should have run :func:`couple2D` to use this.

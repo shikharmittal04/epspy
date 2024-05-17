@@ -73,25 +73,25 @@ Thus, after initialising your class object (i.e. ``obj = meps.eps([YOUR SPECIFIC
    from epspy import meps
    
    obj = meps.eps()
-   eps.save_eps(obj,'myobj')
+   meps.save_eps(obj,'myobj')
 
 Now check if there is a file called ``myobj.pkl`` in ``obj.path`` directory. 
 
-When you came back next time you can load you class object as
+When you came back next time you can load your class object as
 
 .. code:: python
    
    from epspy import meps
-   obj=meps.load_eps('/give/full/path/to/myobj.pkl')
+   obj = meps.load_eps('/give/full/path/to/myobj.pkl')
 
 Remember to give the full path to the ``myobj`` with the extension ``.pkl``. 
 
-You may now check that indeed the specifications are correctly loaded by printing them using function :func:`print_input()`.
+Check that indeed the specifications are correctly loaded by printing them using the function :func:`print_input()`.
 
 .. code:: python
    
    from epspy import meps
-   obj=eps.load_eps('/give/full/path/to/myobj.pkl')
+   obj = meps.load_eps('/give/full/path/to/myobj.pkl')
    obj.print_input()
 
 
@@ -103,4 +103,4 @@ There is also an argument ``lbl``, which you can use to put an extra label to yo
    
    obj = meps.eps(lbl='_mylabel')
 
-Now all files names will have `_mylabel` appended to them. For example, when you run :func:`num_den`, the output file name will be called ``n_ps_mylabel``.
+Now all files names will have `_mylabel` appended to them. For example, when you run :func:`num_den`, the output file name will be called ``n_ps_mylabel.npy``.

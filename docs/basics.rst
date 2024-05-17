@@ -6,7 +6,7 @@ Overview
 
 :Name: Extragalactic Point Sources
 :Author: `Shikhar Mittal <https://sites.google.com/view/shikharmittal/home>`_
-:Homepage: https://github.com/shikharmittal04/furs
+:Homepage: https://github.com/shikharmittal04/epspy
 :Paper: `Mittal et al. (2024) <>`_
 
 Why do you need this code?
@@ -14,7 +14,7 @@ Why do you need this code?
 
 Use this code to generate the foregrounds due to extragalactic point radio sources.
 
-A cosmological global 21-cm signal hides under foregrounds due to galactic and extragalactic emissions. These foregrounds can easily be 4 to 5 orders of magnitude higher than the signal of interest. For a reliable inference it is important to accurately model these foregrounds. While we have a reasonable understanding of galactic emission (typically fit as log-log polynomial), we do not understand the extragalactic contributions. This package models the foregrounds due to extragalactic point radio sources. [#f1]_
+A cosmological global 21-cm signal hides under foregrounds due to galactic and extragalactic emissions. These foregrounds can easily be 4 to 5 orders of magnitude higher than the signal of interest. For a reliable inference it is important to accurately model these foregrounds. While we have a reasonable understanding of galactic emission (typically fit as log-log polynomial), we do not understand the extragalactic contributions. This package models the foregrounds due to extragalactic point radio sources.
 
 Read more about it in the paper `Mittal et al (2024) <https://arxiv.org/abs/2311.03447>`_.
 
@@ -27,7 +27,7 @@ This package can be installed as
 
    pip install epspy
 
-It is recommended to work on a Python version > 3.8. Packages required are 
+We recommend working on a Python version > 3.8. Packages required are 
 
 - `numpy <https://pypi.org/project/numpy/>`_
 - `scipy <https://pypi.org/project/scipy/>`_
@@ -42,7 +42,7 @@ Quick start
 
 The code is run in two main steps:
 
--  Assign the unresolved sources flux densities (at a chosen reference frequency) and spectral indices.
+-  Assign the point sources flux densities (at a chosen reference frequency) and spectral indices.
 -  Then generate the sky maps at desired frequencies of observation.
 
 The following code captures the main functionalities of this package.
@@ -72,13 +72,13 @@ Save the above code as (say) ``eg_script.py`` and run it as
 
 Running the above will generate several files. The terminal messages will guide you to these output files. The most important of all files of your interest will be ``Tb_nu_map.npy``. To visualise your outputs use the function :func:`visual`. See :ref:`api` for the available features for :func:`visual`. To learn more about the output files and code working see :ref:`detexp`. To learn about the physics of this package see our `paper <>`_.
 
-The default values in this package have been chosen such that the users can run their scripts on a PC. Since modern PCs have at least 4 cores, for a better performance, one could also run ``eg_script.py`` parallely as 
+In this package we have set the default values such that the users can run their scripts on a PC. Since modern PCs have at least 4 cores, for a better performance, one could also run script ``eg_script.py`` parallely as 
 
 .. code:: bash
 
     mpirun -np 4 python eg_script.py
 
-In general and for more realistic flux density ranges and high resolution maps, it is recommended to use the code on high performance clusters.
+However, in general and for more realistic flux density ranges and high resolution maps, we recommend to use the package on a HPCs.
 
 License and citation
 --------------------
@@ -88,7 +88,3 @@ Contact
 -------
 
 In case of any confusion or suggestions for improvement please do not hesitate to contact me.
-
-.. rubric:: Footnotes
-
-.. [#f1] This package is not designed to do a Bayesian inference of parameters and neither does it include the model for galactic emissions.

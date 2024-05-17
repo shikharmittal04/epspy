@@ -3,7 +3,7 @@ Frequently Asked Questions
 
 1. I have run :func:`gen_freq()` for some choice of ``nu``. But now want to regenerate the ``Tb_nu_map`` data for a different choice of ``nu``. Do I need to rerun :func:`ref_freq()`?
 
-   No. :func:`ref_freq()` is not tied to ``nu`` because it is given to function :func:`gen_freq()`. Thus, if users want to use the same data for source distribution (``n_ps.npy``), flux density (``Tb_o_individual.npy``) and spectral index (``beta.npy``) assignments at reference frequency to generate spectrum and sky maps for a different frequency range, then run only :func:`gen_freq()` for a new choice of ``nu``.
+   No. :func:`ref_freq()` is not tied to ``nu`` because ``nu`` is given to function :func:`gen_freq()`. Thus, if users want to use the same data for source distribution (``n_ps.npy``), flux density (``Tb_o_individual.npy``) and spectral index (``beta.npy``) assignments at reference frequency to generate spectrum and sky maps for a different frequency range, then run only :func:`gen_freq()` for a new choice of ``nu``.
 
 2. I want to try different figures available in :func:`visual()`. Do I need to rerun :func:`ref_freq()` and :func:`gen_freq()`?
 
