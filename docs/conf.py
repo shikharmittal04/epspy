@@ -15,6 +15,7 @@ def run_apidoc(_):
 	module = 'meps'
 	sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 	cur_dir = os.path.abspath(os.path.dirname(__file__))
+	print(cur_dir)
 	main(['-e', '-o', cur_dir, module, '--force'])
 
 def setup(app):
