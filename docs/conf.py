@@ -11,7 +11,7 @@ sys.path.insert(0,os.path.abspath('../src/epspy/'))
 #-----------------------------------------------------------------------------
 #Adding this to generate API reference on readthedocs website
 def run_apidoc(_):
-	from sphinx.apidoc import main
+	from sphinx.ext.apidoc import main
 	modules = 'meps'
 	sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 	cur_dir = os.path.abspath(os.path.dirname(__file__))
