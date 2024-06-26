@@ -9,6 +9,7 @@ import sys
 sys.path.insert(0,os.path.abspath('../src/epspy/'))
 
 #-----------------------------------------------------------------------------
+'''
 #Adding this to generate API reference on readthedocs website
 def run_apidoc(_):
 	from sphinx.ext.apidoc import main
@@ -20,6 +21,7 @@ def run_apidoc(_):
 
 def setup(app):
 	app.connect('builder-inited', run_apidoc)
+'''
 # ----------------------------------------------------------------------------
 
 # -- Project information -----------------------------------------------------
