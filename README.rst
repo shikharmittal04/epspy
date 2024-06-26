@@ -66,7 +66,7 @@ Save the above code as (say) ``eg_script.py`` and run it as
 
     python eg_script.py
 
-Running the above will generate several files. The terminal messages will guide you to these output files. The most important of all files of your interest will be ``Tb_nu_map.npy``. To visualise your outputs use the function ``visual()``. Refer to the documentation for more details. To learn about the physics of this package see our `paper <>`_.
+Running the above will generate several files. The terminal messages will guide you to these output files. The most important of all files of your interest will be ``Tb_nu_map.npy``. To visualise your outputs use the function ``visual()``. Refer to the documentation for more details. To learn about the physics of this package see our `paper <https://arxiv.org/abs/2406.17031>`_.
 
 The default values in this package have been chosen such that the users can run their scripts on a PC. Since modern PCs have at least 4 cores, for a better performance, one could also run ``eg_script.py`` parallely as 
 
@@ -79,7 +79,7 @@ In general, and for more realistic flux density ranges and high resolution maps,
 Documentation
 -------------
 
-For more details on the working of the package and understanding the output files refer to the `documentation <>`_. 
+For more details on the working of the package and understanding the output files refer to the documentation. 
 
 License and citation
 --------------------
