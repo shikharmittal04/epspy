@@ -10,11 +10,10 @@ dependencies = [
   "mpi4py",
   "healpy"
 ]
-dynamic = ["version"]
 requires-python = ">=3.8"
 authors = [{name = "Shikhar Mittal", email = "shikhar.mittal4@gmail.com"}]
 description = "Extragalactic Point Sources"
-readme = "README.md"
+readme = "README.rst"
 license = {file = "LICENSE"}
 keywords = ["extragalactic","point sources","foregrounds"]
 classifiers = [
