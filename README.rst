@@ -3,16 +3,16 @@ Overview
 
 :Name: Extragalactic Point Sources
 :Author: `Shikhar Mittal <https://sites.google.com/view/shikharmittal/home>`_
-:Paper: `Mittal et al. (2024) <>`_
+:Paper: `Mittal et al. (2024) <https://arxiv.org/abs/2406.17031>`_
 
 Why do you need this code?
 --------------------------
 
 Use this code to generate the foregrounds due to extragalactic point sources.
 
-A cosmological global 21-cm signal hides under foregrounds due to galactic and extragalactic emissions. These foregrounds can easily be 4 to 5 orders of magnitude higher than the signal of interest. For a reliable inference it is important to accurately model these foregrounds. While we have a reasonable understanding of galactic emission (typically fit as log-log polynomial), we do not understand the extragalactic contributions. This package models the foregrounds due to extragalactic radio sources. [#f1]_
+A cosmological global 21-cm signal hides under foregrounds due to galactic and extragalactic emissions. These foregrounds can easily be 4 to 5 orders of magnitude higher than the signal of interest. For a reliable inference it is important to accurately model these foregrounds. While we have a reasonable understanding of galactic emission (typically fit as log-log polynomial), we do not understand the extragalactic contributions. This package models the foregrounds due to extragalactic radio sources.
 
-Read more about it in the paper `Mittal et al (2024) <https://arxiv.org/abs/2311.03447>`_.
+Read more about it in the paper `Mittal et al (2024) <https://arxiv.org/abs/2406.17031>`_.
 
 Installation and requirements
 -----------------------------
@@ -84,13 +84,10 @@ For more details on the working of the package and understanding the output file
 License and citation
 --------------------
 
-The software is free to use on the MIT open source license. If you use the software then please consider citing `Mittal et al (2024) <https://arxiv.org/abs/2311.03447>`_.
+The software is free to use on the MIT open source license. If you use the software then please consider citing `Mittal et al (2024) <https://arxiv.org/abs/2406.17031>`_.
 
 Contact
 -------
 
 In case of any confusion or suggestions for improvement please do not hesitate to contact me.
 
-.. rubric:: Footnotes
-
-.. [#f1] This package is not designed to do a Bayesian inference of parameters and neither does it include the model for galactic emissions.

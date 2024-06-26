@@ -92,7 +92,7 @@ Chromatic distortions
 
 Until now the results generated have been experiment independent. So ``Tb_nu_map`` and hence ``Tb_nu_glob`` generated do NOT account for chromatic distortions. They are simply the model outputs for foregrounds due to extragalactic point sources. However, in reality because of the chromatic nature of the antenna beam the actual foregrounds spectrum registered will be different. Use the function :func:`couple2D()` to account for the chromaticity. It essentially couples the foregrounds to the beam directivity, i.e., it will multiply the point sources map to beam directivity, and average over the pixels. See equation (14) from our paper.
 
-Since the antenna temperature is experiment specific, you will need to provide an external data file: the beam directivity pattern, :math:`D=D(\hat{n},\nu)`. Its structure should be the same as ``Tb_nu_map``, i.e., it should be a 2D array of shape :math:`N_{\mathrm{pix}}\times N_{\nu}`, such that ``D[i,k]`` should give the beam directivity at :math:`i^{\mathrm{th}}` pixel at ``nu[k]`` frequency. The pixel ordering should be the RING ordering. The frequencies at which you generate your data :math:`D` should be the same as the frequencies you gave in ``gen_freq()``. (In case you forgot, :func:`gen_freq` will have saved the frequency array in your ``obj.path`` path by the name of ``nu_glob.npy``.) Put this array :math:`D` in your ``obj.path`` path by the name of ``D.npy``.
+Since the antenna temperature is experiment specific, you will need to provide an external data file: the beam directivity pattern, :math:`D=D(\hat{n},\nu)`. Its structure should be the same as ``Tb_nu_map``, i.e., it should be a 2D array of shape :math:`N_{\mathrm{pix}}\times N_{\nu}`, such that ``D[i,k]`` should give the beam directivity at :math:`i^{\mathrm{th}}` pixel at ``nu[k]`` frequency. The pixel ordering should be the standard HEALPix RING ordering. The frequencies at which you generate your data :math:`D` should be the same as the frequencies you gave in ``gen_freq()``. (In case you forgot, :func:`gen_freq` will have saved the frequency array in your ``obj.path`` path by the name of ``nu_glob.npy``.) Put this array :math:`D` in your ``obj.path`` path by the name of ``D.npy``. ``obj.path`` is the default path where the code will look for a file named 'D.npy'. You can always choose a different path and name; use the optional argument ``bd`` for this purpose.
 
 As a consistency check it should be noted that 
 
@@ -116,9 +116,9 @@ Only after running :func:`ref_freq` and :func:`gen_freq`, run :func:`couple2D` a
    
    #If you have already ran ref_freq and gen_freq previously then comment
    #obj.ref_freq() and obj.gen_freq(). 
-   obj.couple2D()
+   obj.couple2D(bd='full/path/to/beam_directivity.npy')
 
-No input argument is required for :func:`couple2D()`. The return value is ``None``. This function will generate a file called ``T_ant.npy`` in your path. Following our notation from the paper this is :math:`T_{\mathrm{A,ps}}(\nu)`, the LHS in equation (14). This will be a 1D array with length being the number of frequencies, :math:`N_{\nu}`. 
+The return value is ``None``. This function will generate a file called ``T_ant.npy`` in your ``obj.path``. Following our notation from the paper the obtained quantity is :math:`T_{\mathrm{A,ps}}(\nu)`, the LHS in equation (14). This will be a 1D array with length being the number of frequencies, :math:`N_{\nu}`. 
 
 This function will also print the best-fitting parameters (along with :math:`1\sigma` uncertainty) :math:`T_{\mathrm{f}}, \beta_{\mathrm{f}}` and :math:`\Delta\beta_{\mathrm{f}}` based on a simple least-squares fitting of power-law-with-a-running-spectral-index function (given in equation 15 in our paper) to the antenna temperature data :math:`T_{\mathrm{A,ps}}(\nu)`.
 

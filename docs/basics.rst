@@ -7,7 +7,7 @@ Overview
 :Name: Extragalactic Point Sources
 :Author: `Shikhar Mittal <https://sites.google.com/view/shikharmittal/home>`_
 :Homepage: https://github.com/shikharmittal04/epspy
-:Paper: `Mittal et al. (2024) <>`_
+:Paper: `Mittal et al. (2024) <https://arxiv.org/abs/2406.17031>`_
 
 Why do you need this code?
 --------------------------
@@ -16,7 +16,7 @@ Use this code to generate the foregrounds due to extragalactic point radio sourc
 
 A cosmological global 21-cm signal hides under foregrounds due to galactic and extragalactic emissions. These foregrounds can easily be 4 to 5 orders of magnitude higher than the signal of interest. For a reliable inference it is important to accurately model these foregrounds. While we have a reasonable understanding of galactic emission (typically fit as log-log polynomial), we do not understand the extragalactic contributions. This package models the foregrounds due to extragalactic point radio sources.
 
-Read more about it in the paper `Mittal et al (2024) <https://arxiv.org/abs/2311.03447>`_.
+Read more about it in the paper `Mittal et al (2024) <https://arxiv.org/abs/2406.17031>`_.
 
 Installation and requirements
 -----------------------------
@@ -70,7 +70,7 @@ Save the above code as (say) ``eg_script.py`` and run it as
 
     python eg_script.py
 
-Running the above will generate several files. The terminal messages will guide you to these output files. The most important of all files of your interest will be ``Tb_nu_map.npy``. To visualise your outputs use the function :func:`visual`. See :ref:`api` for the available features for :func:`visual`. To learn more about the output files and code working see :ref:`detexp`. To learn about the physics of this package see our `paper <>`_.
+Running the above will generate several files. The terminal messages will guide you to these output files. The most important of all files of your interest will be ``Tb_nu_map.npy``. To visualise your outputs use the function :func:`visual`. See :ref:`api` for the available features for :func:`visual`. To learn more about the output files and code working see :ref:`detexp`. To learn about the physics of this package see our `paper <https://arxiv.org/abs/2406.17031>`_.
 
 In this package we have set the default values such that the users can run their scripts on a PC. Since modern PCs have at least 4 cores, for a better performance, one could also run script ``eg_script.py`` parallely as 
 
@@ -82,7 +82,7 @@ However, in general and for more realistic flux density ranges and high resoluti
 
 License and citation
 --------------------
-The software is free to use on the MIT open source license. If you use the software then please consider citing `Mittal et al (2024) <https://arxiv.org/abs/2311.03447>`_.
+The software is free to use on the MIT open source license. If you use the software then please consider citing `Mittal et al (2024) <https://arxiv.org/abs/2406.17031>`_.
 
 Contact
 -------
