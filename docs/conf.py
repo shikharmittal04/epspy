@@ -10,7 +10,7 @@ sys.path.insert(0,os.path.abspath('../src/epspy/'))
 
 #-----------------------------------------------------------------------------
 #Adding this to generate API reference on readthedocs website
-
+'''
 def run_apidoc(_):
 	from sphinx.ext.apidoc import main
 	sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
@@ -20,7 +20,7 @@ def run_apidoc(_):
 
 def setup(app):
 	app.connect('builder-inited', run_apidoc)
-
+'''
 # ----------------------------------------------------------------------------
 
 # -- Project information -----------------------------------------------------
@@ -33,7 +33,7 @@ author = 'Shikhar Mittal'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['sphinx.ext.autodoc','sphinx.ext.mathjax','sphinx.ext.apidoc']
+extensions = ['sphinx.ext.autodoc','sphinx.ext.mathjax']
 
 source_suffix = '.rst'
 
