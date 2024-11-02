@@ -24,7 +24,7 @@ Frequently Asked Questions
 
    .. code:: bash
 
-      sudo apt install texlive texlive-latex-extra texlive-fonts-recommended dvipng
+      sudo apt install texlive texlive-latex-extra texlive-fonts-recommended dvipng cm-super
       pip install latex
 
    Solution borrowed from `Stack Overflow -failed-to-process-string <https://stackoverflow.com/questions/58121461/runtimeerror-failed-to-process-string-with-tex-because-latex-could-not-be-found>`_.
