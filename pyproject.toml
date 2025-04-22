@@ -4,10 +4,11 @@ build-backend = "hatchling.build"
 
 [project]
 name = "epspy"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
   "transformcl",
-  "healpy"
+  "healpy",
+  "mpi4py"
 ]
 requires-python = ">=3.8"
 authors = [{name = "Shikhar Mittal", email = "shikhar.mittal4@gmail.com"}]

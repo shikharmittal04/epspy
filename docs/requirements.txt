@@ -1,3 +1,9 @@
+numpy
+scipy
+matplotlib
+mpi4py
+healpy
+transformcl
 sphinx
 sphinx_rtd_theme
 numpydoc
