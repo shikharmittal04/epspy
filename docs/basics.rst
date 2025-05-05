@@ -5,7 +5,7 @@ Overview
 --------
 
 :Name: Extragalactic Point Sources
-:Author: `Shikhar Mittal <https://sites.google.com/view/shikharmittal/home>`_, Girish Kulkarni, Dominic Anstey, and Eloy de Lera Acedo
+:Authors: `Shikhar Mittal <https://sites.google.com/view/shikharmittal/home>`_, Girish Kulkarni, Dominic Anstey, and Eloy de Lera Acedo
 :Homepage: https://github.com/shikharmittal04/epspy
 :Paper: `Mittal et al. (2024) <https://arxiv.org/abs/2406.17031>`_
 
