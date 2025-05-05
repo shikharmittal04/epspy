@@ -2,7 +2,7 @@ Overview
 --------
 
 :Name: Extragalactic Point Sources
-:Author: `Shikhar Mittal <https://sites.google.com/view/shikharmittal/home>`_
+:Author: `Shikhar Mittal <https://sites.google.com/view/shikharmittal/home>`_, Girish Kulkarni, Dominic Anstey, and Eloy de Lera Acedo
 :Paper: `Mittal et al (2024) <https://arxiv.org/abs/2406.17031>`_
 
 Why do you need this code?
