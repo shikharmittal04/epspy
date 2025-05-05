@@ -285,15 +285,15 @@ class eps():
         '''
         return self.amp*(chi*180/np.pi)**(-self.gam)
 
-    '''
+    
     #Uncomment this function for method 2 for converting 2PACF, i.e., C(\chi), to APS, i.e., C_\ell.
-    def acf2Cl(ell):
-        def P_ell(ell,chi):
-            poly = legendre(ell)
-            return poly(np.cos(chi))
+    #def acf2Cl(ell):
+    #    def P_ell(ell,chi):
+    #        poly = legendre(ell)
+    #        return poly(np.cos(chi))
 
-        return 2*np.pi*scint.quad(lambda chi: self.acf(chi)*P_ell(ell,chi)*np.sin(chi),0.0,np.pi)[0]
-    '''
+    #    return 2*np.pi*scint.quad(lambda chi: self.acf(chi)*P_ell(ell,chi)*np.sin(chi),0.0,np.pi)[0]
+    
     
     def num_den(self):
         ''':math:`n_{\\mathrm{ps}}=n_{\\mathrm{ps}}(\\hat{n})`
@@ -327,13 +327,13 @@ class eps():
             Cl_clus = tcl.corrtocl(cor)
             
 
-            '''
+            
             #Method 2:
             #Here we manually compute the C_\ell's without using transformcl. This is much slower but more accurate. 
-            Cl_clus = np.zeros(50)
-            for i in range(50):
-                Cl_clus[i] = self.acf2cl(i)
-            '''
+            #Cl_clus = np.zeros(50)
+            #for i in range(50):
+            #    Cl_clus[i] = self.acf2cl(i)
+            
             
             print('Simulating a clustered sky ...')
             del_clus = hp.synfast(Cl_clus,self.Nside)
