@@ -2,7 +2,7 @@ Overview
 --------
 
 :Name: Extragalactic Point Sources
-:Authors: `Shikhar Mittal <https://sites.google.com/view/shikharmittal/home>`_, Girish Kulkarni, Dominic Anstey, and Eloy de Lera Acedo
+:Authors: `Shikhar Mittal <https://sites.google.com/view/shikharmittal/home>`_
 :Paper: `Mittal et al (2024) <https://arxiv.org/abs/2406.17031>`_
 
 Why do you need this code?
@@ -85,6 +85,10 @@ License and citation
 --------------------
 
 The software is free to use on the MIT open-source license. If you use the software then please consider citing `Mittal et al (2024) <https://arxiv.org/abs/2406.17031>`_.
+
+Acknowledgement
+---------------
+I thank Girish Kulkarni, Dominic Anstey, and Eloy de Lera Acedo for helpful comments and feedback during the development of this code.
 
 Contact
 -------
