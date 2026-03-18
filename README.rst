@@ -2,8 +2,9 @@ Overview
 --------
 
 :Name: Extragalactic Point Sources
-:Authors: `Shikhar Mittal <https://sites.google.com/view/shikharmittal/home>`_
-:Paper: `Mittal et al (2024) <https://arxiv.org/abs/2406.17031>`_
+:Author: `Shikhar Mittal <https://sites.google.com/view/shikharmittal/home>`_
+:Paper: `Mittal et al (2024) <https://doi.org/10.1093/mnras/stae2111>`_
+:Documentation: `epspy.readthedocs.io <https://epspy.readthedocs.io/en/latest/index.html>`_
 
 Why do you need this code?
 --------------------------
@@ -12,7 +13,7 @@ Use this code to generate the foregrounds due to extragalactic point sources.
 
 A cosmological global 21-cm signal hides under foregrounds due to galactic and extragalactic emissions. These foregrounds can easily be 4 to 5 orders of magnitude higher than the signal of interest. For a reliable inference, it is important to accurately model these foregrounds. While we have a reasonable understanding of galactic emission (typically fit as a log-log polynomial), we do not understand the extragalactic contributions. This package models the foregrounds due to extragalactic radio sources.
 
-Read more about it in the paper `Mittal et al (2024) <https://arxiv.org/abs/2406.17031>`_.
+Read more about it in the paper `Mittal et al (2024) <https://doi.org/10.1093/mnras/stae2111>`_.
 
 Installation and requirements
 -----------------------------
@@ -66,7 +67,7 @@ Save the above code as (say) ``eg_script.py`` and run it as
 
     python eg_script.py
 
-Running the above will generate several files. The terminal messages will guide you to these output files. The most important of all files of your interest will be ``Tb_nu_map.npy``. To visualise your outputs use the function ``visual()``. Refer to the documentation for more details. To learn about the physics of this package see our `paper <https://arxiv.org/abs/2406.17031>`_.
+Running the above will generate several files. The terminal messages will guide you to these output files. The most important of all files of your interest will be ``Tb_nu_map.npy``. To visualise your outputs use the function ``visual()``. Refer to the documentation for more details. To learn about the physics of this package see our `paper <https://doi.org/10.1093/mnras/stae2111>`_.
 
 The default values in this package have been chosen such that the users can run their scripts on a PC. Since modern PCs have at least 4 cores, for a better performance, one could also run ``eg_script.py`` parallelly as 
 
@@ -84,14 +85,12 @@ For more details on the working of the package and understanding the output file
 License and citation
 --------------------
 
-The software is free to use on the MIT open-source license. If you use the software then please consider citing `Mittal et al (2024) <https://arxiv.org/abs/2406.17031>`_.
+The software is free to use on the MIT open-source license. If you use the software then please cite `Mittal et al (2024) <https://doi.org/10.1093/mnras/stae2111>`_.
+
+If the code is used in a project where the author has provided significant scientific input, guidance on methodology, or assistance with interpretation of results, then co-authorship on resulting publications is expected, following standard academic practice.
+
+Users are encouraged to contact the author when using the code for new scientific applications or major projects.
 
 Acknowledgement
 ---------------
 I thank Girish Kulkarni, Dominic Anstey, and Eloy de Lera Acedo for helpful comments and feedback during the development of this code.
-
-Contact
--------
-
-In case of any confusion or suggestions for improvement please do not hesitate to contact me.
-
